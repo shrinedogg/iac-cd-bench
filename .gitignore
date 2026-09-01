@@ -6,3 +6,4 @@ __pycache__/
 *.meta.json
 results/
 .cache/
+.hermes/

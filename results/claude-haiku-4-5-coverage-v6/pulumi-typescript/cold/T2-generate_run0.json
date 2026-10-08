@@ -1,0 +1,136 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T2-generate",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "837cbd4af06f207375d0882e7ee6d931f185e63e",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "cc02c2a62d382b9a",
+      "spec_sha256": "7b0aaf914a8426fa",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[tsc check] tsc: exit=2\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-u91vgug0/src/index.ts(16,7): error TS2451: Cannot redeclare block-scoped variable 'bucketName'.\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-u91vgug0/src/index.ts(27,17): error TS1378: Top-level 'await' expressions are only allowed when the 'module' option is set to 'es2022', 'esnext', 'system', 'node16', 'node18', 'node20', 'nodenext', or 'preserve', and t"
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-typescript, runtime: nodejs)\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n\nERR: error: failed to decrypt configuration key 'app:dbPassword': bad value\n"
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "nch/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_components_dir PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_bucket_component PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_component PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_bucket_versioning PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_deletion_protection FAILED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: the RDS component should support deletionProtection\n    assert False\n     +  where False = any(<generator object test_rds_deletion_protection.<locals>.<genexpr> at 0x107381d20>)\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py:85: AssertionError: the RDS component should support deletionProtection\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_deletion_protection\n========================= 1 failed, 5 passed in 0.02s ==========================\n",
+      "passed_count": 5,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1226,
+    "output": 4814
+  },
+  "content": "# Pulumi ComponentResource: Service Stack (TypeScript)\n\n## 1. Component Definition\n\n**`src/serviceStack.ts`** \u2014 The ComponentResource wrapper\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport * as iam from \"@pulumi/aws/iam\";\n\ninterface ServiceStackArgs {\n  environment: \"dev\" | \"prod\";\n  bucketName: string;\n  dbInstanceClass: string;\n  dbAllocatedStorage: number;\n  enableMultiAz: boolean;\n  dbBackupRetentionDays: number;\n  kmsKeyArn?: string;\n  vpcSecurityGroupIds: string[];\n  dbSubnetGroupName: string;\n  tags: Record<string, string>;\n}\n\nexport class ServiceStack extends pulumi.ComponentResource {\n  // Outputs\n  public readonly bucketName: pulumi.Output<string>;\n  public readonly bucketArn: pulumi.Output<string>;\n  public readonly bucketVersioningId: pulumi.Output<string>;\n\n  public readonly dbInstance: aws.rds.Instance;\n  public readonly dbEndpoint: pulumi.Output<string>;\n  public readonly dbPort: pulumi.Output<number>;\n\n  public readonly serviceRole: aws.iam.Role;\n  public readonly serviceRoleArn: pulumi.Output<string>;\n\n  constructor(\n    name: string,\n    args: ServiceStackArgs,\n    opts?: pulumi.ComponentResourceOptions\n  ) {\n    super(\"custom:service:ServiceStack\", name, {}, opts);\n\n    const baseOpts = { parent: this, dependsOn: opts?.dependsOn || [] };\n    const config = new pulumi.Config();\n\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    // 1. S3 BUCKET with versioning & encryption\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    const bucket = new aws.s3.Bucket(\n      `${name}-bucket`,\n      {\n        bucketPrefix: args.bucketName,\n        forceDestroy: args.environment === \"dev\", // Only for dev cleanup\n        tags: args.tags,\n      },\n      baseOpts\n    );\n\n    // Enable versioning\n    const versioning = new aws.s3.BucketVersioningV2(\n      `${name}-versioning`,\n      {\n        bucket: bucket.id,\n        versioningConfiguration: {\n          status: \"Enabled\",\n        },\n      },\n      baseOpts\n    );\n\n    // Server-side encryption (AES-256 by default, KMS in prod)\n    const serverSideEncryptionConfig: aws.s3.BucketServerSideEncryptionConfigurationV2Args =\n      args.environment === \"prod\" && args.kmsKeyArn\n        ? {\n            bucket: bucket.id,\n            rule: {\n              applyServerSideEncryptionByDefault: {\n                sseAlgorithm: \"aws:kms\",\n                kmsMasterKeyId: args.kmsKeyArn,\n              },\n              bucketKeyEnabled: true,\n            },\n          }\n        : {\n            bucket: bucket.id,\n            rule: {\n              applyServerSideEncryptionByDefault: {\n                sseAlgorithm: \"AES256\",\n              },\n            },\n          };\n\n    const encryption = new aws.s3.BucketServerSideEncryptionConfigurationV2(\n      `${name}-encryption`,\n      serverSideEncryptionConfig,\n      baseOpts\n    );\n\n    // Block public access\n    const publicAccessBlock = new aws.s3.BucketPublicAccessBlock(\n      `${name}-public-block`,\n      {\n        bucket: bucket.id,\n        blockPublicAcls: true,\n        blockPublicPolicy: true,\n        ignorePublicAcls: true,\n        restrictPublicBuckets: true,\n      },\n      baseOpts\n    );\n\n    // Cross-region replication for prod\n    if (args.environment === \"prod\") {\n      const replicationRole = new aws.iam.Role(\n        `${name}-replication-role`,\n        {\n          assumeRolePolicy: JSON.stringify({\n            Version: \"2012-10-17\",\n            Statement: [\n              {\n                Effect: \"Allow\",\n                Principal: { Service: \"s3.amazonaws.com\" },\n                Action: \"sts:AssumeRole\",\n              },\n            ],\n          }),\n          tags: args.tags,\n        },\n        baseOpts\n      );\n\n      new aws.iam.RolePolicy(\n        `${name}-replication-policy`,\n        {\n          role: replicationRole.id,\n          policy: pulumi.output([bucket.arn, bucket.arn]).apply((arns) =>\n            JSON.stringify({\n              Version: \"2012-10-17\",\n              Statement: [\n                {\n                  Effect: \"Allow\",\n                  Action: [\n                    \"s3:GetReplicationConfiguration\",\n                    \"s3:ListBucket\",\n                  ],\n                  Resource: arns[0],\n                },\n                {\n                  Effect: \"Allow\",\n                  Action: [\n                    \"s3:GetObjectVersionForReplication\",\n                    \"s3:GetObjectVersionAcl\",\n                  ],\n                  Resource: `${arns[0]}/*`,\n                },\n                {\n                  Effect: \"Allow\",\n                  Action: [\n                    \"s3:ReplicateObject\",\n                    \"s3:ReplicateDelete\",\n                  ],\n                  Resource: `arn:aws:s3:::${args.bucketName}-replica/*`,\n                },\n              ],\n            })\n          ),\n        },\n        baseOpts\n      );\n\n      new aws.s3.BucketReplicationConfiguration(\n        `${name}-replication`,\n        {\n          role: replicationRole.arn,\n          bucket: bucket.id,\n          rules: [\n            {\n              id: \"replicate-to-us-west-2\",\n              status: \"Enabled\",\n              priority: 1,\n              destination: {\n                bucket: `arn:aws:s3:::${args.bucketName}-replica`,\n                replicationTime: {\n                  status: \"Enabled\",\n                  time: 15,\n                },\n                metrics: {\n                  status: \"Enabled\",\n                  eventThreshold: 900,\n                },\n              },\n              deleteMarkerReplication: {\n                status: \"Enabled\",\n              },\n            },\n          ],\n        },\n        { ...baseOpts, dependsOn: [versioning] }\n      );\n    }\n\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    // 2. RDS POSTGRESQL INSTANCE\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    const dbInstance = new aws.rds.Instance(\n      `${name}-db`,\n      {\n        identifier: `${name}-postgres`,\n        engine: \"postgres\",\n        engineVersion: \"15.3\",\n        instanceClass: args.dbInstanceClass,\n        allocatedStorage: args.dbAllocatedStorage,\n        storageType: \"gp3\",\n        storageEncrypted: true,\n        multiAz: args.enableMultiAz,\n        dbSubnetGroupName: args.dbSubnetGroupName,\n        vpcSecurityGroupIds: args.vpcSecurityGroupIds,\n        dbName: \"appdb\",\n        username: \"postgres\",\n        password: config.requireSecret(\"dbPassword\"), // From stack config secret\n        port: 5432,\n        publicly_accessible: false,\n        backupRetentionPeriod: args.dbBackupRetentionDays,\n        backupWindow: \"03:00-04:00\",\n        maintenanceWindow: \"mon:04:00-mon:05:00\",\n        skipFinalSnapshot: args.environment === \"dev\",\n        finalSnapshotIdentifier:\n          args.environment === \"prod\"\n            ? `${name}-final-snapshot-${Date.now()}`\n            : undefined,\n        deleteProtection: args.environment === \"prod\",\n        enableIamDatabaseAuthentication: true,\n        enableCloudwatchLogsExports: [\"postgresql\"],\n        tags: args.tags,\n      },\n      baseOpts\n    );\n\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    // 3. IAM ROLE FOR SERVICE ACCOUNTS\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    const serviceRole = new aws.iam.Role(\n      `${name}-service-role`,\n      {\n        assumeRolePolicy: JSON.stringify({\n          Version: \"2012-10-17\",\n          Statement: [\n            args.environment === \"prod\"\n              ? {\n                  // OIDC trust for EKS service accounts (prod)\n                  Effect: \"Allow\",\n                  Principal: {\n                    Federated: config.require(\"oidcProviderArn\"), // From stack config\n                  },\n                  Action: \"sts:AssumeRoleWithWebIdentity\",\n                  Condition: {\n                    StringEquals: {\n                      [`${config.require(\"oidcProviderUrl\")}:sub`]:\n                        \"system:serviceaccount:default:app-sa\",\n                    },\n                  },\n                }\n              : {\n                  // Programmatic access (dev)\n                  Effect: \"Allow\",\n                  Principal: { AWS: `arn:aws:iam::${aws.getCallerIdentityOutput().accountId}:root` },\n                  Action: \"sts:AssumeRole\",\n                },\n          ],\n        }),\n        tags: args.tags,\n      },\n      baseOpts\n    );\n\n    // Least-privilege S3 policy\n    new aws.iam.RolePolicy(\n      `${name}-s3-policy`,\n      {\n        role: serviceRole.id,\n        policy: bucket.arn.apply((arn) =>\n          JSON.stringify({\n            Version: \"2012-10-17\",\n            Statement: [\n              {\n                Effect: \"Allow\",\n                Action: [\n                  args.environment === \"prod\"\n                    ? \"s3:GetObject\"\n                    : \"s3:GetObject\",\n                  args.environment === \"prod\" ? null : \"s3:PutObject\",\n                ].filter(Boolean),\n                Resource: `${arn}/*`,\n              },\n              {\n                Effect: \"Allow\",\n                Action: [\"s3:ListBucket\"],\n                Resource: arn,\n              },\n            ],\n          })\n        ),\n      },\n      baseOpts\n    );\n\n    // RDS database access via IAM authentication\n    new aws.iam.RolePolicy(\n      `${name}-rds-policy`,\n      {\n        role: serviceRole.id,\n        policy: dbInstance.arn.apply((arn) =>\n          JSON.stringify({\n            Version: \"2012-10-17\",\n            Statement: [\n              {\n                Effect: \"Allow\",\n                Action: [\"rds-db:connect\"],\n                Resource: `${arn}:db:postgres`,\n              },\n            ],\n          })\n        ),\n      },\n      baseOpts\n    );\n\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    // Store outputs\n    // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    this.bucketName = bucket.id;\n    this.bucketArn = bucket.arn;\n    this.bucketVersioningId = versioning.id;\n\n    this.dbInstance = dbInstance;\n    this.dbEndpoint = dbInstance.endpoint.apply((e) =>\n      e ? e.split(\":\")[0] : \"\"\n    );\n    this.dbPort = dbInstance.port;\n\n    this.serviceRole = serviceRole;\n    this.serviceRoleArn = serviceRole.arn;\n\n    // Register outputs\n    this.registerOutputs({\n      bucketName: this.bucketName,\n      bucketArn: this.bucketArn,\n      dbEndpoint: this.dbEndpoint,\n      dbPort: this.dbPort,\n      serviceRoleArn: this.serviceRoleArn,\n    });\n  }\n}\n```\n\n## 2. Stack Configuration Files\n\n**`Pulumi.dev.yaml`**\n```yaml\nconfig:\n  aws:region: us-east-1\n  app:environment: dev\n  app:dbInstanceClass: db.t3.micro\n  app:dbAllocatedStorage: 20\n  app:dbBackupRetentionDays: 7\n  app:enableMultiAz: false\n  app:dbPassword:\n    secure: AAADACdJ3wqX7qZp9c+KiVc... # encrypted via `pulumi config set --secret`\n  app:bucketName: my-app-assets-dev\n```\n\n**`Pulumi.prod.yaml`**\n```yaml\nconfig:\n  aws:region: us-east-1\n  app:environment: prod\n  app:dbInstanceClass: db.t3.medium\n  app:dbAllocatedStorage: 100\n  app:dbBackupRetentionDays: 30\n  app:enableMultiAz: true\n  app:dbPassword:\n    secure: AAADACdJ3wqX8rZp0d+LjWd... # different encrypted secret\n  app:bucketName: my-app-assets-prod\n  app:kmsKeyArn: arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012\n  app:oidcProviderArn: arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B716D3041E\n  app:oidcProviderUrl: oidc.eks.us-east-1.amazonaws.com/id/EXAMPLED539D4633E53DE1B716D3041E\n```\n\n## 3. Main Stack File\n\n**`src/index.ts`**\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport { ServiceStack } from \"./serviceStack\";\n\nconst config = new pulumi.Config();\nconst stackName = pulumi.getStack();\nconst awsConfig = new pulumi.Config(\"aws\");\nconst region = awsConfig.require(\"region\");\n\n// Fetch environment-specific config\nconst environment = config.require(\"environment\") as \"dev\" | \"prod\";\nconst dbInstanceClass = config.require(\"dbInstanceClass\");\nconst dbAllocatedStorage = config.requireNumber(\"dbAllocatedStorage\");\nconst dbBackupRetentionDays = config.requireNumber(\"dbBackupRetentionDays\");\nconst enableMultiAz = config.requireBoolean(\"enableMultiAz\");\nconst bucketName = config.require(\"bucketName\");\nconst kmsKeyArn = config.get(\"kmsKeyArn\");\n\n// Retrieve or create VPC resources (simplified)\nconst defaultVpc = aws.ec2.getVpc({\n  default: true,\n});\n\nconst dbSubnetGroup = new aws.rds.SubnetGroup(\n  `${stackName}-db-subnet-group`,\n  {\n    subnetIds: (await defaultVpc).subnets.map((s) => s.id),\n  }\n);\n\nconst sgName = `${stackName}-db-sg`;\nconst securityGroup = new aws.ec2.SecurityGroup(sgName, {\n  vpcId: (await defaultVpc).id,\n  ingress: [\n    {\n      protocol: \"tcp\",\n      fromPort: 5432,\n      toPort: 5432,\n      cidrBlocks: [\"10.0.0.0/8\"], // Restrict to VPC CIDR\n    },\n  ],\n});\n\n// Instantiate the ComponentResource\nconst serviceStack = new ServiceStack(\n  `${stackName}-service`,\n  {\n    environment,\n    bucketName,\n    dbInstanceClass,\n    dbAllocatedStorage,\n    enableMultiAz,\n    dbBackupRetentionDays,\n    kmsKeyArn,\n    vpcSecurityGroupIds: [securityGroup.id],\n    dbSubnetGroupName: dbSubnetGroup.name,\n    tags: {\n      Environment: environment,\n      Stack: stackName,\n      ManagedBy: \"Pulumi\",\n    },\n  },\n  { dependsOn: [securityGroup, dbSubnetGroup] }\n);\n\n// Export outputs\nexport const bucketName = serviceStack.bucketName;\nexport const bucketArn = serviceStack.bucketArn;\nexport const dbEndpoint = serviceStack.dbEndpoint;\nexport const dbPort = serviceStack.dbPort;\nexport const serviceRoleArn = serviceStack.serviceRoleArn;\n```\n\n## 4. Deployment Commands\n\n```bash\n# Set secrets (never in code)\npulumi config set --secret dbPassword \"your-secure-password-dev\" --stack dev\npulumi config set --secret dbPassword \"your-secure-password-prod\" --stack prod\n\n# Deploy to dev\npulumi select dev\npulumi up\n\n# Deploy to prod (no impact on dev)\npulumi select prod\npulumi up\n```\n\n## Key Features\n\n\u2705 **S3 Bucket**: Versioning enabled, AES-256 encryption (KMS in prod), public access blocked  \n\u2705 **RDS**: Deletion protection (prod), 7+ day backups, no public access, encrypted storage  \n\u2705 **IAM**: Least-privilege S3/RDS policies, OIDC trust for EKS (prod), programmatic access (dev)  \n\u2705 **Dev/Prod Separation**: Independent stack configs; prod has replication, multi-AZ, larger instance  \n\u2705 **Secrets**: Database password via `pulumi config set --secret`; never in Git  \n\u2705 **Idempotent**: ComponentResource encapsulation; changing prod does not affect dev state",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-u91vgug0/src/serviceStack.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-u91vgug0/Pulumi.dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-u91vgug0/Pulumi.prod.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-u91vgug0/src/index.ts"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 14658,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 14658,
+      "fenced_blocks": 5,
+      "extracted_files": 4,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

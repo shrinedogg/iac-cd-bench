@@ -1,0 +1,64 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "bare",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 2788
+  },
+  "content": "I'll work through each question about `kubectl apply` behavior with this bare stack scenario.\n\n## 1. File processing order\n\n`kubectl apply -f prod/` processes files in **lexicographic (alphanumeric) order**:\n1. `00-namespaces.yaml`\n2. `app.yaml`\n3. `s3-bucket.yaml`\n4. `workers.yaml`\n\nThis order matters here **only because namespaces must exist first** \u2014 the other files declare resources in those namespaces. The remaining three files have no dependencies on each other, so their order doesn't affect correctness for this specific PR.\n\n## 2. Workers replica change\n\n\u2705 **Succeeds.** `kubectl apply` updates the MachineDeployment's `spec.replicas` from 4 to 6. The CAPI controller responds by provisioning 2 additional t3.large nodes. This is a straightforward field update; there are no constraints preventing it.\n\n**Result:** cluster scales from 4 to 6 worker nodes.\n\n## 3. App.yaml selector change \u2014 **Critical failure**\n\n\u274c **The apply succeeds, but creates a broken Deployment.**\n\nThe mismatch is fatal:\n- **New selector:** `{app: myapp, env: prod, version: v2}`\n- **Pod template labels:** `{app: myapp, env: prod}` (unchanged)\n\nHere's what `kubectl apply` does:\n\n1. Updates the live Deployment object with the new selector.\n2. The Deployment controller immediately notices the selector changed.\n3. It looks for Pods matching the **new** selector and finds **zero** (the template doesn't include `version: v2`).\n4. To reach `spec.replicas: 2`, it creates 2 new Pods from the template.\n5. The new Pods still don't have `version: v2`, so they still don't match the selector.\n6. The controller now has **2 orphaned existing Pods** (no longer managed by the Deployment) and **2 new Pods that also don't match the selector**. It will continuously try to create more Pods to satisfy the selector, creating a cascading failure.\n\nThe existing 2 Pods running before this apply are left orphaned; they continue running but the Deployment doesn't manage them.\n\n**Does this block the other files?** No. `kubectl apply -f prod/` processes each file independently. Even if the Deployment ends up in a broken state, the s3-bucket.yaml and workers.yaml applies continue to completion.\n\n## 4. myapp-assets-prod-replica Bucket deletion\n\n\u2705 **Yes, the Bucket object is deleted, and so is the AWS S3 bucket.**\n\n`kubectl apply` uses three-way merge and **automatically deletes objects that exist in the cluster but not in the local manifest** (if they were previously applied by kubectl \u2014 indicated by the `kubectl.kubernetes.io/last-applied-configuration` annotation).\n\n**Critical side effect:** The `myapp-assets-prod` Bucket's replication rule becomes invalid:\n\n```yaml\ndestination:\n  bucket: arn:aws:s3:::myapp-assets-prod-replica  # this bucket no longer exists\n```\n\nACK will need to gracefully handle the replication rule pointing to a deleted bucket. Depending on ACK's implementation, this could cause the main Bucket to fail reconciliation or enter a degraded state.\n\n**Result:** The replica bucket (both K8s object and AWS S3 bucket) is deleted. Replication configuration on the main bucket is now broken.\n\n## 5. Does this affect dev/?\n\n**No.** Bare stacks have completely independent `dev/` and `prod/` directories. This PR touches only `prod/` manifests. `dev/` has its own separate copies of all these files and is never referenced or applied by this change. The two environments are fully isolated.",
+  "judge": {
+    "idiom": 0.3888888888888889,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that kubectl apply -f prod/ processes files in lexical filename order (00-namespaces.yaml first because of its numeric prefix), not a dependency graph",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Correctly identifies lexical filename order and explicitly states there is no dependency graph; notes order doesn't otherwise matter for this PR."
+      },
+      {
+        "criterion": "Correctly states the workers.yaml replica change (4 to 6) applies successfully in place, since replicas is a mutable field",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Correctly states 4\u21926 replica change succeeds via in-place field update, but does not explicitly name 'mutable field' as the reason why."
+      },
+      {
+        "criterion": "Correctly states the app.yaml selector change is rejected by the API server because spec.selector is immutable on an existing Deployment, and that the other three files in the same kubectl apply -f prod/ invocation still apply independently",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "States the opposite of correct answer: claims apply succeeds and creates broken Deployment, when API server actually rejects immutable selector changes. Contradicts rubric requirement that change is rejected."
+      },
+      {
+        "criterion": "States that kubectl apply has no prune step by default, so the myapp-assets-prod-replica Bucket object and the AWS S3 bucket it manages are NOT deleted merely because the manifest was removed from Git",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Claims Bucket is deleted via three-way merge automatic deletion, contradicting rubric requirement. kubectl apply has no pruning by default; removed manifests do not delete cluster objects."
+      },
+      {
+        "criterion": "Recognizes dev/ and prod/ are fully independent, duplicated directories with no shared base, so nothing in this PR can affect dev/",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Correctly identifies dev/ and prod/ as fully independent duplicated directories with separate copies, and that this PR cannot affect dev/."
+      }
+    ]
+  }
+}

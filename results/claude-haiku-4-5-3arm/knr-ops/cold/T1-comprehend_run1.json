@@ -1,0 +1,64 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "knr-ops",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1810
+  },
+  "content": "I'll analyze each question based on how Flux CD, ACK, and kustomize work together:\n\n## 1. What reconciles when PR #42 merges, and in what order?\n\nWhen the PR merges, Flux detects changes in Git and reconciles:\n- **RDS instance manifest** (updated `instanceClass`)\n- **S3 bucket manifest** (new resource)\n- **App deployment** (via prod overlay patch)\n\n**Order depends on `dependsOn` relationships** in the Kustomization resources. Without explicit dependencies, Flux reconciles them in parallel. If `prod-kustomization` depends on `infra-kustomization`, the infra resources (RDS, S3) reconcile first, then the app deployment.\n\n---\n\n## 2. Does the RDS instance get recreated? Why or why not?\n\n**No, it is not recreated.** The ACK RDS controller modifies the instance in-place:\n- Changing `instanceClass` from `db.t3.micro` to `db.t3.medium` is a **scale operation**, not a replacement\n- The controller updates the existing RDS instance (may incur brief downtime for the modification)\n- The DB remains, preserving data and endpoints\n- If the spec change were something like `engine` version (incompatible), it *might* force recreation, but instance class changes are supported modifications\n\n---\n\n## 3. What happens to the S3 bucket if its manifest is deleted from Git?\n\n**The actual AWS S3 bucket gets deleted** (destructive):\n- When the manifest is removed, the S3Bucket CR is deleted from the cluster (if `prune: true` in the Kustomization)\n- By default, ACK's `deletionPolicy: Delete` (the default) triggers deletion of the AWS resource\n- **Mitigation:** Set `deletionPolicy: Orphan` on the S3Bucket CR if you want to retain the bucket when deleting the CR\n\n---\n\n## 4. How does Flux handle the prod-only replica change?\n\nThe prod overlay patch applies **only to prod**:\n- The base deployment exists with a baseline replica count\n- `overlays/prod/kustomization.yaml` has a patch that sets `replicas: 4` on the app deployment\n- Flux reconciles the prod overlay independently (separate Kustomization resource)\n- Dev overlay keeps its own replica spec (e.g., 2 replicas)\n- **Result:** Environment isolation \u2014 each overlay is independently deployable via its own Flux Kustomization resource\n\n---\n\n## 5. What role does `dependsOn` play?\n\n`dependsOn` establishes **sequential reconciliation**:\n- Without it: Flux reconciles all kustomizations in parallel \u2192 race condition risk (app tries to connect to RDS before it's ready)\n- With `dependsOn`: Flux waits for upstream resources to reach `Ready` status before proceeding\n  - Example: `prod-app-kustomization` has `dependsOn: [infra-kustomization]`\n  - Ensures RDS/S3 exist and are healthy before the app deployment reconciles\n\nThis prevents cascading failures where the app pod crashes because the database isn't ready.",
+  "judge": {
+    "idiom": 0.875,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that Flux reconciles kustomizations on Git merge",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission clearly states 'Flux detects changes in Git and reconciles' when PR merges, identifying the core concept."
+      },
+      {
+        "criterion": "Correctly predicts reconciliation order (dev before prod due to dependsOn)",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Identifies dependsOn drives order and infra reconciles first, but uses conditional phrasing ('If prod-kustomization depends...') and never clearly states dev before prod order."
+      },
+      {
+        "criterion": "Identifies that RDS instanceClass change is in-place update, not recreate",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Unambiguously states 'No, it is not recreated' and correctly explains it's a scale/in-place modification via ModifyDBInstance semantics."
+      },
+      {
+        "criterion": "States that ACK operator deletes S3 bucket when manifest is removed (pruning)",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Clearly states 'The actual AWS S3 bucket gets deleted' when manifest removed, explicitly mentions pruning as the mechanism."
+      },
+      {
+        "criterion": "Explains that prod overlay patches are scoped to prod kustomization only",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Clearly explains 'patch applies only to prod' with specific kustomization file reference and contrasts with dev overlay behavior."
+      }
+    ]
+  }
+}

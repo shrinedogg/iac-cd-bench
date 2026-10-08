@@ -1,0 +1,31 @@
+{
+  "model": "claude-opus-5",
+  "task": "T6-semantics",
+  "stack": "bare",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 7 items\n\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q1_rds_class_change_in_place PASSED [ 14%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q2_no_prune_by_default PASSED [ 28%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q3_aws_bucket_persists PASSED [ 42%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q4_immutable_selector_rejected PASSED [ 57%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q5_client_side_apply_default PASSED [ 71%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q6_namespace_applied_first PASSED [ 85%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q7_no_cross_directory_gating PASSED [100%]\n\n============================== 7 passed in 0.01s ===============================\n",
+      "passed_count": 7,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2,
+    "output": 372
+  },
+  "content": "```json\n{\n  \"q1\": \"updated-in-place\",\n  \"q2\": {\"deleted\": false, \"reason\": \"apply only creates/updates objects present in the input; without --prune it never deletes objects whose manifests vanished from the repo\"},\n  \"q3\": \"exists\",\n  \"q4\": {\"succeeds\": false, \"reason\": \"Deployment spec.selector is immutable after creation; the API server rejects the update as invalid\"},\n  \"q5\": \"client-side\",\n  \"q6\": {\"namespace_first\": true, \"reason\": \"kubectl reads directory files in lexical name order, so the 00- prefixed namespaces file is applied before app/cluster/etc.\"},\n  \"q7\": {\"blocked\": false, \"reason\": \"plain kubectl apply has no dependsOn, health gates, or reconciler; prod applies independently of dev\"}\n}\n```"
+}

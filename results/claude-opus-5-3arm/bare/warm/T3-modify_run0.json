@@ -1,0 +1,35 @@
+{
+  "model": "claude-opus-5",
+  "task": "T3-modify",
+  "stack": "bare",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[parse all YAML] yq: exit=0\n# Prod worker node group: 6 nodes, t3.large (SPEC row: \"Kubernetes cluster\n# (EKS)\"). This file is not a patch on dev/workers.yaml - it's a full,\n# independent copy with the sizing changed. That duplication is what a\n# bare, no-tooling arm costs.\napiVersion: cluster.x-k8s.io/v1beta1\nkind: MachineDeployment\nmetadata:\n  name: myapp-prod-workers\n  namespace: clusters\nspec:\n  clusterName: myapp-prod\n  replicas: 6\n  selector:\n    matchLabels:\n      cluster.x-k8s.io/cluster-name: myapp-prod\n  template\n[validate CRDs] kubeconform: exit=0\nSummary: 4 resources found in 2 files - Valid: 0, Invalid: 0, Errors: 0, Skipped: 4\n"
+    },
+    "static": {
+      "passed": false,
+      "logs": "kubectl apply --dry-run=client -f workers.yaml: exit=1\nERR: error: error validating \"/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-5jppzd7k/prod/workers.yaml\": error validating data: failed to download openapi: Get \"http://localhost:8080/openapi/v2?timeout=32s\": dial tcp [::1]:8080: connect: connection refused; if you choose to ignore these errors, turn validation off with --validate=false\n\nkubectl apply --dry-run=client -f workers.yaml: exit=1\nERR: error: error validating \"/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-5jppzd7k/dev/workers.yaml\": error validating data: failed to download openapi: Get \"http://localhost:8080/openapi/v2?timeout=32s\": dial tcp [::1]:8080: connect: connection refused; if you choose to ignore these errors, turn validation off with --validate=false\n"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 4 items\n\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T3-modify/tests/test_task.py::test_dev_replicas_scaled PASSED [ 25%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T3-modify/tests/test_task.py::test_dev_instance_type_unchanged PASSED [ 50%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T3-modify/tests/test_task.py::test_prod_replicas_scaled PASSED [ 75%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T3-modify/tests/test_task.py::test_prod_instance_type_unchanged PASSED [100%]\n\n============================== 4 passed in 0.02s ===============================\n",
+      "passed_count": 4,
+      "total_count": 4,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2,
+    "output": 1186
+  },
+  "content": "`dev/workers.yaml`\n\n```yaml\n# Dev worker node group: 3 nodes, t3.medium (SPEC row: \"Kubernetes cluster\n# (EKS)\"). This whole file is duplicated (not overlaid) in prod/workers.yaml\n# with different replicas/instanceType - that duplication is what a bare,\n# no-tooling arm costs.\napiVersion: cluster.x-k8s.io/v1beta1\nkind: MachineDeployment\nmetadata:\n  name: myapp-dev-workers\n  namespace: clusters\nspec:\n  clusterName: myapp-dev\n  replicas: 3\n  selector:\n    matchLabels:\n      cluster.x-k8s.io/cluster-name: myapp-dev\n  template:\n    spec:\n      clusterName: myapp-dev\n      version: v1.31.2\n      bootstrap:\n        configRef:\n          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1\n          kind: KubeadmConfig\n          name: myapp-dev-workers\n      infrastructureRef:\n        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1\n        kind: AWSMachineTemplate\n        name: myapp-dev-workers\n---\napiVersion: infrastructure.cluster.x-k8s.io/v1beta1\nkind: AWSMachineTemplate\nmetadata:\n  name: myapp-dev-workers\n  namespace: clusters\nspec:\n  template:\n    spec:\n      instanceType: t3.medium\n      instanceProfile: nodes\n```\n\n`prod/workers.yaml`\n\n```yaml\n# Prod worker node group: 6 nodes, t3.large (SPEC row: \"Kubernetes cluster\n# (EKS)\"). This file is not a patch on dev/workers.yaml - it's a full,\n# independent copy with the sizing changed. That duplication is what a\n# bare, no-tooling arm costs.\napiVersion: cluster.x-k8s.io/v1beta1\nkind: MachineDeployment\nmetadata:\n  name: myapp-prod-workers\n  namespace: clusters\nspec:\n  clusterName: myapp-prod\n  replicas: 6\n  selector:\n    matchLabels:\n      cluster.x-k8s.io/cluster-name: myapp-prod\n  template:\n    spec:\n      clusterName: myapp-prod\n      version: v1.31.2\n      bootstrap:\n        configRef:\n          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1\n          kind: KubeadmConfig\n          name: myapp-prod-workers\n      infrastructureRef:\n        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1\n        kind: AWSMachineTemplate\n        name: myapp-prod-workers\n---\napiVersion: infrastructure.cluster.x-k8s.io/v1beta1\nkind: AWSMachineTemplate\nmetadata:\n  name: myapp-prod-workers\n  namespace: clusters\nspec:\n  template:\n    spec:\n      instanceType: t3.large\n      instanceProfile: nodes\n```\n\nOnly the `replicas` values changed (2\u21923, 4\u21926), plus the node-count in each file's header comment. `instanceType` is untouched: `t3.medium` in dev, `t3.large` in prod. Both edits were required independently \u2014 the two files share no base, so neither propagates to the other.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-5jppzd7k/dev/workers.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-5jppzd7k/prod/workers.yaml"
+  ]
+}

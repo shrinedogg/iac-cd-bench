@@ -1,0 +1,36 @@
+# Single-node control plane, same across dev/prod (the SPEC's node-count/
+# instance-type matrix is about the worker node group in workers.yaml -
+# these control-plane machines aren't billed against that row).
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+kind: KubeadmControlPlane
+metadata:
+  name: myapp-dev
+  namespace: clusters
+spec:
+  version: v1.31.2
+  replicas: 1
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+      kind: AWSMachineTemplate
+      name: myapp-dev-controlplane
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+    joinConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          cloud-provider: external
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSMachineTemplate
+metadata:
+  name: myapp-dev-controlplane
+  namespace: clusters
+spec:
+  template:
+    spec:
+      instanceType: t3.medium
+      iamInstanceProfile: controlplane

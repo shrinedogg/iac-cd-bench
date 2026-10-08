@@ -1,0 +1,3 @@
+name: iac-cd-bench-pulumi-python
+runtime: python
+description: Golden reference implementation for IaC/CD benchmark - Python

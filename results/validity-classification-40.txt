@@ -1,0 +1,60 @@
+Classified 144 runs across 2 result set(s): ['claude-haiku-4-5-3arm', 'claude-opus-5-3arm']
+valid=103 invalid=41
+
+model                  stack        condition  valid/total  rejected reasons
+------------------------------------------------------------------------------------------
+claude-haiku-4-5       bare         cold     15/18       short_stub:1, tool_invocation_markup:2
+claude-haiku-4-5       bare         warm     15/18       tool_invocation_markup:3
+claude-haiku-4-5       chant        cold     18/18       -
+claude-haiku-4-5       chant        warm     18/18       -
+claude-haiku-4-5       knr-ops      cold      6/18       short_stub:3, tool_invocation_markup:9
+claude-haiku-4-5       knr-ops      warm      6/18       short_stub:3, tool_invocation_markup:9
+claude-opus-5          bare         cold      6/6        -
+claude-opus-5          bare         warm      5/6        tool_invocation_markup:1
+claude-opus-5          chant        cold      6/6        -
+claude-opus-5          chant        warm      6/6        -
+claude-opus-5          knr-ops      cold      1/6        claude_code_ui_marker:2, leaked_host_worktree_path:1, tool_invocation_markup:2
+claude-opus-5          knr-ops      warm      1/6        tool_invocation_markup:5
+
+Rejected runs (path, reason, content length):
+     171  tool_invocation_markup       results/claude-opus-5-3arm/knr-ops/cold/T5-review_run0.json
+     190  tool_invocation_markup       results/claude-opus-5-3arm/knr-ops/cold/T3-modify_run0.json
+     279  tool_invocation_markup       results/claude-opus-5-3arm/knr-ops/warm/T5-review_run0.json
+     381  tool_invocation_markup       results/claude-opus-5-3arm/knr-ops/warm/T1-comprehend_run0.json
+     420  tool_invocation_markup       results/claude-opus-5-3arm/knr-ops/warm/T3-modify_run0.json
+     470  short_stub                   results/claude-haiku-4-5-3arm/bare/cold/T2-generate_run2.json
+     484  short_stub                   results/claude-haiku-4-5-3arm/knr-ops/warm/T5-review_run2.json
+     634  tool_invocation_markup       results/claude-opus-5-3arm/knr-ops/warm/T2-generate_run0.json
+     694  short_stub                   results/claude-haiku-4-5-3arm/knr-ops/cold/T5-review_run0.json
+     713  tool_invocation_markup       results/claude-opus-5-3arm/knr-ops/warm/T4-debug_run0.json
+     753  short_stub                   results/claude-haiku-4-5-3arm/knr-ops/cold/T5-review_run2.json
+     825  short_stub                   results/claude-haiku-4-5-3arm/knr-ops/warm/T5-review_run1.json
+     852  claude_code_ui_marker        results/claude-opus-5-3arm/knr-ops/cold/T1-comprehend_run0.json
+     876  short_stub                   results/claude-haiku-4-5-3arm/knr-ops/warm/T5-review_run0.json
+     996  short_stub                   results/claude-haiku-4-5-3arm/knr-ops/cold/T5-review_run1.json
+    1186  claude_code_ui_marker        results/claude-opus-5-3arm/knr-ops/cold/T4-debug_run0.json
+    2352  tool_invocation_markup       results/claude-opus-5-3arm/bare/warm/T2-generate_run0.json
+    3089  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T3-modify_run2.json
+    3391  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T3-modify_run1.json
+    3914  tool_invocation_markup       results/claude-haiku-4-5-3arm/bare/cold/T2-generate_run1.json
+    3992  leaked_host_worktree_path    results/claude-opus-5-3arm/knr-ops/cold/T2-generate_run0.json
+    4490  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T3-modify_run2.json
+    4743  tool_invocation_markup       results/claude-haiku-4-5-3arm/bare/warm/T2-generate_run2.json
+    4989  tool_invocation_markup       results/claude-haiku-4-5-3arm/bare/warm/T2-generate_run1.json
+    5462  tool_invocation_markup       results/claude-haiku-4-5-3arm/bare/cold/T2-generate_run0.json
+    8191  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T2-generate_run0.json
+    8240  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T4-debug_run2.json
+    8878  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T4-debug_run1.json
+    9921  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T2-generate_run1.json
+   10955  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T4-debug_run0.json
+   11402  tool_invocation_markup       results/claude-haiku-4-5-3arm/bare/warm/T2-generate_run0.json
+   12548  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T4-debug_run2.json
+   12641  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T3-modify_run1.json
+   15046  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T4-debug_run0.json
+   15370  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T3-modify_run0.json
+   16068  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T4-debug_run1.json
+   16959  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T3-modify_run0.json
+   18086  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T2-generate_run0.json
+   21637  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/warm/T2-generate_run2.json
+   24177  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T2-generate_run1.json
+   55722  tool_invocation_markup       results/claude-haiku-4-5-3arm/knr-ops/cold/T2-generate_run2.json

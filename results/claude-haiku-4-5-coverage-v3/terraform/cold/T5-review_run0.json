@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "terraform",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "dd01970ce92a5964",
+      "spec_sha256": "f6545befc3558903",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1210,
+    "output": 897
+  },
+  "content": "# Terraform Plan Review Guidance\n\nI'm ready to review your tfplan JSON, but **you haven't attached the actual plan output yet**. Once you provide it, I'll perform a thorough scan for the issues you've identified.\n\n## What I'll Look For\n\n### 1. **Hidden Database Destruction**\n- Scan `aws_db_instance` resources for `destroy` + `create` pairs (shown as `-/+` in human-readable format)\n- Common triggers in RDS:\n  - `allocated_storage` changes\n  - `instance_class` downsizes\n  - `engine_version` bumps with unsupported upgrade paths\n  - `multi_az` or `storage_type` modifications\n  - `parameter_group_name` changes on immutable parameters\n- **Risk**: Data loss if no backup exists outside RDS automated backups (acceptance criterion: backup retention \u22657 days)\n\n### 2. **Overpermissive Security Group Ingress**\n- Locate `aws_security_group_rule` or ingress blocks within `aws_security_group`\n- Flag any rule with `cidr_blocks = [\"0.0.0.0/0\"]` on non-edge protocols (e.g., port 5432 for RDS, database ports)\n- **Prod violation**: Acceptance criterion #4 (least privilege; no wildcard actions)\n\n### 3. **Noise Filtering**\nAmong 40 changes, legitimate no-ops (tags, metadata) can obscure destructive ones. I'll prioritize:\n- `-/+` (destroy-recreate)\n- `-` (pure destruction without companion creation)\n- Resource-level changes that cascade (security groups affecting load balancers, etc.)\n\n---\n\n## **Next Step**\n\nPlease provide the tfplan JSON output. Paste it as a code block, and I'll give you:\n- \u2705 Line-by-line risk assessment\n- \u2705 Flagged destructive operations with impact radius\n- \u2705 Environment isolation verification (dev vs. prod state separation)\n- \u2705 Mapping to acceptance criteria violations",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1694,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1694,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies RDS destroy + create as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses to identify RDS issues, instead asking for plan input. No specific aws_db_instance.main destroy+create claim made."
+      },
+      {
+        "criterion": "Identifies 0.0.0.0/0 ingress as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission describes what it would flag but does not identify any actual 0.0.0.0/0 ingress rule in a specific plan. Requests input instead."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "No severity ranking provided. Submission offers prospective guidance on priorities but makes zero actual issue assessments to rank."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission promises remediation steps but provides none. Explicitly asks for plan before proceeding."
+      }
+    ]
+  }
+}

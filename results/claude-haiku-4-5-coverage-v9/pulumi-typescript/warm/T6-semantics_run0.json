@@ -1,0 +1,133 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "65ba8f1338fa2db12539125d32183373e03dc439",
+      "dirty": false,
+      "branch": "bench/gates-pulumi"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "5f3be46d22084181",
+      "spec_sha256": "f1a5160ba3fb83e5",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "p/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gates2/tasks/pulumi-typescript/T6-semantics/tests/test_task.py::test_q4_secret_export_masked PASSED [ 57%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gates2/tasks/pulumi-typescript/T6-semantics/tests/test_task.py::test_q5_getnumber_default PASSED [ 71%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gates2/tasks/pulumi-typescript/T6-semantics/tests/test_task.py::test_q6_rename_replaces_aliases_fix PASSED [ 85%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gates2/tasks/pulumi-typescript/T6-semantics/tests/test_task.py::test_q7_arn_unknown_at_preview PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: q3 risk should mention the availability window, got 'Service interruption if creation fails after deletion'\n    assert False\n     +  where False = any(<generator object test_q3_delete_before_replace_order_and_risk.<locals>.<genexpr> at 0x106940e40>)\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gates2/tasks/pulumi-typescript/T6-semantics/tests/test_task.py:81: AssertionError: q3 risk should mention the availability window, got 'Service interruption if creation fails after deletion'\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gates2/tasks/pulumi-typescript/T6-semantics/tests/test_task.py::test_q3_delete_before_replace_order_and_risk\n========================= 1 failed, 6 passed in 0.01s ==========================\n",
+      "passed_count": 6,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2443,
+    "output": 7933
+  },
+  "content": "```json\n{\n  \"q1\": {\n    \"contains\": \"output-repr\",\n    \"type\": \"Output<string>\"\n  },\n  \"q2\": {\n    \"completes\": false,\n    \"blocking_resource\": \"artifacts\"\n  },\n  \"q3\": {\n    \"order\": \"delete-then-create\",\n    \"risk\": \"Service interruption if creation fails after deletion\"\n  },\n  \"q4\": \"masked\",\n  \"q5\": {\n    \"value\": 30,\n    \"error\": false\n  },\n  \"q6\": {\n    \"plan\": \"replace\",\n    \"fix_option\": \"aliases\"\n  },\n  \"q7\": \"unknown\"\n}\n```\n\n**Reasoning:**\n\n**Q1:** String concatenation with an `Output<string>` invokes its `toString()` method at runtime, producing `[object Object]` or similar, not the actual bucket name.\n\n**Q2:** The `artifacts` bucket has `protect: true`, which prevents deletion. `pulumi destroy` will fail when attempting to delete it.\n\n**Q3:** `deleteBeforeReplace: true` deletes the old bucket before creating the new one. If creation fails after deletion, the resource is gone, causing service interruption (unlike the default where the old resource still exists as a fallback).\n\n**Q4:** Secret outputs are masked by default in stack output unless `--show-secrets` is passed.\n\n**Q5:** `getNumber()` returns `undefined` (not an error) when the key is missing. The `?? 30` nullish-coalesce operator provides the default. `requireNumber()` would throw; `getNumber()` does not.\n\n**Q6:** Without an alias, renaming the logical name causes a resource replacement plan (delete old, create new). Adding `aliases: [\"artifacts\"]` tells Pulumi the new name is an alias for the old resource, updating state without replacement.\n\n**Q7:** On a fresh stack, `artifacts.arn` is an `Output` with an unknown value. The `apply()` function cannot compute the policy JSON until the bucket is created and AWS returns the ARN. Preview shows \"unknown\" for the policy document.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-xblvflhi/generated_0.json"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1775,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1775,
+      "fenced_blocks": 1,
+      "extracted_files": 1,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

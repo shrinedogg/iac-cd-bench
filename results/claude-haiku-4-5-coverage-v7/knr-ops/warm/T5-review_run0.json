@@ -1,0 +1,163 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "94e5c139053e7db4",
+      "spec_sha256": "43b4e0a5a87c63d9",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1330,
+    "output": 1756
+  },
+  "content": "# Security Review: knr-ops PR Diff\n\n## Issues Identified\n\n### \ud83d\udd34 **CRITICAL: S3 Bucket Policy Grants Public Read Access**\n\n**Finding:** The PR introduces an S3 bucket policy allowing public read access (`s3:GetObject` for `Principal: \"*\"`).\n\n**Why this is critical:**\n- Directly violates the Canonical Scenario spec: \"S3 bucket: versioning enabled, encryption, **no public access**\"\n- Exposes application assets to the entire internet\n- May trigger compliance failures (PCI-DSS, SOC 2, etc.)\n- Likely unintended\u2014should use CloudFront OAI or bucket policy restricted to service IAM role\n\n**Required change:**\n- Remove `Principal: \"*\"` from the bucket policy\n- Restrict to CloudFront Origin Access Identity (OAI) or the app's IAM role ARN only\n- Re-block public access via S3 bucket settings (`BlockPublicAcls`, `BlockPublicPolicy`, etc.)\n\n---\n\n### \ud83d\udd34 **CRITICAL: Plaintext Password in Deployment Env Vars**\n\n**Finding:** App deployment manifest contains a database password in plaintext environment variables (e.g., `DB_PASSWORD: \"mypassword123\"`).\n\n**Why this is critical:**\n- Violates the spec: \"Secret: **never stored in plaintext in Git**; encrypted at rest via stack-native mechanism\"\n- Password is permanently committed to repository history\u2014visible to anyone with repo access\n- Trivial for attackers to extract via repository cloning or audit logs\n- Compromises all downstream environments (dev, prod)\n\n**Required change:**\n- Remove the plaintext password from the manifest\n- Use a Kubernetes `Secret` object or `ExternalSecrets` operator\n- Reference the secret via `valueFrom.secretKeyRef`\n- **For knr-ops specifically:** Use SOPS to encrypt the secret manifest file, or configure Crossplane `SecretStore` + `ProviderSecret` to fetch the password from AWS Secrets Manager/Parameter Store at deployment time\n- Ensure the encrypted secret is committed; plaintext must never appear in Git\n\n---\n\n### \ud83d\udfe1 **WARNING: Missing Resource Limits on Containers**\n\n**Finding:** Container spec lacks `resources.limits` (and possibly `requests`).\n\n**Why this is a concern:**\n- Containers can consume unbounded CPU/memory, leading to node resource exhaustion\n- Enables \"noisy neighbor\" issues and denial-of-service vectors\n- Kubernetes scheduler cannot make informed placement decisions without requests\n- Not explicitly in the Acceptance Criteria but standard security hardening\n\n**Required change:**\n- Add `resources.limits` (CPU and memory) and `resources.requests` to all containers\n- Align with the cluster specification (dev: t3.medium nodes \u2192 lower limits; prod: t3.large nodes \u2192 proportionally scaled)\n- Example:\n  ```yaml\n  resources:\n    requests:\n      cpu: 100m\n      memory: 128Mi\n    limits:\n      cpu: 500m\n      memory: 512Mi\n  ```\n\n---\n\n### \u2139\ufe0f **INFO: Verify RDS Instance Class Aligns with Spec**\n\n**Finding:** RDS instance class change noted but not detailed in the diff preview.\n\n**Compliance check:**\n- Dev must be `db.t3.micro` (single AZ)\n- Prod must be `db.t3.medium` or larger (multi-AZ, encrypted)\n- Verify deletion protection is enabled (`DeletionProtection: true`)\n- Verify backup retention \u2265 7 days\n- Ensure **not publicly accessible** (`PubliclyAccessible: false`)\n\n---\n\n## Summary Table\n\n| Issue | Severity | Category | Before Merge? |\n|-------|----------|----------|---------------|\n| S3 public read access | **CRITICAL** | Compliance / Data Exposure | \u274c **MUST FIX** |\n| Plaintext password in env vars | **CRITICAL** | Secret Management | \u274c **MUST FIX** |\n| Missing resource limits | WARNING | Stability / Resource Control | \u26a0\ufe0f **SHOULD FIX** |\n| RDS instance class | INFO | Verification Required | \u2713 Verify & Document |\n\n---\n\n## Recommendation\n\n**Do not merge** until the two critical issues are resolved:\n1. Remove public access from S3 bucket policy\n2. Move database password to an encrypted secret (SOPS-encrypted manifest or external secret store)\n\nThe warning (resource limits) should be addressed in this PR or a follow-up; it's a best practice that hardens the deployment.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3999,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3999,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.9,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies plaintext password in deployment",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies plaintext password in deployment (database password in env vars) and correctly ranks it as CRITICAL with detailed remediation including SOPS encryption."
+      },
+      {
+        "criterion": "Identifies public S3 bucket access",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies S3 bucket policy granting public read access (Principal: '*' for s3:GetObject) with specific remediation steps including OAI or IAM role restriction."
+      },
+      {
+        "criterion": "Identifies missing resource limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission explicitly identifies 'Container spec lacks resources.limits' and provides remediation with concrete example YAML configuration showing requests and limits."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Submission correctly ranks plaintext password as CRITICAL (top priority), but critically misses RDS deletion_protection as HIGH severity issue (P1 in reference), instead treating RDS only as INFO verification."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission provides specific, actionable remediation for each issue: SOPS encryption for secrets, OAI/IAM restriction for S3, example resource limits YAML, and specific RDS verification checks."
+      }
+    ]
+  }
+}

@@ -1,6 +1,19 @@
 # SEED REPO: Crossplane Composition with defects
 # Defect 1: wrong fromFieldPath (spec.parameters.storageClass should be spec.parameters.instanceClass)
 # Defect 2: missing ReadinessChecks on RDS instance
+#
+# Structural corrections (#114) -- NOT the seeded defects, and not something a
+# model should have to reason about:
+#   * `spec.compositeTypeRef` replaces `spec.group`, which is not a field on a
+#     Composition. Nothing declared the composite's kind, so `crossplane render`
+#     had no XR to render and the static gate abstained in every recorded run.
+#   * `mode: Pipeline` was declared alongside `spec.resources`, the legacy
+#     non-pipeline form. render "only supports Composition Function pipelines",
+#     so the two contradicted and neither worked. Now a real pipeline, which is
+#     also what T2's prompt asks models for.
+#
+# Both seeded defects are preserved exactly, just relocated into the pipeline's
+# patch-and-transform input where they now belong.
 
 apiVersion: apiextensions.crossplane.io/v1
 kind: Composition
@@ -9,28 +22,46 @@ metadata:
   labels:
     crossplane.io/xrd: xawswebservices.app.example.com
 spec:
-  group: app.example.com
+  compositeTypeRef:
+    apiVersion: app.example.com/v1alpha1
+    kind: XAWSWebService
   mode: Pipeline
-  resources:
-    - name: rds-instance
-      base:
-        apiVersion: database.aws.upbound.io/v1beta1
-        kind: Instance
-        spec:
-          forProvider:
-            region: us-east-1
-            engine: postgres
-            engineVersion: "16.1"
-            allocatedStorage: 20
-          providerConfigRef:
-            name: default
-      patches:
-        # DEFECT: wrong fromFieldPath — references non-existent storageClass
-        - fromFieldPath: spec.parameters.storageClass
-          toFieldPath: spec.forProvider.instanceClass
-          transforms:
-            - type: String
-              string:
-                type: Format
-                format: "db.t3.%s"
-      readiness: {}  # DEFECT: missing ReadinessChecks — Composition never reaches Ready
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: rds-instance
+            base:
+              apiVersion: rds.aws.upbound.io/v1beta1
+              kind: Instance
+              spec:
+                forProvider:
+                  region: us-east-1
+                  engine: postgres
+                  engineVersion: "16.1"
+                  allocatedStorage: 20
+                providerConfigRef:
+                  name: default
+            patches:
+              # DEFECT 1: wrong fromFieldPath — `storageClass` is not a field
+              # on this XRD. The XRD declares spec.parameters.instanceClass.
+              - type: FromCompositeFieldPath
+                fromFieldPath: spec.parameters.storageClass
+                toFieldPath: spec.forProvider.instanceClass
+                transforms:
+                  - type: string
+                    string:
+                      type: Format
+                      fmt: "db.t3.%s"
+            # DEFECT 2: no readinessChecks. Without them the composed
+            # resource never reports Ready and the Composition never reaches
+            # Ready either.
+            #
+            # The previous marker was `readiness: {}`, which is not a field on
+            # ComposedTemplate in either mode -- render rejects it outright
+            # with `unknown name "readiness"`. The defect is the absence of
+            # `readinessChecks`, so absence is how it is expressed.

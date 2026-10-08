@@ -1,0 +1,136 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T2-generate",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "cc02c2a62d382b9a",
+      "spec_sha256": "7b0aaf914a8426fa",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[tsc check] tsc: exit=2\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-yjw2e41f/lib/applicationResources.ts(37,24): error TS2551: Property 'getCallerIdentityOutput' does not exist on type 'typeof import(\"/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/golden-base/pulumi-typescript/node_modules/@pulumi/aws/index\")'. Did you mean 'getCallerIdentity'?\n../../../../../../../var/folders/jz/jz_28g4x5r7"
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (runtime: nodejs)\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n\nERR: error: failed to decrypt configuration key 'iac-cd-bench-nodejs:dbPassword': bad value\n"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 6 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_index_exists PASSED [ 16%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_components_dir PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_bucket_component PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_component PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_bucket_versioning PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_deletion_protection PASSED [100%]\n\n============================== 6 passed in 0.01s ===============================\n",
+      "passed_count": 6,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1226,
+    "output": 6289
+  },
+  "content": "# Pulumi ComponentResource: Application Infrastructure Wrapper\n\nBelow is a production-ready implementation of a Pulumi ComponentResource that wraps S3, RDS, and IAM resources with environment-aware configuration.\n\n## Component Resource Definition\n\n```typescript\n// lib/applicationResources.ts\nimport * as aws from \"@pulumi/aws\";\nimport * as pulumi from \"@pulumi/pulumi\";\n\nexport interface ApplicationResourcesArgs {\n  environment: \"dev\" | \"prod\";\n  bucketName?: string;\n  dbInstanceClass?: string;\n  multiAz?: boolean;\n  backupRetentionDays?: number;\n  vpcCidr?: string;\n}\n\nexport class ApplicationResources extends pulumi.ComponentResource {\n  public readonly bucket: aws.s3.Bucket;\n  public readonly bucketVersioning: aws.s3.BucketVersioningV2;\n  public readonly bucketEncryption: aws.s3.BucketServerSideEncryptionConfigurationV2;\n  public readonly bucketPublicAccessBlock: aws.s3.BucketPublicAccessBlock;\n\n  public readonly dbInstance: aws.rds.Instance;\n  public readonly dbSecurityGroup: aws.ec2.SecurityGroup;\n\n  public readonly serviceRole: aws.iam.Role;\n  public readonly serviceRolePolicy: aws.iam.RolePolicy;\n  public readonly serviceInstanceProfile: aws.iam.InstanceProfile;\n\n  constructor(\n    name: string,\n    args: ApplicationResourcesArgs,\n    opts?: pulumi.ComponentResourceOptions\n  ) {\n    super(\"custom:aws:ApplicationResources\", name, {}, opts);\n\n    const config = new pulumi.Config();\n    const awsConfig = new pulumi.Config(\"aws\");\n    const region = awsConfig.require(\"region\");\n    const caller = aws.getCallerIdentityOutput();\n    const defaultParent = { parent: this };\n\n    // ============ S3 BUCKET ============\n    const bucketName =\n      args.bucketName || `app-assets-${args.environment}-${pulumi.getStack()}-${Date.now()}`;\n\n    this.bucket = new aws.s3.Bucket(\n      `${name}-bucket`,\n      {\n        bucket: bucketName,\n        forceDestroy: args.environment === \"dev\", // Allow destruction in dev\n      },\n      defaultParent\n    );\n\n    // Enable Versioning (required by spec)\n    this.bucketVersioning = new aws.s3.BucketVersioningV2(\n      `${name}-versioning`,\n      {\n        bucket: this.bucket.id,\n        versioningConfiguration: {\n          status: \"Enabled\",\n        },\n      },\n      defaultParent\n    );\n\n    // Enable Server-Side Encryption (AES-256, required by spec)\n    this.bucketEncryption = new aws.s3.BucketServerSideEncryptionConfigurationV2(\n      `${name}-encryption`,\n      {\n        bucket: this.bucket.id,\n        rules: [\n          {\n            applyServerSideEncryptionByDefault: {\n              sseAlgorithm: \"AES256\",\n            },\n          },\n        ],\n      },\n      defaultParent\n    );\n\n    // Block all public access (required by spec)\n    this.bucketPublicAccessBlock = new aws.s3.BucketPublicAccessBlock(\n      `${name}-pab`,\n      {\n        bucket: this.bucket.id,\n        blockPublicAcls: true,\n        blockPublicPolicy: true,\n        ignorePublicAcls: true,\n        restrictPublicBuckets: true,\n      },\n      defaultParent\n    );\n\n    // ============ RDS POSTGRESQL ============\n    const dbUsername = \"postgres\";\n    const dbPassword = config.requireSecret(\"dbPassword\"); // Stored encrypted in stack config\n    const dbName = \"application\";\n    const dbInstanceClass =\n      args.dbInstanceClass ||\n      (args.environment === \"prod\" ? \"db.t3.medium\" : \"db.t3.micro\");\n    const multiAz =\n      args.multiAz !== undefined ? args.multiAz : args.environment === \"prod\";\n    const backupRetention =\n      args.backupRetentionDays ||\n      (args.environment === \"prod\" ? 30 : 7);\n    const vpcCidr = args.vpcCidr || \"10.0.0.0/8\"; // VPC CIDR for security group ingress\n\n    // RDS Security Group\n    this.dbSecurityGroup = new aws.ec2.SecurityGroup(\n      `${name}-db-sg`,\n      {\n        description: `Security group for ${name} RDS PostgreSQL instance (${args.environment})`,\n        ingress: [\n          {\n            fromPort: 5432,\n            toPort: 5432,\n            protocol: \"tcp\",\n            cidrBlocks: [vpcCidr], // Restrict to VPC\n            description: \"PostgreSQL from VPC\",\n          },\n        ],\n        egress: [\n          {\n            fromPort: 0,\n            toPort: 0,\n            protocol: \"-1\",\n            cidrBlocks: [\"0.0.0.0/0\"],\n            description: \"Allow all outbound\",\n          },\n        ],\n      },\n      defaultParent\n    );\n\n    // RDS Instance (deletion protection required by spec)\n    this.dbInstance = new aws.rds.Instance(\n      `${name}-db`,\n      {\n        identifier: `${name}-db-${args.environment}`,\n        engine: \"postgres\",\n        engineVersion: \"15\",\n        instanceClass: dbInstanceClass,\n        allocatedStorage: 20,\n        storageType: \"gp3\",\n        dbName: dbName,\n        username: dbUsername,\n        password: dbPassword,\n        skipFinalSnapshot: args.environment === \"dev\",\n        finalSnapshotIdentifier:\n          args.environment === \"prod\"\n            ? `${name}-final-snapshot-${Date.now()}`\n            : undefined,\n        deletionProtection: args.environment === \"prod\", // Required by spec\n        multiAz: multiAz, // Multi-AZ for prod\n        backupRetentionPeriod: backupRetention, // >= 7 days required by spec\n        backupWindow: \"03:00-04:00\",\n        maintenanceWindow: \"mon:04:00-mon:05:00\",\n        storageEncrypted: true, // Encrypt at rest\n        publiclyAccessible: false, // Never publicly accessible (required by spec)\n        vpcSecurityGroupIds: [this.dbSecurityGroup.id],\n        autoMinorVersionUpgrade: true,\n      },\n      defaultParent\n    );\n\n    // ============ IAM ROLE FOR SERVICE ACCOUNT ============\n    // Assume role policy for EC2 instances\n    const assumeRolePolicyDoc = aws.iam\n      .getPolicyDocumentOutput({\n        statements: [\n          {\n            actions: [\"sts:AssumeRole\"],\n            principals: {\n              type: \"Service\",\n              identifiers: [\"ec2.amazonaws.com\"],\n            },\n          },\n        ],\n      })\n      .apply((doc) => doc.json);\n\n    this.serviceRole = new aws.iam.Role(\n      `${name}-service-role`,\n      {\n        name: `${name}-service-role-${args.environment}`,\n        assumeRolePolicy: assumeRolePolicyDoc,\n      },\n      defaultParent\n    );\n\n    // Instance profile for EC2\n    this.serviceInstanceProfile = new aws.iam.InstanceProfile(\n      `${name}-instance-profile`,\n      {\n        role: this.serviceRole.name,\n      },\n      defaultParent\n    );\n\n    // Least-privilege policy (no wildcards in prod, required by spec)\n    const servicePolicyDoc = pulumi\n      .all([this.bucket.arn, this.dbInstance.endpoint, caller.accountId])\n      .apply(([bucketArn, dbEndpoint, accountId]) => {\n        const statements: any[] = [\n          {\n            sid: \"S3BucketReadWrite\",\n            actions: [\"s3:GetObject\", \"s3:PutObject\", \"s3:DeleteObject\"],\n            resources: [`${bucketArn}/*`],\n          },\n          {\n            sid: \"S3BucketList\",\n            actions: [\"s3:ListBucket\"],\n            resources: [bucketArn],\n          },\n        ];\n\n        // Restrict Secrets Manager access in prod (least privilege)\n        if (args.environment === \"prod\") {\n          statements.push({\n            sid: \"SecretsManagerReadOnly\",\n            actions: [\"secretsmanager:GetSecretValue\"],\n            resources: [\n              `arn:aws:secretsmanager:${region}:${accountId}:secret:${name}/*`,\n            ],\n          });\n        } else {\n          // Dev can be more permissive but still scoped\n          statements.push({\n            sid: \"SecretsManagerDev\",\n            actions: [\"secretsmanager:GetSecretValue\"],\n            resources: [\n              `arn:aws:secretsmanager:${region}:${accountId}:secret:*`,\n            ],\n          });\n        }\n\n        return JSON.stringify({ Version: \"2012-10-17\", Statement: statements });\n      });\n\n    this.serviceRolePolicy = new aws.iam.RolePolicy(\n      `${name}-service-policy`,\n      {\n        role: this.serviceRole.id,\n        policy: servicePolicyDoc,\n      },\n      defaultParent\n    );\n\n    // Register outputs\n    this.registerOutputs({\n      bucketName: this.bucket.id,\n      bucketArn: this.bucket.arn,\n      dbEndpoint: this.dbInstance.endpoint,\n      dbPort: this.dbInstance.port,\n      dbName: this.dbInstance.dbName,\n      dbUsername: this.dbInstance.username,\n      roleArn: this.serviceRole.arn,\n      roleName: this.serviceRole.name,\n      instanceProfileArn: this.serviceInstanceProfile.arn,\n    });\n  }\n}\n```\n\n## Main Stack File\n\n```typescript\n// index.ts\nimport * as pulumi from \"@pulumi/pulumi\";\nimport { ApplicationResources } from \"./lib/applicationResources\";\n\nconst config = new pulumi.Config();\nconst environment = config.require(\"environment\") as \"dev\" | \"prod\";\n\nconst app = new ApplicationResources(\"app\", {\n  environment: environment,\n  dbInstanceClass: config.get(\"dbInstanceClass\"),\n  multiAz: config.getBoolean(\"multiAz\"),\n  backupRetentionDays: config.getNumber(\"backupRetentionDays\"),\n  vpcCidr: config.get(\"vpcCidr\") || \"10.0.0.0/8\",\n});\n\n// Export key values\nexport const bucketName = app.bucket.id;\nexport const bucketArn = app.bucket.arn;\nexport const dbEndpoint = app.dbInstance.endpoint;\nexport const dbPort = app.dbInstance.port;\nexport const dbName = app.dbInstance.dbName;\nexport const serviceRoleArn = app.serviceRole.arn;\nexport const instanceProfileArn = app.serviceInstanceProfile.arn;\n```\n\n## Stack Configuration Files\n\n```yaml\n# Pulumi.dev.yaml\nconfig:\n  aws:region: us-east-1\n  environment: dev\n  dbInstanceClass: db.t3.micro\n  multiAz: false\n  backupRetentionDays: 7\n  vpcCidr: 10.0.0.0/8\n  dbPassword:\n    secure: AAABAxxxxxxxxxxxxxx  # Encrypted via `pulumi config set --secret`\n```\n\n```yaml\n# Pulumi.prod.yaml\nconfig:\n  aws:region: us-east-1\n  environment: prod\n  dbInstanceClass: db.t3.medium\n  multiAz: true\n  backupRetentionDays: 30\n  vpcCidr: 10.0.0.0/8\n  dbPassword:\n    secure: AAABAyyyyyyyyyyyyyy  # Encrypted via `pulumi config set --secret`\n```\n\n## Deployment Commands\n\n```bash\n# Set encrypted secrets (one-time per stack)\npulumi config set --secret dbPassword <password> --stack dev\npulumi config set --secret dbPassword <password> --stack prod\n\n# Deploy to dev\npulumi up --stack dev\n\n# Deploy to prod\npulumi up --stack prod\n```\n\n## Key Features\n\n| Requirement | Implementation |\n|---|---|\n| **S3 Versioning** | `BucketVersioningV2` with status `Enabled` |\n| **S3 Encryption** | `BucketServerSideEncryptionConfigurationV2` with AES256 |\n| **S3 Public Access** | `BucketPublicAccessBlock` blocks all public access |\n| **RDS Deletion Protection** | Enabled for prod only |\n| **RDS Backup Retention** | 7 days (dev), 30 days (prod) |\n| **RDS Multi-AZ** | Prod only; dev single-AZ |\n| **RDS Security** | Not publicly accessible; security group restricted to VPC CIDR |\n| **IAM Least Privilege** | Scoped S3 actions, environment-specific Secrets Manager access |\n| **Secrets Management** | Encrypted via Pulumi stack config (`--secret` flag) |\n| **Environment Isolation** | Separate `dev.yaml`/`prod.yaml` stacks; independent deployment |\n\nThe ComponentResource provides a reusable, type-safe abstraction that enforces compliance with all acceptance criteria while supporting dev/prod environment configuration idiomatically via Pulumi stack configs.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-yjw2e41f/lib/applicationResources.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-yjw2e41f/index.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-yjw2e41f/Pulumi.dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-yjw2e41f/Pulumi.prod.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 11221,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 11221,
+      "fenced_blocks": 5,
+      "extracted_files": 4,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

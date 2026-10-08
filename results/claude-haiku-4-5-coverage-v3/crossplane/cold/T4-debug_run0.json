@@ -1,0 +1,135 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T4-debug",
+  "stack": "crossplane",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1cd47d160302c957",
+      "spec_sha256": "7deba2f3ec911138",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[validate CRDs] kubeconform: exit=0\nSummary: 2 resources found in 2 files - Valid: 0, Invalid: 0, Errors: 0, Skipped: 2\n"
+    },
+    "static": {
+      "inapplicable": true,
+      "reason": "no crossplane claim (*claim*.yaml) in workspace: 1 composition(s), 1 xrd(s) found, nothing to render",
+      "logs": "no crossplane claim (*claim*.yaml) in workspace: 1 composition(s), 1 xrd(s) found, nothing to render"
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 2 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/crossplane/T4-debug/tests/test_task.py::test_composition_has_correct_field_path PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/crossplane/T4-debug/tests/test_task.py::test_composition_has_readiness_checks FAILED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: Composition should have ReadinessChecks defined\n    assert False\n     +  where False = any(<generator object test_composition_has_readiness_checks.<locals>.<genexpr> at 0x10b4e46c0>)\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/crossplane/T4-debug/tests/test_task.py:54: AssertionError: Composition should have ReadinessChecks defined\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/crossplane/T4-debug/tests/test_task.py::test_composition_has_readiness_checks\n========================= 1 failed, 1 passed in 0.02s ==========================\n",
+      "passed_count": 1,
+      "total_count": 2,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1799,
+    "output": 1377
+  },
+  "content": "# Fixed Composition\n\n## Problem Analysis\n\nThe Composition fails to reach Ready state due to two defects:\n\n1. **Incorrect `fromFieldPath`**: The patch references `spec.parameters.storageClass`, but the XRD defines the parameter as `spec.parameters.instanceClass`. This mismatch causes the patch to silently fail, leaving the RDS instance without an `instanceClass` specification.\n\n2. **Missing ReadinessChecks**: The `readiness: {}` block is empty, so Crossplane has no way to determine when the RDS instance has successfully provisioned. The Composition waits indefinitely.\n\n## Corrected Files\n\n### composition.yaml\n\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: aws-web-service\n  labels:\n    crossplane.io/xrd: xawswebservices.app.example.com\nspec:\n  group: app.example.com\n  mode: Pipeline\n  resources:\n    - name: rds-instance\n      base:\n        apiVersion: database.aws.upbound.io/v1beta1\n        kind: Instance\n        spec:\n          forProvider:\n            region: us-east-1\n            engine: postgres\n            engineVersion: \"16.1\"\n            allocatedStorage: 20\n          providerConfigRef:\n            name: default\n      patches:\n        # FIX: Use correct fromFieldPath matching XRD parameter name\n        - fromFieldPath: spec.parameters.instanceClass\n          toFieldPath: spec.forProvider.instanceClass\n          transforms:\n            - type: String\n              string:\n                type: Format\n                format: \"db.t3.%s\"\n      # FIX: Add readiness checks so Composition knows when RDS is ready\n      readiness:\n        checks:\n          - type: MatchCondition\n            matchCondition:\n              type: Ready\n              status: \"True\"\n```\n\n### xrd.yaml\n\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: CompositeResourceDefinition\nmetadata:\n  name: xawswebservices.app.example.com\nspec:\n  group: app.example.com\n  versions:\n    - name: v1alpha1\n      served: true\n      referenceable: true\n      schema:\n        openAPIV3Schema:\n          type: object\n          properties:\n            spec:\n              type: object\n              properties:\n                instanceClass:\n                  type: string\n                  default: db.t3.medium\n                deletionProtection:\n                  type: boolean\n                  default: true\n              required:\n                - instanceClass\n  claimNames:\n    kind: AWSWebService\n    plural: awswebservices\n```\n\n## Changes Made\n\n| Defect | Fix |\n|--------|-----|\n| Wrong `fromFieldPath` | Changed `spec.parameters.storageClass` \u2192 `spec.parameters.instanceClass` to match XRD |\n| Missing ReadinessChecks | Added `readiness.checks` with `MatchCondition` type, checking for `Ready=True` status on the RDS Instance |\n\nThe Composition will now correctly extract the `instanceClass` parameter from the claim, format it (e.g., `medium` \u2192 `db.t3.medium`), and Crossplane will monitor the RDS instance's `Ready` condition to determine when provisioning is complete.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-h0v20kdy/composition.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-h0v20kdy/xrd.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3016,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3016,
+      "fenced_blocks": 2,
+      "extracted_files": 2,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

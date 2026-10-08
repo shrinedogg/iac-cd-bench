@@ -1,0 +1,70 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "bare",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1882
+  },
+  "content": "This PR introduces **multiple critical security misconfigurations** across the entire production infrastructure. I recommend **rejecting it entirely** before merge. Here's the breakdown:\n\n## Issues Found (by severity)\n\n### \ud83d\udd34 CRITICAL\n\n1. **db-secret.yaml:2 \u2014 Real password committed in plaintext**\n   - Changed from placeholder `\"REPLACE_OUT_OF_BAND_NEVER_COMMIT_REAL_VALUE\"` to `\"Summer2026!Prod#db\"`\n   - **Why it's critical**: Real production credentials in Git history are permanent; any Git history access leaks the password. Violates acceptance criterion \"Secret: never stored in plaintext in Git.\"\n   - **Fix**: Use an external secret store (Sealed Secrets, External Secrets Operator, AWS Secrets Manager, etc.) or re-encrypt with SOPS if available in this stack.\n\n2. **s3-bucket.yaml:5-8 \u2014 S3 bucket made publicly readable**\n   - Removed `publicAccessBlock` (that blocked public ACLs/policies) and added bucket policy allowing `Principal: \"*\"` with `s3:GetObject` on all objects\n   - **Why it's critical**: Exposes all application assets to the public internet. Violates acceptance criterion \"Bucket: ... no public access.\"\n   - **Fix**: Restore the original `publicAccessBlock` configuration. If public assets are needed, use CloudFront as the distribution layer, not direct S3 public access.\n\n3. **rds.yaml:4 \u2014 RDS made publicly accessible**\n   - Changed `publiclyAccessible: false` \u2192 `true`\n   - **Why it's critical**: Exposes the production database to the entire internet, creating a major attack surface. Violates acceptance criterion \"RDS: ... no publicly accessible.\"\n   - **Fix**: Revert to `publiclyAccessible: false`.\n\n4. **rds.yaml:5 \u2014 Deletion protection removed**\n   - Changed `deletionProtection: true` \u2192 `false`\n   - **Why it's critical**: Allows accidental or malicious deletion of the entire production database. Violates acceptance criterion \"RDS: deletion protection on.\"\n   - **Fix**: Revert to `deletionProtection: true`.\n\n### \ud83d\udfe0 HIGH\n\n5. **app.yaml:11-15 \u2014 Resource requests and limits removed**\n   - Deleted `resources.requests` and `resources.limits` entirely\n   - **Why it's high**: Without limits, a runaway container consumes unbounded CPU/memory, causing cluster-wide resource starvation and pod evictions. Without requests, Kubernetes can't schedule properly or enforce quotas.\n   - **Fix**: Restore the original requests/limits (`cpu: 100m/500m`, `memory: 128Mi/256Mi`).\n\n---\n\n## Summary\n\n| File | Severity | Issue |\n|------|----------|-------|\n| db-secret.yaml | CRITICAL | Real password in Git |\n| s3-bucket.yaml | CRITICAL | Public read access enabled |\n| rds.yaml | CRITICAL | Publicly accessible enabled |\n| rds.yaml | CRITICAL | Deletion protection disabled |\n| app.yaml | HIGH | Resource limits removed |\n\n**Recommendation**: Block this PR. The pattern suggests either a test PR that escaped to prod, or intentional degradation of security controls. Request the author clarify intent before re-opening for review.",
+  "judge": {
+    "idiom": 0.9166666666666666,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies the plaintext database password committed to prod/db-secret.yaml, replacing the documented out-of-band placeholder",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Clearly identifies the plaintext password 'Summer2026!Prod#db' replacing the documented 'REPLACE_OUT_OF_BAND_NEVER_COMMIT_REAL_VALUE' placeholder in prod/db-secret.yaml."
+      },
+      {
+        "criterion": "Identifies that prod/s3-bucket.yaml removes the public access block and adds a bucket policy granting s3:GetObject to Principal '*' (public read exposure)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Correctly identifies removal of publicAccessBlock and addition of bucket policy with Principal '*' and s3:GetObject permission in prod/s3-bucket.yaml."
+      },
+      {
+        "criterion": "Identifies that prod/rds.yaml sets publiclyAccessible: true and deletionProtection: false on the production database",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Identifies both publiclyAccessible changed to true and deletionProtection changed to false in prod/rds.yaml."
+      },
+      {
+        "criterion": "Identifies that prod/app.yaml drops the container's resource requests/limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Identifies that prod/app.yaml removed the resources.requests and resources.limits blocks from the container."
+      },
+      {
+        "criterion": "Ranks the four issues by severity in an order consistent with: plaintext password and public bucket as the most severe, RDS exposure next, missing resource limits least severe",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Ranks issues in correct positional order (password/bucket, then RDS, then resource limits), but severity calibration is wrong: RDS issues incorrectly marked CRITICAL instead of HIGH; resource limits marked HIGH instead of MEDIUM."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this')",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides specific, concrete remediations for all five identified issues: secret store approaches, publicAccessBlock restoration, reverting RDS settings to specific values, and restoring resource limits with concrete CPU/memory values."
+      }
+    ]
+  }
+}

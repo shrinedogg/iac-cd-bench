@@ -1,0 +1,133 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "pulumi-python",
+  "run": 2,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "221e8926aac558da",
+      "spec_sha256": "7b13bccd1505372e",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T6-semantics/tests/test_task.py::test_q4_delete_before_replace PASSED [ 57%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T6-semantics/tests/test_task.py::test_q5_stack_config_wins PASSED [ 71%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T6-semantics/tests/test_task.py::test_q6_outputs_unknown_at_preview PASSED [ 85%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T6-semantics/tests/test_task.py::test_q7_fstring_prints_output_repr PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: q2: expected replace, got 'no-op'\n    assert 'replace' in 'no-op'\n     +  where 'no-op' = _norm('no-op')\n     +    where 'no-op' = <built-in method get of dict object at 0x10af092c0>('q2', '')\n     +      where <built-in method get of dict object at 0x10af092c0> = {'q1': {'completes': False, 'blocking_resource': 'artifacts'}, 'q2': 'no-op', 'q3': 'masked', 'q4': 'delete-then-create', ...}.get\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T6-semantics/tests/test_task.py:68: AssertionError: q2: expected replace, got 'no-op'\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T6-semantics/tests/test_task.py::test_q2_logical_rename_replaces\n========================= 1 failed, 6 passed in 0.01s ==========================\n",
+      "passed_count": 6,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2503,
+    "output": 9310
+  },
+  "content": "```json\n{\n  \"q1\": {\"completes\": false, \"blocking_resource\": \"artifacts\"},\n  \"q2\": \"no-op\",\n  \"q3\": \"masked\",\n  \"q4\": \"delete-then-create\",\n  \"q5\": {\"value\": 4, \"changes_if_removed\": true},\n  \"q6\": \"unknown\",\n  \"q7\": \"output-repr\"\n}\n```\n\n**Reasoning:**\n\n**Q1:** The `artifacts` bucket has `protect=True`, which prevents deletion. When `pulumi destroy` attempts to delete protected resources, it fails and does not complete.\n\n**Q2:** Changing only the logical name (`\"artifacts\"` \u2192 `\"artifact-store\"`) while the physical bucket name (`bucket=f\"knr-artifacts-{env}\"`) remains identical results in a state-only rename. The actual S3 bucket is unchanged, so it's a no-op.\n\n**Q3:** `db_password` derives from `config.require_secret()`, making it a secret Output. When re-exported as `db_password_plain`, it retains the secret classification. Without `--show-secrets`, Pulumi masks secret outputs.\n\n**Q4:** `delete_before_replace=True` explicitly reverses the default order. The dependency on `artifacts` doesn't affect the sequencing of logs' own delete/create cycle\u2014it only ensures artifacts exists before logs is created. Deletion happens first, creation after.\n\n**Q5:** `config.get_int(\"replicas\")` reads from `Pulumi.prod.yaml` and returns `4`. If the config key is removed, `config.get_int()` returns `None`, and `None or 2` evaluates to `2`, so the value changes.\n\n**Q6:** During preview on a fresh stack, the `artifacts` bucket hasn't been created yet. Its ARN is unknown until AWS allocates it. The lambda in `.apply()` cannot execute with a concrete ARN, so `policy`'s value is unknown at preview time.\n\n**Q7:** `artifacts.bucket` is an Output[str]. Directly interpolating an Output in an f-string invokes its `__str__` method, which returns a representation (e.g., `<Output [str]>`) rather than unwrapping and printing the actual bucket name. To see the name, `.apply()` or `.get()` would be needed.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-r1atbgg5/generated_0.json"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1903,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1903,
+      "fenced_blocks": 1,
+      "extracted_files": 1,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

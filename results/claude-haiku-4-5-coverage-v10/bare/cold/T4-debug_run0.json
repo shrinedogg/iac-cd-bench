@@ -1,0 +1,148 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T4-debug",
+  "stack": "bare",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "01b3854417873aac",
+      "spec_sha256": "5b78915e67d7a1f7",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[parse all YAML] yq: exit=0\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp-prod\n  namespace: app\n  annotations:\n    eks.amazonaws.com/role-arn: \"<REPLACE_WITH_myapp-prod-service-role_ARN_AFTER_CREATE>\"\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: myapp-prod\n  namespace: app\n  labels:\n    app: myapp\n    env: prod\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: myapp\n      env: prod\n      version: v2\n  template:\n    metadata:\n      labels:\n        app: myapp\n        env: prod\n        ve\n[validate CRDs] kubeconform: exit=0\nSummary: 6 resources found in 2 files - Valid: 6, Invalid: 0, Errors: 0, Skipped: 0\n"
+    },
+    "static": {
+      "passed": true,
+      "logs": "kubeconform -summary -schema-location default -schema-location /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-8ch0c7ai/dev/app.yaml: exit=0 examined=3\nSummary: 3 resources found in 1 file - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0\n\nkubeconform -summary -schema-location default -schema-location /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-8ch0c7ai/prod/app.yaml: exit=0 examined=3\nSummary: 3 resources found in 1 file - Valid: 3, Invalid: 0, Errors: 0, Skipped: 0\n",
+      "examined": 6,
+      "tools": [
+        {
+          "tool": "kubeconform",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+          "exit": 0,
+          "examined": 3
+        },
+        {
+          "tool": "kubeconform",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+          "exit": 0,
+          "examined": 3
+        }
+      ]
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 2 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T4-debug/tests/test_task.py::test_selector_matches_template_labels PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T4-debug/tests/test_task.py::test_service_still_selects_pods PASSED [100%]\n\n============================== 2 passed in 0.01s ===============================\n",
+      "passed_count": 2,
+      "total_count": 2,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2689,
+    "output": 1567
+  },
+  "content": "# Analysis\n\nLooking at the error and comparing `dev/app.yaml` (known-good) with `prod/app.yaml` (defective):\n\n**dev/app.yaml Deployment:**\n- `spec.selector.matchLabels`: `app: myapp`, `env: dev`\n- `spec.template.metadata.labels`: `app: myapp`, `env: dev`\n- \u2713 These match\n\n**prod/app.yaml Deployment:**\n- `spec.selector.matchLabels`: `app: myapp`, `env: prod`, **`version: v2`**\n- `spec.template.metadata.labels`: `app: myapp`, `env: prod`\n- \u2717 The selector requires `version: v2` which is **missing** from the template labels\n\n## Answer\n\n**Missing label:** `version: v2`\n\nThe Deployment's selector demands three labels, but the pod template only provides two. The fix is to add `version: v2` to `spec.template.metadata.labels`.\n\nThe Service's selector (`app: myapp`, `env: prod`) will remain a valid subset of the corrected template labels.\n\n---\n\n`prod/app.yaml`\n```yaml\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp-prod\n  namespace: app\n  annotations:\n    eks.amazonaws.com/role-arn: \"<REPLACE_WITH_myapp-prod-service-role_ARN_AFTER_CREATE>\"\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: myapp-prod\n  namespace: app\n  labels:\n    app: myapp\n    env: prod\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: myapp\n      env: prod\n      version: v2\n  template:\n    metadata:\n      labels:\n        app: myapp\n        env: prod\n        version: v2\n    spec:\n      serviceAccountName: myapp-prod\n      containers:\n        - name: myapp\n          image: docker.io/myapp/myapp:latest\n          ports:\n            - containerPort: 8080\n          resources:\n            requests:\n              cpu: 100m\n              memory: 128Mi\n            limits:\n              cpu: 500m\n              memory: 256Mi\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: myapp-prod\n  namespace: app\nspec:\n  selector:\n    app: myapp\n    env: prod\n  ports:\n    - port: 80\n      targetPort: 8080\n  type: ClusterIP\n```",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-8ch0c7ai/prod/app.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1925,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1925,
+      "fenced_blocks": 1,
+      "extracted_files": 1,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

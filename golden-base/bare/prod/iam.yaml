@@ -1,0 +1,144 @@
+# ACK iam-controller (iam.services.k8s.aws) - prod: least-privilege role with
+# OIDC trust (IRSA) for the service account, not an IAM user - SPEC's prod
+# column asks for "least-privilege role, OIDC trust" instead of dev's
+# "programmatic access" user. No wildcard actions anywhere in this file
+# (AC #4: "no wildcard actions on prod").
+#
+# <OIDC_PROVIDER_ARN> / <AWS_ACCOUNT_ID> are placeholders: the real values
+# come from the cluster's actual OIDC provider (created when the CAPA
+# cluster in cluster.yaml/controlplane.yaml is provisioned) and aren't known
+# until then. A rendering pipeline would inject them; bare has none, so an
+# operator substitutes them by hand before apply. See golden-base/bare/README.md.
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Role
+metadata:
+  name: myapp-prod-service-role
+  namespace: infra
+spec:
+  name: myapp-prod-service-role
+  path: /
+  maxSessionDuration: 3600
+  assumeRolePolicyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Federated": "arn:aws:iam::<AWS_ACCOUNT_ID>:oidc-provider/<OIDC_PROVIDER_ARN>"
+          },
+          "Action": "sts:AssumeRoleWithWebIdentity",
+          "Condition": {
+            "StringEquals": {
+              "<OIDC_PROVIDER_ARN>:sub": "system:serviceaccount:app:myapp-prod",
+              "<OIDC_PROVIDER_ARN>:aud": "sts.amazonaws.com"
+            }
+          }
+        }
+      ]
+    }
+  policyRefs:
+    - from:
+        name: myapp-prod-service-policy
+        namespace: infra
+  tags:
+    - key: Name
+      value: myapp-prod-service-role
+    - key: Environment
+      value: prod
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: myapp-prod-service-policy
+  namespace: infra
+spec:
+  name: myapp-prod-service-policy
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject"
+          ],
+          "Resource": "arn:aws:s3:::myapp-assets-prod/*"
+        }
+      ]
+    }
+---
+# Dedicated service role for S3 cross-region replication (trusted by the S3
+# service itself, not the workload) - kept separate from the app's role so
+# neither principal has more permission than its one job needs.
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Role
+metadata:
+  name: myapp-prod-s3-replication-role
+  namespace: infra
+spec:
+  name: myapp-prod-s3-replication-role
+  path: /
+  assumeRolePolicyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Service": "s3.amazonaws.com"
+          },
+          "Action": "sts:AssumeRole"
+        }
+      ]
+    }
+  policyRefs:
+    - from:
+        name: myapp-prod-s3-replication-policy
+        namespace: infra
+  tags:
+    - key: Name
+      value: myapp-prod-s3-replication-role
+    - key: Environment
+      value: prod
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: myapp-prod-s3-replication-policy
+  namespace: infra
+spec:
+  name: myapp-prod-s3-replication-policy
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetReplicationConfiguration",
+            "s3:ListBucket"
+          ],
+          "Resource": "arn:aws:s3:::myapp-assets-prod"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObjectVersionForReplication",
+            "s3:GetObjectVersionAcl",
+            "s3:GetObjectVersionTagging"
+          ],
+          "Resource": "arn:aws:s3:::myapp-assets-prod/*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:ReplicateObject",
+            "s3:ReplicateDelete",
+            "s3:ReplicateTags"
+          ],
+          "Resource": "arn:aws:s3:::myapp-assets-prod-replica/*"
+        }
+      ]
+    }

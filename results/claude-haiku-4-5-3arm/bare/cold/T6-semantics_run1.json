@@ -1,0 +1,31 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "bare",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "======================== FAILURES ===================================\nE   AssertionError: q4 reason should mention immutability, got 'The selector includes tier: backend which is not in the template labels. Kubernetes validation requires selector keys to be present in template labels.'\n    assert 'immutable' in 'the selector includes tier: backend which is not in the template labels. kubernetes validation requires selector keys to be present in template labels.'\n     +  where 'the selector includes tier: backend which is not in the template labels. kubernetes validation requires selector keys to be present in template labels.' = _norm('The selector includes tier: backend which is not in the template labels. Kubernetes validation requires selector keys to be present in template labels.')\n     +    where 'The selector includes tier: backend which is not in the template labels. Kubernetes validation requires selector keys to be present in template labels.' = <built-in method get of dict object at 0x106ce8440>('reason', '')\n     +      where <built-in method get of dict object at 0x106ce8440> = {'succeeds': False, 'reason': 'The selector includes tier: backend which is not in the template labels. Kubernetes validation requires selector keys to be present in template labels.'}.get\n/Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py:91: AssertionError: q4 reason should mention immutability, got 'The selector includes tier: backend which is not in the template labels. Kubernetes validation requires selector keys to be present in template labels.'\n=========================== short test summary info ============================\nFAILED ../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q4_immutable_selector_rejected\n========================= 1 failed, 6 passed in 0.01s ==========================\n",
+      "passed_count": 6,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 3974
+  },
+  "content": "```json\n{\n  \"q1\": \"updated-in-place\",\n  \"q2\": {\"deleted\": false, \"reason\": \"kubectl apply without --prune only applies files in the directory; it doesn't delete objects missing from the manifest set.\"},\n  \"q3\": \"exists\",\n  \"q4\": {\"succeeds\": false, \"reason\": \"The selector includes tier: backend which is not in the template labels. Kubernetes validation requires selector keys to be present in template labels.\"},\n  \"q5\": \"client-side\",\n  \"q6\": {\"namespace_first\": true, \"reason\": \"kubectl processes files alphabetically; 00-namespaces.yaml comes before all other files.\"},\n  \"q7\": {\"blocked\": false, \"reason\": \"Plain kubectl apply has no cross-environment dependencies, health gates, or reconciliation logic. prod and dev are independently deployable.\"}\n}\n```"
+}

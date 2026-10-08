@@ -1,0 +1,134 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T4-debug",
+  "stack": "chant",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "21bb8a162874b583f9abd9644a74417adcd484f8",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "c0ee587611edf00c",
+      "spec_sha256": "f69605fc8125bebf",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[chant lint] chant: exit=0\n\n\u001b[4m/private/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-chant-sv1i6hvt/src/composites/ack-controller.ts\u001b[0m\n  \u001b[90m  49:15 \u001b[0m  \u001b[33mwarning\u001b[0m  Inline object in Declarable constructor \u2014 extract to a named 'const' with 'export'. Each config value should be its own Declarable.  \u001b[90mCOR001\u001b[0m\n  \u001b[90m  54:11 \u001b[0m  \u001b[33mwarning\u001b[0m  Inline object in Declarable constructor \u2014 extract to a named 'const' with 'export'. Each config value should be its own Declarable.  \u001b[90mCOR001\u001b[0m\n\n\u001b[4\n[tsc check] tsc: exit=0"
+    },
+    "static": {
+      "passed": true,
+      "logs": "chant build -f yaml: exit=0\nERR: \u001b[90mfold: 4 files folded, 7 ran (--verbose for reasons)\u001b[0m\n\nkubeconform manifests.yaml: exit=0\nSummary: 11 resources found in 1 file - Valid: 11, Invalid: 0, Errors: 0, Skipped: 0\n\nchant scenario check: none declared"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 2 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T4-debug/tests/test_task.py::test_backup_retention_meets_invariant PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T4-debug/tests/test_task.py::test_other_props_and_invariant_untouched PASSED [100%]\n\n============================== 2 passed in 0.01s ===============================\n",
+      "passed_count": 2,
+      "total_count": 2,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 2272
+  },
+  "content": "## Analysis\n\nThe error message identifies the exact problem:\n\n```\nPostgresInstance(\"myapp-prod-db\"): backupRetentionDays must be at least 7 (SPEC acceptance criterion 2), got 5\n```\n\n**The violating prop:** `backupRetentionDays: 5` in the `PostgresInstance` call for `database`\n\n**The invariant:** From `defaults.ts`, `MINIMUM_BACKUP_RETENTION_DAYS = 7`. The composite's factory body enforces `backupRetentionDays >= 7` before building the DBInstance.\n\n**The SPEC requirement:** SPEC acceptance criterion 2 mandates \"backup retention >= 7 days.\"\n\nThe fix is to change the value from `5` to `7` (the minimum compliant value).\n\n---\n\n`src/envs/prod/infra/main.ts`\n\n```typescript\n/**\n * prod environment \u2014 infra build root.\n *\n * Read this next to `../../dev/infra/main.ts`. Same shape, differing only\n * where the SPEC matrix says: a replica bucket, cross-region replication, a\n * multi-AZ encrypted database, and an OIDC-trusted role instead of an IAM\n * user. `chant build src/envs/prod/infra` sees this file only. The output\n * lands at `dist/prod/infra/manifests.yaml`, the path\n * `../delivery/main.ts`'s `myapp-prod-infra` Kustomization reconciles.\n */\n\nimport { HelmRepository } from \"@intentius/chant-lexicon-k8s\";\n\nimport {\n  ACK_CHART_REGISTRY,\n  AckController,\n  FLUX_NAMESPACE,\n  INFRA_NAMESPACE,\n  PostgresInstance,\n  ReaderIam,\n  SecureBucket,\n  infraLabels,\n  type SecretRef,\n} from \"../../../composites/index.js\";\n\nconst ENV = \"prod\";\nconst REGION = \"us-east-1\";\nconst REPLICA_REGION = \"us-west-2\";\nconst ACK_REPOSITORY = \"aws-controllers-k8s\";\nconst APP_NAMESPACE = \"app\";\nconst SERVICE_ACCOUNT = \"myapp\";\n\n// \u2500\u2500 Application assets bucket \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n// SPEC prod: versioned + encrypted + cross-region replication to us-west-2.\n\nexport const assetsReplica = SecureBucket({\n  name: \"myapp-assets-prod-replica\",\n  env: ENV,\n  region: REPLICA_REGION,\n  component: \"assets-replica\",\n});\n\nexport const assets = SecureBucket({\n  name: \"myapp-assets-prod\",\n  env: ENV,\n  region: REGION,\n  replication: {\n    destinationBucketARN: \"arn:aws:s3:::myapp-assets-prod-replica\",\n    storageClass: \"STANDARD_IA\",\n    replicateExisting: true,\n  },\n});\n\n// \u2500\u2500 Database \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n// SPEC prod: db.t3.medium, multi-AZ, encrypted.\n\n/** Referenced provenance \u2014 see src/composites/secrets.ts. */\nconst masterPassword: SecretRef = {\n  name: \"myapp-prod-db-master\",\n  namespace: INFRA_NAMESPACE,\n  key: \"password\",\n  scope: \"rotated into the cluster by the platform runbook; never in git\",\n};\n\nexport const database = PostgresInstance({\n  name: \"myapp-prod-db\",\n  env: ENV,\n  instanceClass: \"db.t3.medium\",\n  databaseName: \"appdb\",\n  masterUsername: \"appuser\",\n  masterPassword,\n  dbSubnetGroupName: \"myapp-prod-subnets\",\n  allocatedStorageGiB: 100,\n  maxAllocatedStorageGiB: 500,\n  multiAZ: true,\n  storageEncrypted: true,\n  backupRetentionDays: 7,\n  vpcSecurityGroupIDs: [\"sg-prod-database\"],\n});\n\n// \u2500\u2500 Service-account identity \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n// SPEC prod: least-privilege role, OIDC trust, no wildcards, no IAM user.\n\nexport const reader = ReaderIam({\n  name: \"myapp-prod\",\n  env: ENV,\n  bucketName: \"myapp-assets-prod\",\n  trust: {\n    mode: \"oidc\",\n    providerARN: \"arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLEPROD\",\n    issuerHost: \"oidc.eks.us-east-1.amazonaws.com/id/EXAMPLEPROD\",\n    serviceAccountNamespace: APP_NAMESPACE,\n    serviceAccountName: SERVICE_ACCOUNT,\n  },\n  programmaticAccess: false,\n  podIdentity: {\n    clusterName: \"myapp-prod\",\n    serviceAccountNamespace: APP_NAMESPACE,\n    serviceAccountName: SERVICE_ACCOUNT,\n  },\n});\n\n// \u2500\u2500 Chart-delivered controllers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\nconst ackLabels = infraLabels(\"ack\", ENV);\n\nexport const ackCharts = new HelmRepository({\n  metadata: {\n    name: ACK_REPOSITORY,\n    namespace: FLUX_NAMESPACE,\n    labels: ackLabels,\n  },\n  spec: {\n    type: \"oci\",\n    url: ACK_CHART_REGISTRY,\n    interval: \"1h\",\n  },\n});\n\nexport const s3Controller = AckController({\n  service: \"s3\",\n  env: ENV,\n  region: REGION,\n  chartVersion: \"1.0.30\",\n  repositoryName: ackCharts.name,\n  replicas: 2,\n});\n\nexport const rdsController = AckController({\n  service: \"rds\",\n  env: ENV,\n  region: REGION,\n  chartVersion: \"1.4.14\",\n  repositoryName: ackCharts.name,\n  replicas: 2,\n});\n\nexport const iamController = AckController({\n  service: \"iam\",\n  env: ENV,\n  region: REGION,\n  chartVersion: \"1.3.16\",\n  repositoryName: ackCharts.name,\n  replicas: 2,\n});\n```\n\n**Changed:** Line 65, `backupRetentionDays: 5,` \u2192 `backupRetentionDays: 7,`",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-chant-sv1i6hvt/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-chant-sv1i6hvt/src/envs/prod/infra/main.ts"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4661,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 4661,
+      "fenced_blocks": 2,
+      "extracted_files": 2,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

@@ -1,0 +1,39 @@
+# Prod worker node group: 4 nodes, t3.large (SPEC row: "Kubernetes cluster
+# (EKS)"). This file is not a patch on dev/workers.yaml - it's a full,
+# independent copy with the sizing changed. That duplication is what a
+# bare, no-tooling arm costs.
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: myapp-prod-workers
+  namespace: clusters
+spec:
+  clusterName: myapp-prod
+  replicas: 4
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: myapp-prod
+  template:
+    spec:
+      clusterName: myapp-prod
+      version: v1.31.2
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfig
+          name: myapp-prod-workers
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSMachineTemplate
+        name: myapp-prod-workers
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSMachineTemplate
+metadata:
+  name: myapp-prod-workers
+  namespace: clusters
+spec:
+  template:
+    spec:
+      instanceType: t3.large
+      iamInstanceProfile: nodes

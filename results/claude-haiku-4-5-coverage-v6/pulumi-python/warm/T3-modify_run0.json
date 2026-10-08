@@ -1,0 +1,136 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "pulumi-python",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "837cbd4af06f207375d0882e7ee6d931f185e63e",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "7e4e0c9b657e41ec",
+      "spec_sha256": "7a9294ae2fcf8b1a",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[ruff check] ruff: exit=1\n__main__.py:3:8: F401 [*] `json` imported but unused\n  |\n1 | import pulumi\n2 | import pulumi_aws as aws\n3 | import json\n  |        ^^^^ F401\n4 | \n5 | config = pulumi.Config()\n  |\n  = help: Remove unused import: `json`\n\ngenerated_1.py:1:24: F821 Undefined name `aws`\n  |\n1 | custom_metric_policy = aws.autoscaling.Policy(\n  |                        ^^^ F821\n2 |     f\"{cluster_name}-custom-scaling\",\n3 |     autoscaling_group_name=node_group.resources['aws:autoscaling/group:Group'].id,\n  |\n\ngenerated"
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-python, runtime: python)\nscaffolded requirements.txt from the golden's pins\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::iac-cd-bench-pulumi-python::pulumi:pulumi:Stack::iac-cd-bench-pulumi-python-dev]\nResources:\n    + 1 to create\n\nERR: error: Missing required configuration variable 'iac-cd-bench-pulumi-python:node_config'\n\tplease set a value using the command `pulumi config set iac-cd-bench-pulumi-python:node_config <value>`\nerror: an unhandled error occurred: program exited with non-zero exit code: 1\n"
+    },
+    "semantic": {
+      "inapplicable": true,
+      "reason": "no semantic tests",
+      "logs": "no semantic tests",
+      "passed_count": 0,
+      "total_count": 0,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1186,
+    "output": 2836
+  },
+  "content": "# Add Auto-Scaling Policy to Pulumi Stack (Python)\n\nThis solution demonstrates adding AWS Autoscaling policies to an existing EKS cluster without triggering resource replacement.\n\n## Core Strategy\n\n**Resource replacement is triggered when properties marked `ForceNew` change.** For EKS managed node groups and autoscaling:\n\n- **Safe:** Adding new autoscaling resources, updating autoscaling targets/policies\n- **Unsafe:** Changing `node_role_arn`, `instance_types`, `subnet_ids` on the node group itself\n\nThe solution separates the node group definition (unchanged) from autoscaling policy attachment (newly added).\n\n---\n\n## Implementation\n\n### 1. **Infrastructure Code** (`__main__.py`)\n\n```python\nimport pulumi\nimport pulumi_aws as aws\nimport json\n\nconfig = pulumi.Config()\nenv = pulumi.get_stack()  # 'dev' or 'prod'\n\n# Environment-specific configuration\nnode_config = config.require_object('node_config')\ncluster_name = config.require('cluster_name')\nasg_config = config.require_object('asg_config')\n\n# Reference existing cluster (assumed already created)\ncluster = aws.eks.Cluster.get(\n    cluster_name,\n    id=cluster_name,\n    opts=pulumi.ResourceOptions(depends_on=[])  # No dependency tracking\n)\n\n# Reference or create node group (idempotent by name)\nnode_group_name = f\"{cluster_name}-nodes\"\nnode_group = aws.eks.NodeGroup(\n    node_group_name,\n    cluster_name=cluster.name,\n    node_group_name=node_group_name,\n    node_role_arn=config.require('node_role_arn'),\n    subnet_ids=config.require_object('subnet_ids'),\n    scaling_config=aws.eks.NodeGroupScalingConfigArgs(\n        desired_size=node_config['desired'],\n        max_size=node_config['max'],\n        min_size=node_config['min'],\n    ),\n    instance_types=[node_config['instance_type']],\n    opts=pulumi.ResourceOptions(\n        # Prevent accidental replacement if reapplying with identical config\n        ignore_changes=['scaling_config'],  # Managed by autoscaling policy\n    )\n)\n\n# ========== NEW: Autoscaling Policy ==========\n\n# Get the Auto Scaling Group created by the node group\nasg_name = pulumi.Output.concat(cluster.name, \"-node-asg\")\n\n# Target Tracking Scaling Policy (CPU-based)\nautoscaling_policy = aws.autoscaling.Policy(\n    f\"{cluster_name}-cpu-scaling\",\n    autoscaling_group_name=node_group.resources['aws:autoscaling/group:Group'].id,\n    policy_type='TargetTrackingScaling',\n    target_tracking_configuration=aws.autoscaling.PolicyTargetTrackingConfigurationArgs(\n        predefined_metric_specification=aws.autoscaling.PolicyPredefinedMetricSpecificationArgs(\n            predefined_metric_type='ASGAverageCPUUtilization',\n        ),\n        target_value=asg_config['target_cpu_utilization'],\n        scale_out_cooldown=asg_config['scale_out_cooldown'],\n        scale_in_cooldown=asg_config['scale_in_cooldown'],\n    ),\n    opts=pulumi.ResourceOptions(\n        depends_on=[node_group],\n        # Safe to update or re-create this policy without affecting node group\n        protect=False,\n    )\n)\n\n# Optional: Memory-based scaling (custom metric)\nif asg_config.get('enable_memory_scaling', False):\n    memory_policy = aws.autoscaling.Policy(\n        f\"{cluster_name}-memory-scaling\",\n        autoscaling_group_name=node_group.resources['aws:autoscaling/group:Group'].id,\n        policy_type='TargetTrackingScaling',\n        target_tracking_configuration=aws.autoscaling.PolicyTargetTrackingConfigurationArgs(\n            customized_metric_specification=aws.autoscaling.PolicyCustomizedMetricSpecificationArgs(\n                metric_name='MemoryUtilization',\n                namespace='Custom/Kubernetes',\n                statistic='Average',\n                unit='Percent',\n            ),\n            target_value=asg_config['target_memory_utilization'],\n        ),\n        opts=pulumi.ResourceOptions(depends_on=[node_group])\n    )\n\n# Export outputs\npulumi.export('cluster_name', cluster.name)\npulumi.export('node_group_id', node_group.id)\npulumi.export('autoscaling_policy_arn', autoscaling_policy.arn)\n```\n\n---\n\n### 2. **Stack Configuration** (`dev.yaml`)\n\n```yaml\ncluster_name: my-app-dev\nnode_role_arn: arn:aws:iam::123456789012:role/eks-node-role-dev\nsubnet_ids:\n  - subnet-0abc1234dev1\n  - subnet-0abc1234dev2\n\nnode_config:\n  desired: 2\n  min: 2\n  max: 4\n  instance_type: t3.medium\n\nasg_config:\n  target_cpu_utilization: 70\n  scale_out_cooldown: 300\n  scale_in_cooldown: 300\n  enable_memory_scaling: false\n```\n\n### 3. **Stack Configuration** (`prod.yaml`)\n\n```yaml\ncluster_name: my-app-prod\nnode_role_arn: arn:aws:iam::123456789012:role/eks-node-role-prod\nsubnet_ids:\n  - subnet-0abc1234prod1\n  - subnet-0abc1234prod2\n  - subnet-0abc1234prod3\n  - subnet-0abc1234prod4\n\nnode_config:\n  desired: 4\n  min: 4\n  max: 10\n  instance_type: t3.large\n\nasg_config:\n  target_cpu_utilization: 75\n  scale_out_cooldown: 300\n  scale_in_cooldown: 600\n  enable_memory_scaling: true\n  target_memory_utilization: 80\n```\n\n---\n\n## Safe Deployment Workflow\n\n### **Step 1: Preview Without Modification**\n```bash\npulumi select dev\npulumi preview\n# Output: no changes (existing resources already in place)\n```\n\n### **Step 2: Refresh State** (if cluster was created outside Pulumi)\n```bash\npulumi refresh --skip-preview\n# Syncs Pulumi state with actual AWS resources\n```\n\n### **Step 3: Add Autoscaling Policy**\n```bash\n# Modify __main__.py to include the autoscaling section (above)\npulumi preview\n# Output should show ONLY new resources (autoscaling_policy)\n# Existing node_group and cluster unchanged\n```\n\n### **Step 4: Apply Changes**\n```bash\npulumi up --yes\n# Creates autoscaling policy; no node group replacement\n```\n\n### **Step 5: Verify**\n```bash\naws autoscaling describe-policies \\\n  --auto-scaling-group-name my-app-dev-node-asg \\\n  --region us-east-1\n```\n\n---\n\n## Key Safety Principles\n\n| Principle | Implementation |\n|-----------|---|\n| **Immutable properties untouched** | Node group name, role, subnet IDs unchanged |\n| **Scaling config managed externally** | `ignore_changes=['scaling_config']` delegates to autoscaling policy |\n| **Idempotent resource names** | Node group created once; subsequent applies are no-ops |\n| **Clear dependency graph** | Autoscaling policy depends on node group, not vice versa |\n| **Environment isolation** | Separate configs (`dev.yaml`, `prod.yaml`) prevent cross-contamination |\n\n---\n\n## Rollback (if needed)\n\nIf autoscaling policy causes issues:\n\n```bash\n# Remove policy without touching node group\npulumi destroy --target \"urn:pulumi:dev::project::aws:autoscaling/policy::my-app-dev-cpu-scaling\"\npulumi up\n```\n\n---\n\n## Advanced: Custom Metrics via CloudWatch Agent\n\nIf using custom metrics (e.g., application-specific load):\n\n```python\ncustom_metric_policy = aws.autoscaling.Policy(\n    f\"{cluster_name}-custom-scaling\",\n    autoscaling_group_name=node_group.resources['aws:autoscaling/group:Group'].id,\n    policy_type='TargetTrackingScaling',\n    target_tracking_configuration=aws.autoscaling.PolicyTargetTrackingConfigurationArgs(\n        customized_metric_specification=aws.autoscaling.PolicyCustomizedMetricSpecificationArgs(\n            metric_name='RequestCount',\n            namespace='MyApp/LoadBalancer',\n            statistic='Sum',\n        ),\n        target_value=1000,  # Requests per instance\n    ),\n)\n```\n\nEnsure CloudWatch agent is installed on nodes to emit custom metrics.\n\n---\n\n## Canonical Scenario Application\n\nThis solution fits the canonical scenario as follows:\n\n- **Dev cluster:** 2 nodes (t3.medium), scales up to 4 if CPU > 70%\n- **Prod cluster:** 4 nodes (t3.large), scales up to 10 if CPU > 75% or memory > 80%\n- **Environment isolation:** Separate stacks (`dev`, `prod`) with independent policies\n- **Zero downtime:** Autoscaling policy added to running cluster without recreation\n\nNo secrets, S3, RDS, or IAM changes are needed\u2014this is purely a compute-layer enhancement.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-s3k3u1le/__main__.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-s3k3u1le/dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-s3k3u1le/prod.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-s3k3u1le/generated_1.py"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 7823,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 7823,
+      "fenced_blocks": 10,
+      "extracted_files": 4,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

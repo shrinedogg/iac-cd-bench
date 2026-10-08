@@ -1,0 +1,250 @@
+{
+  "nodes": [
+    {
+      "id": "ackCharts",
+      "kind": "K8s::Flux::HelmRepository",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "flux-system",
+        "resourceVersion": "575",
+        "type": "oci"
+      },
+      "physicalId": "8e53ea09-afa3-45c4-b4ed-a26be409073e",
+      "ownership": "owned"
+    },
+    {
+      "id": "assetsBucket",
+      "kind": "K8s::S3::Bucket",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "infra",
+        "resourceVersion": "576"
+      },
+      "physicalId": "9314aa9e-90c8-4b14-9d7a-c4a42a1ee9b6",
+      "ownership": "owned"
+    },
+    {
+      "id": "clusterAppKustomization",
+      "kind": "K8s::Flux::Kustomization",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "flux-system",
+        "resourceVersion": "572"
+      },
+      "physicalId": "02412b1a-1d42-48ef-89ff-43086164e5a9",
+      "ownership": "owned"
+    },
+    {
+      "id": "clusterCluster",
+      "kind": "K8s::CAPI::Cluster",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "clusters",
+        "resourceVersion": "584"
+      },
+      "physicalId": "3b73913a-106f-4d99-97f2-550dc5ecd518",
+      "ownership": "owned"
+    },
+    {
+      "id": "clusterControlPlane",
+      "kind": "K8s::Controlplane::AWSManagedControlPlane",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "clusters",
+        "resourceVersion": "586"
+      },
+      "physicalId": "8ffa395a-9fd1-43ec-834b-95ae33f4fc45",
+      "ownership": "owned"
+    },
+    {
+      "id": "clusterFluxAddon",
+      "kind": "K8s::Addons::HelmChartProxy",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "clusters",
+        "resourceVersion": "589"
+      },
+      "physicalId": "22338366-d932-4d11-8133-3f8f8526f451",
+      "ownership": "owned"
+    },
+    {
+      "id": "clusterInfra",
+      "kind": "K8s::Infrastructure::AWSManagedCluster",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "clusters",
+        "resourceVersion": "585"
+      },
+      "physicalId": "a7943240-1729-435f-b5ea-eec7ca2ddf64",
+      "ownership": "owned"
+    },
+    {
+      "id": "clusterNodePoolAwsPool",
+      "kind": "K8s::Infrastructure::AWSManagedMachinePool",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "clusters",
+        "resourceVersion": "587"
+      },
+      "physicalId": "0dc94c29-569d-4c02-863a-7a65dfa52c95",
+      "ownership": "owned"
+    },
+    {
+      "id": "clusterNodePoolMachinePool",
+      "kind": "K8s::CAPI::MachinePool",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "clusters",
+        "resourceVersion": "588"
+      },
+      "physicalId": "936a20c0-31ab-4e70-8b17-930333ff42b4",
+      "ownership": "owned"
+    },
+    {
+      "id": "databaseInstance",
+      "kind": "K8s::Rds::DBInstance",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "infra",
+        "resourceVersion": "577"
+      },
+      "physicalId": "8042a74e-8872-4068-a78f-1f68240730ed",
+      "ownership": "owned"
+    },
+    {
+      "id": "iamControllerRelease",
+      "kind": "K8s::Flux::HelmRelease",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "flux-system",
+        "resourceVersion": "578"
+      },
+      "physicalId": "574e250f-08e5-4d7c-a64e-1e5b54a8bd2c",
+      "ownership": "owned"
+    },
+    {
+      "id": "infraAppKustomization",
+      "kind": "K8s::Flux::Kustomization",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "flux-system",
+        "resourceVersion": "573"
+      },
+      "physicalId": "62e9f212-f180-42d2-976a-1c1672c37677",
+      "ownership": "owned"
+    },
+    {
+      "id": "rdsControllerRelease",
+      "kind": "K8s::Flux::HelmRelease",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "flux-system",
+        "resourceVersion": "579"
+      },
+      "physicalId": "e9a2faea-803f-4ffa-a1f3-6045c3e1b2d4",
+      "ownership": "owned"
+    },
+    {
+      "id": "readerPolicy",
+      "kind": "K8s::Iam::Policy",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "infra",
+        "resourceVersion": "580"
+      },
+      "physicalId": "052eafa4-844d-4aea-b51b-7f75eb556135",
+      "ownership": "owned"
+    },
+    {
+      "id": "readerRole",
+      "kind": "K8s::Iam::Role",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "infra",
+        "resourceVersion": "581"
+      },
+      "physicalId": "7f99181b-a2d7-46a9-924a-b75b72f2e8e3",
+      "ownership": "owned"
+    },
+    {
+      "id": "readerUser",
+      "kind": "K8s::Iam::User",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "infra",
+        "resourceVersion": "582"
+      },
+      "physicalId": "2410870f-8e31-47e1-b1fb-e528aba26f28",
+      "ownership": "owned"
+    },
+    {
+      "id": "s3ControllerRelease",
+      "kind": "K8s::Flux::HelmRelease",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "flux-system",
+        "resourceVersion": "583"
+      },
+      "physicalId": "c2582689-4a0b-48bf-9c7a-46bdf99fbc1c",
+      "ownership": "owned"
+    },
+    {
+      "id": "sourceGitRepository",
+      "kind": "K8s::Flux::GitRepository",
+      "lexicon": "k8s",
+      "attrs": {
+        "namespace": "flux-system",
+        "resourceVersion": "574"
+      },
+      "physicalId": "c5818c4f-2254-4614-b979-681e62d4f1c7",
+      "ownership": "owned"
+    }
+  ],
+  "edges": [],
+  "groups": {
+    "byLexicon": {
+      "k8s": [
+        "ackCharts",
+        "assetsBucket",
+        "clusterAppKustomization",
+        "clusterCluster",
+        "clusterControlPlane",
+        "clusterFluxAddon",
+        "clusterInfra",
+        "clusterNodePoolAwsPool",
+        "clusterNodePoolMachinePool",
+        "databaseInstance",
+        "iamControllerRelease",
+        "infraAppKustomization",
+        "rdsControllerRelease",
+        "readerPolicy",
+        "readerRole",
+        "readerUser",
+        "s3ControllerRelease",
+        "sourceGitRepository"
+      ]
+    },
+    "byStack": {
+      "k8s": [
+        "ackCharts",
+        "assetsBucket",
+        "clusterAppKustomization",
+        "clusterCluster",
+        "clusterControlPlane",
+        "clusterFluxAddon",
+        "clusterInfra",
+        "clusterNodePoolAwsPool",
+        "clusterNodePoolMachinePool",
+        "databaseInstance",
+        "iamControllerRelease",
+        "infraAppKustomization",
+        "rdsControllerRelease",
+        "readerPolicy",
+        "readerRole",
+        "readerUser",
+        "s3ControllerRelease",
+        "sourceGitRepository"
+      ]
+    }
+  }
+}

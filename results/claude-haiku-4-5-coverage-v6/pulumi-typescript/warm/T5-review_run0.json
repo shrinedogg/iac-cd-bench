@@ -1,0 +1,166 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "837cbd4af06f207375d0882e7ee6d931f185e63e",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1149e6c689227cf1",
+      "spec_sha256": "5f3fd0d7e16716c6",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1197,
+    "output": 745
+  },
+  "content": "# Pulumi Preview Security Review\n\nI'm ready to review your Pulumi preview JSON, but **the actual preview output is not included in your message**. To proceed, please provide the JSON output from:\n\n```\npulumi preview --json > preview.json\n```\n\n## What I Will Check\n\nOnce you provide the preview JSON, I will analyze it for the three security issues specified:\n\n### 1. **Secrets in Plaintext Outputs**\n- Scan all resource properties marked as outputs for unencrypted values (DB connection strings, API keys, passwords)\n- Verify `ConfigSecret` usage in stack configs (should reference `dev.yaml` / `prod.yaml` with encrypted values, not hardcoded strings)\n- Flag any database connection strings or credentials appearing in `outputValues` or `properties`\n\n### 2. **Replacement of Stateful Resources**\n- Identify RDS instances or S3 buckets with `replace: true` in the preview diff\n- Stateful resources (databases, storage) should have `deleteBeforeReplace: false` or `protect: true` to prevent data loss\n- Verify that configuration changes don't trigger unintended resource recreation\n\n### 3. **Missing Protect Flag**\n- Check RDS instance (`aws:rds:Instance`) for `protect: true` (deletion protection)\n- Verify S3 buckets have versioning enabled and no open public-access policies\n- Confirm secrets managed via Pulumi's secret system aren't marked for deletion\n\n## How to Proceed\n\nPlease paste your preview JSON here, and specify:\n- Which **stack** (dev or prod)?\n- Any **specific resources** you're most concerned about?\n\nI'll then provide a detailed security assessment against the acceptance criteria in your spec.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-i46k6f6w/generated_0.txt"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1613,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1613,
+      "fenced_blocks": 1,
+      "extracted_files": 1,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies secret in plaintext outputs as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests JSON input rather than analyzing and identifying plaintext secrets in a provided preview."
+      },
+      {
+        "criterion": "Identifies stateful resource replacement as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests JSON input rather than analyzing and identifying stateful resource replacement risks in a provided preview."
+      },
+      {
+        "criterion": "Identifies missing protect flag as destructive risk",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission requests JSON input rather than analyzing and identifying missing protect flags in a provided preview."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not rank any actual issues by severity, having performed no analysis of specific resources."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides theoretical framework only; no specific remediation steps for actual identified security issues."
+      }
+    ]
+  }
+}

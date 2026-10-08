@@ -1,0 +1,169 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "chant",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "95c10b4aa33c9a8d",
+      "spec_sha256": "015dc357f151354b",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 2520,
+    "output": 1820
+  },
+  "content": "# Security Review: Prod Database & IAM Diff\n\n## Issues Found\n\n### 1. **Hardcoded Master Password in Source Code** \u2014 CRITICAL\n- **Field**: `masterUserPassword: \"Prod2026!DbPass\"` (spec.masterUserPassword)\n- **Problem**: The password is committed as a literal string in TypeScript source. This will be stored in Git history and visible to anyone with repo access. The original code correctly used `SecretRef` to reference an external Kubernetes Secret, following the \"rotated into the cluster by the platform runbook; never in git\" pattern.\n- **Spec Violation**: Canonical Acceptance Criterion #3: \"Secret: never stored in plaintext in Git; encrypted at rest via stack-native mechanism\"\n- **Fix Required**: Revert to `SecretRef` pattern and inject the password as a reference to an existing Secret, not a literal value.\n\n---\n\n### 2. **Deletion Protection Disabled** \u2014 CRITICAL\n- **Field**: `deletionProtection: false` (spec.deletionProtection)\n- **Problem**: The `PostgresInstance` composite unconditionally pinned this to `true` to prevent accidental database destruction. The new raw `DBInstance` sets it to `false`, allowing the production database to be deleted.\n- **Spec Violation**: Canonical Acceptance Criterion #2: \"RDS: deletion protection on\"\n- **Fix Required**: Change to `deletionProtection: true`\n\n---\n\n### 3. **Database Made Publicly Accessible** \u2014 CRITICAL\n- **Field**: `publiclyAccessible: true` (spec.publiclyAccessible)\n- **Problem**: The `PostgresInstance` composite unconditionally pinned this to `false`. The new code exposes the production database to the public internet, creating a massive attack surface for SQL injection, credential brute-force, and DoS.\n- **Spec Violation**: Canonical Acceptance Criterion #2: \"RDS: ...no publicly accessible\"\n- **Fix Required**: Change to `publiclyAccessible: false`\n\n---\n\n### 4. **Wildcard IAM Actions on Prod** \u2014 HIGH\n- **Field**: `additionalActions: [\"s3:*\"]` (reader IAM config)\n- **Problem**: This grants all S3 actions (create buckets, delete objects, modify ACLs, etc.) to the service account, violating least-privilege. The original `ReaderIam` composite was already intended to enforce \"least-privilege role\" for prod.\n- **Spec Violation**: Canonical Acceptance Criterion #4: \"IAM: principle of least privilege; no wildcard actions on prod\"\n- **Fix Required**: Remove `additionalActions`, or explicitly specify the minimal required actions (e.g., `[\"s3:GetObject\", \"s3:ListBucket\"]`).\n\n---\n\n## Required Changes Before Merge\n\n**All four issues are blockers.** Ranked by severity:\n\n1. Replace hardcoded `masterUserPassword` with a `SecretRef` (or equivalent ACK/Kubernetes Secret reference mechanism)\n2. Set `deletionProtection: true`\n3. Set `publiclyAccessible: false`\n4. Remove `additionalActions: [\"s3:*\"]` or replace with explicit minimal permissions\n\n**Recommendation**: If the intent is to unblock a hotfix, do not commit this diff. Either restore `PostgresInstance` (which enforces these guarantees), or add temporary pins at build time that reject `publiclyAccessible=true` and `deletionProtection=false` as fatal lint errors until the composite is fixed. Hardcoded plaintext prod secrets should never be accepted under any circumstances.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3214,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3214,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.8958333333333334,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that the diff hardcodes a plaintext-looking database password directly into spec.masterUserPassword, bypassing secretRef()/SecretRef entirely -- the referenced-provenance discipline this golden depends on to keep material out of git",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Clearly identifies hardcoded plaintext password in spec.masterUserPassword, explicitly notes bypass of SecretRef pattern, explains Git history exposure risk."
+      },
+      {
+        "criterion": "Identifies that abandoning PostgresInstance for a raw new DBInstance({...}) sets publiclyAccessible: true and deletionProtection: false, directly reversing SPEC acceptance criterion 2's non-negotiable posture (both are pinned, not props, inside the composite)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Identifies both publiclyAccessible:true and deletionProtection:false as reversing composite's pinned guarantees; notes raw DBInstance replaced PostgresInstance."
+      },
+      {
+        "criterion": "Identifies the additionalActions: [\"s3:*\"] wildcard added to the prod reader's ReaderIam call, violating SPEC acceptance criterion 4 (no wildcard actions) even though additionalActions is 'just' a string array with no type-level wildcard guard",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Identifies additionalActions:[\"s3:*\"] wildcard in ReaderIam call as violating SPEC criterion 4 least-privilege requirement."
+      },
+      {
+        "criterion": "Notes that bypassing the PostgresInstance composite for a raw DBInstance construction is itself a red flag independent of the specific prop values it happens to set here -- it silently drops every other guarantee the composite enforces (backupRetentionDays >= 7, referenced-secret discipline) for any future edit to this call site",
+        "weight": 1.0,
+        "score": 0.25,
+        "justification": "Mentions composite enforces guarantees but doesn't articulate that composite bypass itself is an independent red flag or explain loss of future build-time protections."
+      },
+      {
+        "criterion": "Ranks the issues by severity in a defensible order consistent with: the hardcoded password and the public/unprotected database as most severe (roughly tied), the wildcard IAM grant next, and the composite bypass as a practice least severe on its own",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Ranking of four issues (password, deletion, public, wildcard) is correct and defensible, but incomplete\u2014does not rank composite bypass as least-severe issue."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this') -- restore the PostgresInstance call with secretRef(), remove the wildcard action",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides specific concrete remediation: restore SecretRef(), set deletionProtection:true, publiclyAccessible:false, remove wildcard actions or specify named actions."
+      }
+    ]
+  }
+}

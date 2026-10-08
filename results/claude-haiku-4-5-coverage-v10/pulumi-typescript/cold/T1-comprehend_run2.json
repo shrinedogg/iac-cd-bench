@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "pulumi-typescript",
+  "run": 2,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "a3e2ccaf37e35ce6",
+      "spec_sha256": "0c1f10c1d2fb471e",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1223,
+    "output": 1095
+  },
+  "content": "# Answer: Cannot Predict Without Actual Code and Preview Output\n\nYou've provided the **canonical scenario specification** (a reference architecture for dev/prod deployment of stateless web infrastructure) but not the **actual Pulumi TypeScript program** or **stack configuration** that would trigger a replace on the RDS instance.\n\nTo answer your three questions definitively, I would need:\n\n1. **The TypeScript program** (e.g., `index.ts`) showing how the RDS instance is declared, including which properties are set and how they differ between stacks\n2. **The stack config files** (`dev.yaml`, `prod.yaml`) showing the actual configuration values\n3. **The preview output** showing which specific property Pulumi flagged for replacement\n\n## General Principles (from the spec)\n\nBased on the canonical scenario alone, here's what *would* trigger RDS replacement in typical Pulumi behavior:\n\n**Which property triggers replace:**\n- Engine version changes (`engine`, `engineVersion`)\n- Instance class downgrades (e.g., `db.t3.medium` \u2192 `db.t3.micro` in prod)\n- Multi-AZ toggle (enabling/disabling requires replacement in most cases)\n- Allocated storage reductions\n- DB name or parameter group changes\n\n**What `pulumi up --target` skips:**\n- All resources *not* in the dependency cone of the target resource\n- For a targeted RDS update, it skips IAM roles, S3 buckets, cluster modifications, and ALB/CloudFront changes unless they're dependencies\n\n**Secrets in outputs:**\n- Pulumi marks secrets with `[secret]` in CLI output\n- Secrets are encrypted at rest in the state file (stack file)\n- The config spec requires using `ConfigSecret` for the DB connection string, which never appears in plaintext in preview/up output\n\n**To proceed:** Please share the TypeScript code and the preview output showing the replace action.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1815,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1815,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.7142857142857143,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that instanceClass change triggers RDS replacement",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission identifies instance class downgrades as triggering RDS replacement in the 'Which property triggers replace' section."
+      },
+      {
+        "criterion": "Explains that --target only applies to specified resources",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly explains that --target skips all resources not in dependency cone, with concrete examples (IAM roles, S3 buckets, ALB/CloudFront unless dependencies)."
+      },
+      {
+        "criterion": "States that secrets are encrypted in state and masked in outputs",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission states secrets are encrypted at rest in state file and masked in CLI output with [secret] markers; ConfigSecret values never appear in plaintext in preview output."
+      },
+      {
+        "criterion": "Describes Pulumi's preview lifecycle",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not describe Pulumi's preview lifecycle; it only requests preview output and mentions marking secrets, but never explains how preview determines or applies changes."
+      }
+    ]
+  }
+}

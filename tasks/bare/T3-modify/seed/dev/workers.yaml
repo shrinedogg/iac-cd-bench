@@ -1,0 +1,39 @@
+# Dev worker node group: 2 nodes, t3.medium (SPEC row: "Kubernetes cluster
+# (EKS)"). This whole file is duplicated (not overlaid) in prod/workers.yaml
+# with different replicas/instanceType - that duplication is what a bare,
+# no-tooling arm costs.
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  name: myapp-dev-workers
+  namespace: clusters
+spec:
+  clusterName: myapp-dev
+  replicas: 2
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: myapp-dev
+  template:
+    spec:
+      clusterName: myapp-dev
+      version: v1.31.2
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
+          kind: KubeadmConfig
+          name: myapp-dev-workers
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: AWSMachineTemplate
+        name: myapp-dev-workers
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSMachineTemplate
+metadata:
+  name: myapp-dev-workers
+  namespace: clusters
+spec:
+  template:
+    spec:
+      instanceType: t3.medium
+      iamInstanceProfile: nodes

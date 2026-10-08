@@ -1,0 +1,130 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "bare",
+  "run": 2,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1a23107b88261579",
+      "spec_sha256": "7affb32886e4c84e",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "1/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T6-semantics/tests/test_task.py:91: AssertionError: q4 reason should mention immutability, got 'Deployment validation requires spec.selector.matchLabels to match spec.template.metadata.labels; adding tier:backend to selector without updating template labels causes validation error'\nE   AssertionError: q5: expected client-side, got 'server-side'\n    assert 'client' in 'server-side'\n     +  where 'server-side' = _norm('server-side')\n     +    where 'server-side' = <built-in method get of dict object at 0x10883ce00>('q5', '')\n     +      where <built-in method get of dict object at 0x10883ce00> = {'q1': 'updated-in-place', 'q2': {'deleted': False, 'reason': 'kubectl apply without --prune is additive; deleting a manifest file does not trigger deletion of resources it created'}, 'q3': 'exists', 'q4': {'succeeds': False, 'reason': 'Deployment validation requires spec.selector.matchLabels to match spec.template.metadata.labels; adding tier:backend to selector without updating template labels causes validation error'}, ...}.get\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T6-semantics/tests/test_task.py:97: AssertionError: q5: expected client-side, got 'server-side'\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T6-semantics/tests/test_task.py::test_q4_immutable_selector_rejected\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T6-semantics/tests/test_task.py::test_q5_client_side_apply_default\n========================= 2 failed, 5 passed in 0.01s ==========================\n",
+      "passed_count": 5,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 4580
+  },
+  "content": "```json\n{\n  \"q1\": \"updated-in-place\",\n  \"q2\": {\"deleted\": false, \"reason\": \"kubectl apply without --prune is additive; deleting a manifest file does not trigger deletion of resources it created\"},\n  \"q3\": \"exists\",\n  \"q4\": {\"succeeds\": false, \"reason\": \"Deployment validation requires spec.selector.matchLabels to match spec.template.metadata.labels; adding tier:backend to selector without updating template labels causes validation error\"},\n  \"q5\": \"server-side\",\n  \"q6\": {\"namespace_first\": true, \"reason\": \"kubectl apply processes files in lexicographic order; 00-namespaces.yaml is applied before all others (a-z filenames), ensuring Namespaces exist before namespaced resources\"},\n  \"q7\": {\"blocked\": false, \"reason\": \"Plain kubectl apply only processes the specified directory and has no cross-environment dependency, health-check, or reconciliation logic; dev and prod are independent\"}\n}\n```",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 900,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 900,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

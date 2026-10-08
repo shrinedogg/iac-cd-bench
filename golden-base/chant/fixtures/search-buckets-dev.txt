@@ -1,0 +1,3 @@
+assetsBucket  K8s::S3::Bucket  9314aa9e-90c8-4b14-9d7a-c4a42a1ee9b6  labels={"app.kubernetes.io/component":"assets","app.kubernetes.io/managed-by":"chant","app.kubernetes.io/part-of":"iac-cd-bench","chant.intentius.io/stack":"iac-cd-bench","iac-cd-bench.dev/env":"dev"}
+— observed from snapshot 25a34bf taken 2026-08-25T15:25:08.351Z · bound 1/1
+— 1 of 1 K8s::S3::Bucket matched  (query: kind:Bucket)

@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "crossplane",
+  "run": 2,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "465d62d4b7855b0f",
+      "spec_sha256": "ca92e9b63f5275ee",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1191,
+    "output": 1285
+  },
+  "content": "# Crossplane Composition Diff Review\n\n## Critical Issues\n\n### 1. **`deletionPolicy: Delete` (Provider-Wide) \u2014 REJECT**\n\n**Severity:** Critical\n\n**Problem:**\nSetting `deletionPolicy: Delete` at the provider level applies cascade deletion to **all** managed resources. This violates multiple acceptance criteria:\n\n- **RDS** (Criterion #2): \"deletion protection on\" \u2014 a blanket `Delete` policy defeats manual deletion protection by automatically cascading resource removal when the claim is deleted. In prod, this creates accidental data loss risk.\n- **S3 bucket** (Criterion #1): Application assets should persist beyond claim lifecycle.\n- **Environment isolation** (Criterion #7): Prod resources require explicit, intentional deletion gates; provider-wide auto-deletion is too permissive.\n\n**Idiomatic Fix (Crossplane):**\n- Move `deletionPolicy` to the **composed resource level**, not the provider config\n- Set per-resource or per-environment:\n  ```yaml\n  # In ComposedTemplate for RDS:\n  deletionPolicy: Orphan  # prod: never auto-delete\n  \n  # In ComposedTemplate for S3:\n  deletionPolicy: Orphan  # retain bucket\n  \n  # Optional: for dev compute (EKS), use Delete if acceptable\n  ```\n- Alternatively, use `CompositionRevisionPolicy` or explicit `DeletionPolicy` overrides at the claim level for dev vs. prod.\n\n---\n\n### 2. **Bucket Versioning Dropped \u2014 REJECT**\n\n**Severity:** High\n\n**Problem:**\nAcceptance Criterion #1 mandates: \"*Bucket: versioning enabled*\" for both dev and prod.\n\nDropping versioning:\n- Breaks object recovery (no rollback on accidental overwrites)\n- Violates spec explicitly\n- Particularly risky for application assets in prod\n\n**Fix:**\nRestore `VersioningConfiguration.Status: Enabled` in the S3 composed resource.\n\n---\n\n## Recommendation\n\n**Request revisions:**\n1. Revert provider-wide `deletionPolicy: Delete` \u2192 move to composed resources with environment-specific policies (Orphan for data-bearing resources, explicit for dev-only transient resources)\n2. Restore bucket versioning\n\n**Rationale:** These changes reduce safety guardrails without compensating architectural benefit. Crossplane's strength is **explicit, declarative lifecycle control** \u2014 this diff centralizes and loosens it.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2216,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 2216,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 1.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies deletionPolicy: Delete as destructive risk",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission explicitly identifies deletionPolicy: Delete as applying cascade deletion to all managed resources, creating accidental data loss risk\u2014labeled Critical."
+      },
+      {
+        "criterion": "Identifies dropped bucket versioning as data loss risk",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission explicitly identifies dropped bucket versioning as breaking object recovery (no rollback on overwrites), violating spec and creating data loss risk."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission ranks deletionPolicy: Delete (Critical) as more severe than bucket versioning (High), matching reference ordering and correctly reflecting wider blast radius."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission provides specific remediation: move deletionPolicy to composed-resource level with Orphan value per-resource; restore VersioningConfiguration.Status: Enabled; suggests CompositionRevisionPolicy alternatives."
+      }
+    ]
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T4-debug",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "62c803682b2a0532",
+      "spec_sha256": "9485a479ef1d1e30",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[tsc check] tsc: exit=0"
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-typescript, runtime: nodejs)\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::iac-cd-bench-pulumi-typescript::pulumi:pulumi:Stack::iac-cd-bench-pulumi-typescript-dev]\n    + aws:s3/bucket:Bucket: (create)\n        [urn=urn:pulumi:dev::iac-cd-bench-pulumi-typescript::aws:s3/bucket:Bucket::app-bucket]\n        [provider=urn:pulumi:dev::iac-cd-bench-pulumi-typescript::pulumi:providers:aws::default_5_43_0::04da6b54-80e4-46f7-96ec-b56ff0331ba9]\n        acl         : \"private\"\n        bucket      : \"myapp-assets-dev\"\n        forceDestroy: false\n        tags        : {\n            Environment: \"dev\"\n            Project    : \"myapp\"\n        }\n        versioning  : {\n            enabled   : true\n            mfaDelete : false\n        }\nResources:\n    + 2 to create\n\nERR: warning: Could not find a package.json or package.yaml file for the program. Using the Pulumi program directory as the project root.\nerror: Missing required configuration variable 'iac-cd-bench-pulumi-typescript:dbPassword'\n\tplease set a value using the command `pulumi config set --secret iac-cd-bench-pulumi-typescript:dbPassword <value>`\n"
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T4-debug/tests/test_task.py::test_no_async_in_index FAILED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T4-debug/tests/test_task.py::test_proper_output_handling PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: Should not mix async functions with pulumi.output() wrapping\n    assert ('async function' not in 'import * as....endpoint;\\n'\n      \n      'async function' is contained here:\n        import * as pulumi from \"@pulumi/pulumi\";\n        import * as aws from \"@pulumi/aws\";\n        \n        const config = new pulumi.Config();\n        const env = config.get(\"env\") || \"dev\";...\n      \n      ...Full output truncated (41 lines hidden), use '-vv' to show or 'pulumi.output' not in 'import * as....endpoint;\\n'\n      \n      'pulumi.output' is contained here:\n        import * as pulumi from \"@pulumi/pulumi\";\n        import * as aws from \"@pulumi/aws\";\n        \n        const config = new pulumi.Config();\n        const env = config.get(\"env\") || \"dev\";...\n      \n      ...Full output truncated (41 lines hidden), use '-vv' to show)\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T4-debug/tests/test_task.py:39: AssertionError: Should not mix async functions with pulumi.output() wrapping\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T4-debug/tests/test_task.py::test_no_async_in_index\n========================= 1 failed, 1 passed in 0.02s ==========================\n",
+      "passed_count": 1,
+      "total_count": 2,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1740,
+    "output": 2671
+  },
+  "content": "# Fixed `index.ts`\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nconst config = new pulumi.Config();\nconst env = config.get(\"env\") || \"dev\";\nconst region = config.get(\"region\") || \"us-east-1\";\n\n// S3 Bucket\nconst bucket = new aws.s3.Bucket(\"app-bucket\", {\n    bucket: `myapp-assets-${env}`,\n    versioning: { enabled: true },\n    tags: { Environment: env, Project: \"myapp\" },\n});\n\n// FIX DEFECT 1: Replace async function with .apply()\n// .apply() is the idiomatic Pulumi pattern for transforming Output values.\n// It handles both sync and async operations correctly at the right time\n// in Pulumi's execution model, avoiding preview-time crashes.\nconst bucketUrl = bucket.bucketDomainName.apply(domain =>\n    `https://${domain}`\n);\n\n// FIX DEFECT 2: Use config.requireSecret() for sensitive data\n// This retrieves encrypted secrets from stack config (dev.yaml, prod.yaml)\n// Never use pulumi.output() to wrap plain-text strings.\n// Set this in your stack config: pulumi config set --secret dbPassword <value>\nconst dbPassword = config.requireSecret(\"dbPassword\");\n\n// RDS Instance\nconst db = new aws.rds.Instance(\"app-db\", {\n    instanceClass: \"db.t3.medium\",\n    engine: \"postgres\",\n    engineVersion: \"16.1\",\n    allocatedStorage: 20,\n    dbName: \"appdb\",\n    username: \"app-user\",\n    password: dbPassword,\n    skipFinalSnapshot: true,\n    // Acceptance criterion #2: enable deletion protection on prod\n    deletionProtection: env === \"prod\",\n});\n\n// Output: these are now proper Output types, not Promises\nexport const bucketEndpoint = bucketUrl;\nexport const dbEndpoint = db.endpoint;\n```\n\n---\n\n## Why Each Defect Crashed Preview\n\n**Defect 1: async function without `.apply()`**\n- `getBucketUrl()` is declared async and returns a `Promise<string>`, not a `pulumi.Output<string>`\n- Pulumi cannot serialize or await Promises during preview serialization\n- Runtime error: *\"Async operations must be wrapped in `.apply()` or resolved at deployment time\"*\n- **Fix**: Use `.apply()` to transform the Output at the right time in Pulumi's execution DAG\n\n**Defect 2: `pulumi.output()` on non-Output**\n- `pulumi.output(\"plain-text-password\")` wraps a plain string literal, creating an unnecessary Output layer\n- More critically: hardcoding passwords in code violates acceptance criterion #3 (never plaintext in Git)\n- Type mismatch: RDS `password` field expects `pulumi.Input<string>`, and while this technically works, it's semantically wrong for secrets\n- **Fix**: Use `config.requireSecret(\"dbPassword\")` to load encrypted secrets from stack config\n\n---\n\n## Stack Config Setup\n\nCreate `dev.yaml`:\n```yaml\nenv: dev\nregion: us-east-1\nconfig:\n  dbPassword:\n    secure: AAABAxxx...  # `pulumi config set --secret dbPassword <value>`\n```\n\nCreate `prod.yaml`:\n```yaml\nenv: prod\nregion: us-east-1\nconfig:\n  dbPassword:\n    secure: BBBBCCxxx...\n```\n\nRun:\n```bash\npulumi config set --secret dbPassword <password>  # Encrypts and stores in stack config\npulumi up\n```\n\n---\n\n## Key Takeaways\n\n1. **Never use async/await directly in Pulumi resource definitions.** Always transform Outputs with `.apply(callback)`.\n2. **Never hardcode or wrap secrets with `pulumi.output()`.** Use `config.requireSecret()` or `config.getSecret()`.\n3. **Acceptance criterion #2**: `deletionProtection: env === \"prod\"` ensures prod safety.\n4. **Exports are now proper Outputs**, not Promises\u2014preview will serialize and display them correctly.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-3ogvjam4/index.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-3ogvjam4/dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-3ogvjam4/prod.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3455,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3455,
+      "fenced_blocks": 4,
+      "extracted_files": 3,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

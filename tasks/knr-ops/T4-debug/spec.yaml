@@ -21,5 +21,5 @@ stages:
     enabled: false
 
 defect:
-  description: "SOPS secret references wrong age key"
-  fix: ".sops.yaml has incorrect age key; kustomize patch targets renamed resource"
+  description: ".sops.yaml's creation_rules reference a placeholder age public key instead of the real one committed in age-key.txt, so SOPS cannot decrypt any *.yaml/*.yml secret and Flux kustomizations that depend on them fail"
+  fix: "Set both creation_rules entries' age value in .sops.yaml to the key in age-key.txt (age1mmngvhy2xuyjd49hdmzg0n6fum5l83u38w5npdd6jpwsuey7fy9svrhspg); age-key.txt itself and infra/secret.yaml are not part of this PR"

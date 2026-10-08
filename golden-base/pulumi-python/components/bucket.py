@@ -6,7 +6,7 @@ from typing import Any
 
 import pulumi
 from pulumi import ComponentResource, Output, ResourceOptions
-from pulumi.aws.s3 import Bucket, BucketPublicAccessBlock, BucketVersioning
+from pulumi.aws.s3 import BucketV2, BucketVersioningV2, BucketPublicAccessBlock
 
 
 class S3Bucket(ComponentResource):
@@ -17,7 +17,8 @@ class S3Bucket(ComponentResource):
         bucket_name: The S3 bucket name.
         tags: Resource tags.
         enable_replication: True for prod (cross-region replication target).
-        replication_target_bucket: ARN of the replication destination bucket (prod only).
+        replication_target_bucket: ARN of the replication destination
+            bucket (prod only).
         opts: Pulumi resource options.
     """
 
@@ -35,14 +36,14 @@ class S3Bucket(ComponentResource):
 
         tag_map = tags or {}
 
-        self.bucket = Bucket(
+        self.bucket = BucketV2(
             f"{name}-bucket",
             bucket=bucket_name,
             tags=tag_map,
             opts=pulumi.ResourceOptions(parent=self),
         )
 
-        BucketVersioning(
+        BucketVersioningV2(
             f"{name}-versioning",
             bucket=self.bucket.id,
             versioning_configuration={"status": "Enabled"},
@@ -83,9 +84,9 @@ class S3Bucket(ComponentResource):
         tags: dict[str, str],
     ) -> None:
         """Configure cross-region replication for prod environments."""
-        from pulumi.aws.s3 import BucketReplicationConfiguration
+        from pulumi.aws.s3 import BucketReplicationConfig
 
-        self.replication_config = BucketReplicationConfiguration(
+        self.replication_config = BucketReplicationConfig(
             f"{name}-replication",
             bucket=self.bucket.id,
             rules=[

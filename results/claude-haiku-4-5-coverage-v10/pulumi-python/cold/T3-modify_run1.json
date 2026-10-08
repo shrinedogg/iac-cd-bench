@@ -1,0 +1,144 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "pulumi-python",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "7e4e0c9b657e41ec",
+      "spec_sha256": "a3a2b243da41adec",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[ruff check] ruff: exit=1\ngenerated_1.py:25:89: E501 Line too long (99 > 88)\n   |\n23 |         \"name\": sa_name,\n24 |         \"annotations\": {\n25 |             \"eks.amazonaws.com/role-arn\": f\"arn:aws:iam::ACCOUNT_ID:role/cluster-autoscaler-{env}\",\n   |                                                                                         ^^^^^^^^^^^ E501\n26 |         },\n27 |     },\n   |\n\nFound 1 error.\n"
+    },
+    "static": {
+      "passed": false,
+      "logs": "pulumi preview --non-interactive --diff: exit=1 examined=1\nscaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-python, runtime: python)\nscaffolded requirements.txt from the golden's pins\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::iac-cd-bench-pulumi-python::pulumi:pulumi:Stack::iac-cd-bench-pulumi-python-dev]\nResources:\n    + 1 to create\n\nERR: error: unable to find main python program `__main__.py` in `/private/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pu",
+      "examined": 1,
+      "tools": [
+        {
+          "tool": "pulumi",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+          "exit": 1,
+          "examined": 1
+        }
+      ]
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "ulumi.ResourceOptions(\\n        #...ract OIDC from existing role\\n\\n# Create service account with IRSA (add to existing cluster)\\nnamespace = \"kube-system\"\\nsa_name = \"cluster-autoscaler\"\\n\\nsa = k8s.core.v1.ServiceAccount(\\n    sa_name,\\n    metadata={\\n        \"namespace\": namespace,\\n        \"name\": sa_name,\\n        \"annotations\": {\\n            \"eks.amazonaws.com/role-arn\": f\"arn:aws:iam::ACCOUNT_ID:role/cluster-autoscaler-{env}\",\\n        },\\n    },\\n    opts=pulumi.ResourceOptions(depends_on=[]),  # Independent of cluster resource\\n)\\n\\n# Deploy Cluster Autoscaler Helm chart\\nautoscaler = k8s.helm.v3.Chart(\\n    f\"cluster-autoscaler-{env}\",\\n    k8s.helm.v3.ChartOpts(\\n        chart=\"cluster-autoscaler\",\\n        namespace=namespace,\\n        values={\\n            \"autoDiscovery\": {\\n                \"clusterName\": cluster_name,\\n            },\\n            \"awsRegion\": pulumi.Config(\"aws\").require(\"region\"),\\n            \"serviceAccount\": {\\n                \"create\": False,\\n                \"name\": sa_name,\\n            },\\n        },\\n        repo=\"https://kubernetes.github.io/autoscaler\",\\n    ),\\n    opts=pulumi.ResourceOptions(depends_on=[sa]),\\n)\\n\\npulumi.export(\"autoscaler_chart\", autoscaler.status)\\n')\n     +    where <function search at 0x104597480> = re.search\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T3-modify/tests/test_task.py:63: AssertionError: expected a scaling Target (appautoscaling.Target) or an autoscaling Group \u2014 a Policy alone has nothing to act on\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-python/T3-modify/tests/test_task.py::test_a_scaling_target_is_declared\n========================= 1 failed, 4 passed in 0.05s ==========================\n",
+      "passed_count": 4,
+      "total_count": 5,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1186,
+    "output": 2472
+  },
+  "content": "# Adding Auto-Scaling to Pulumi EKS Stack Without Replacement\n\nTo add auto-scaling without triggering resource replacement, create the scaling policy as a **separate resource** that *references* (not modifies) the existing node group or Auto Scaling Group. Resource replacement occurs only when you change properties of an already-created resource; adding a new dependent resource does not replace the parent.\n\n## Pattern: Target Tracking Scaling Policy (AWS-native)\n\n```python\nimport pulumi\nimport pulumi_aws as aws\n\nconfig = pulumi.Config()\nenv = config.require('env')  # 'dev' or 'prod'\n\n# Reference the existing EKS cluster's Auto Scaling Group\n# The ASG name pattern for managed node groups is typically:\n# eks-{cluster-name}-{node-group-name}-{random-suffix}\n# Or retrieve it via tags:\n\nasg = aws.ec2.get_auto_scaling_group(\n    filters=[\n        aws.ec2.GetAutoScalingGroupFilterArgs(\n            name=\"tag:eks:nodegroup-name\",\n            values=[f\"app-nodegroup-{env}\"],  # Adjust to your node group name\n        )\n    ]\n)\n\n# Add target-tracking scaling policy (does NOT modify ASG itself)\nscaling_policy = aws.autoscaling.Policy(\n    f\"eks-{env}-autoscale\",\n    autoscaling_group_name=asg.name,\n    policy_type=\"TargetTrackingScaling\",\n    target_tracking_configuration=aws.autoscaling.TargetTrackingConfigurationArgs(\n        predefined_metric_specification=aws.autoscaling.PredefinedMetricSpecificationArgs(\n            predefined_metric_type=\"ASGAverageCPUUtilization\",\n        ),\n        target_value=70.0,\n        scale_down_cooldown=300,\n        scale_up_cooldown=300,\n    ),\n    opts=pulumi.ResourceOptions(\n        # Explicitly isolate from cluster resource to prevent cascading replacement\n        depends_on=[]\n    ),\n)\n\npulumi.export(\"scaling_policy_arn\", scaling_policy.arn)\n```\n\n## Pattern: Kubernetes Cluster Autoscaler (Better for EKS Managed Node Groups)\n\nFor EKS managed node groups, **Cluster Autoscaler** running as a pod is more idiomatic:\n\n```python\nimport pulumi\nimport pulumi_aws as aws\nimport pulumi_kubernetes as k8s\n\nconfig = pulumi.Config()\nenv = config.require('env')\n\n# Assume cluster and OIDC provider already exist; reference by name/ARN\ncluster_name = f\"app-cluster-{env}\"\ncluster = aws.eks.get_cluster(name=cluster_name)\noidc_provider_arn = aws.iam.get_role(\n    name=f\"eks-{env}-cluster-role\"\n).assume_role_policy  # Extract OIDC from existing role\n\n# Create service account with IRSA (add to existing cluster)\nnamespace = \"kube-system\"\nsa_name = \"cluster-autoscaler\"\n\nsa = k8s.core.v1.ServiceAccount(\n    sa_name,\n    metadata={\n        \"namespace\": namespace,\n        \"name\": sa_name,\n        \"annotations\": {\n            \"eks.amazonaws.com/role-arn\": f\"arn:aws:iam::ACCOUNT_ID:role/cluster-autoscaler-{env}\",\n        },\n    },\n    opts=pulumi.ResourceOptions(depends_on=[]),  # Independent of cluster resource\n)\n\n# Deploy Cluster Autoscaler Helm chart\nautoscaler = k8s.helm.v3.Chart(\n    f\"cluster-autoscaler-{env}\",\n    k8s.helm.v3.ChartOpts(\n        chart=\"cluster-autoscaler\",\n        namespace=namespace,\n        values={\n            \"autoDiscovery\": {\n                \"clusterName\": cluster_name,\n            },\n            \"awsRegion\": pulumi.Config(\"aws\").require(\"region\"),\n            \"serviceAccount\": {\n                \"create\": False,\n                \"name\": sa_name,\n            },\n        },\n        repo=\"https://kubernetes.github.io/autoscaler\",\n    ),\n    opts=pulumi.ResourceOptions(depends_on=[sa]),\n)\n\npulumi.export(\"autoscaler_chart\", autoscaler.status)\n```\n\n## Key Principles to Avoid Replacement\n\n| \u2705 Safe | \u274c Triggers Replacement |\n|--------|------------------------|\n| Create scaling policy as new resource | Modify node group `min_size`, `max_size`, `desired_size` |\n| Reference existing ASG by name/tag | Add/remove tags to existing node group (may force new on some providers) |\n| Use `depends_on=[]` to isolate | Change instance type in node group definition |\n| Deploy Helm chart separately | Modify `launch_template` of existing node group |\n\n## Stack Config (`prod.yaml`)\n\n```yaml\nconfig:\n  env: prod\n  aws:region: us-east-1\n  # Autoscaling parameters (optional, if templating)\n  autoscaling:\n    target_cpu: 70\n    min_nodes: 4\n    max_nodes: 20\n```\n\n## Deployment\n\n```bash\n# Update stack without replacement\npulumi up --stack prod\n\n# Verify: no EKS cluster or node group appears in \"replace\" list\n# Only new autoscaling.Policy or k8s resources appear\n```\n\nThis approach ensures the existing cluster and node groups remain untouched; only the scaling policy (a lightweight reference resource) is added.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-jjs7jumf/generated_0.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-jjs7jumf/generated_1.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-jjs7jumf/prod.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4582,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 4582,
+      "fenced_blocks": 4,
+      "extracted_files": 3,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "chant",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1986
+  },
+  "content": "I'll analyze this diff against the scenario spec and identify security issues.\n\n## Security Issues Found\n\n### 1. **Hardcoded plaintext master password** (CRITICAL)\n- **Location**: Line `masterUserPassword: \"Prod2026!DbPass\"`\n- **Issue**: The database master password is now a literal string in source code, which will be committed to Git and visible in PR history. This violates the spec requirement: *\"Secret: never stored in plaintext in Git\"*. The old code used `SecretRef` (a pointer to a K8s Secret stored out of band), with explicit provenance: *\"rotated into the cluster by the platform runbook; never in git\"*.\n- **Impact**: Permanent credential exposure in Git history; accessible to anyone with repo access; may be indexed by search engines if public.\n- **Fix**: Replace with a `SecretRef` back to the out-of-band secret, or restore the `PostgresInstance` composite.\n\n---\n\n### 2. **publiclyAccessible set to true** (CRITICAL)\n- **Location**: Line `publiclyAccessible: true`\n- **Issue**: The prod RDS instance is now internet-facing. The scenario spec explicitly requires: *\"RDS: ... no publicly accessible\"*. The composite enforced this unconditionally (`false` hard-coded).\n- **Impact**: Direct internet access to the production database. Combined with the hardcoded password (issue #1), anyone on the internet can connect and compromise the database.\n- **Fix**: Set to `false`.\n\n---\n\n### 3. **deletionProtection set to false** (CRITICAL)\n- **Location**: Line `deletionProtection: false`\n- **Issue**: The prod database can now be deleted without protection. The spec requires: *\"RDS: deletion protection on\"*. The composite enforced this unconditionally (`true` hard-coded).\n- **Impact**: An attacker or insider with AWS access can permanently delete the production database and all data.\n- **Fix**: Set to `true`.\n\n---\n\n### 4. **IAM wildcard S3 actions** (CRITICAL)\n- **Location**: Line `additionalActions: [\"s3:*\"]`\n- **Issue**: The service account now has unrestricted S3 permissions. The scenario spec explicitly forbids this: *\"IAM: principle of least privilege; no wildcard actions on prod\"*.\n- **Impact**: The application (and any attacker who compromises it) can read, write, or delete any S3 object in the account\u2014including unrelated buckets, assets, backups, or other applications' data.\n- **Fix**: Replace with specific minimal actions required (e.g., `[\"s3:GetObject\", \"s3:ListBucket\"]` scoped to the specific bucket).\n\n---\n\n## Ranked by Severity (All CRITICAL)\n\n1. **Hardcoded plaintext password** \u2014 Most immediate: credentials live in Git forever; direct path to DB compromise if combined with #2.\n2. **publiclyAccessible: true** \u2014 Enables remote attack; combined with #1, instant DB takeover; violates scenario spec.\n3. **deletionProtection: false** \u2014 Enables data destruction; violates recovery/compliance requirements; violates scenario spec.\n4. **Wildcard S3 permissions** \u2014 Violates least-privilege principle; enables lateral movement and data exfiltration; violates scenario spec.\n\n---\n\n## Recommendation\n\n**Do not merge this PR.** All four issues must be fixed. The change is essentially stripping all security constraints that `PostgresInstance` enforced. If this is genuinely a hotfix, it needs to:\n- Restore the `SecretRef` pattern for the master password.\n- Restore `deletionProtection: true` and `publiclyAccessible: false`.\n- Remove the wildcard `s3:*` and specify only the minimal required actions.\n\nConsider reverting to the `PostgresInstance` composite rather than reimplementing the raw `DBInstance` unsecurely.",
+  "judge": {
+    "idiom": 0.6666666666666666,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that the diff hardcodes a plaintext-looking database password directly into spec.masterUserPassword, bypassing secretRef()/SecretRef entirely -- the referenced-provenance discipline this golden depends on to keep material out of git",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Clearly identifies hardcoded plaintext password in masterUserPassword, committed to git, violates secretRef/referenced-provenance discipline; contrasts with old SecretRef pattern."
+      },
+      {
+        "criterion": "Identifies that abandoning PostgresInstance for a raw new DBInstance({...}) sets publiclyAccessible: true and deletionProtection: false, directly reversing SPEC acceptance criterion 2's non-negotiable posture (both are pinned, not props, inside the composite)",
+        "weight": 3.0,
+        "score": 0.75,
+        "justification": "Identifies both publiclyAccessible: true and deletionProtection: false, notes composite enforced opposite values; doesn't explicitly state abandoning PostgresInstance for raw DBInstance enabled these."
+      },
+      {
+        "criterion": "Identifies the additionalActions: [\"s3:*\"] wildcard added to the prod reader's ReaderIam call, violating SPEC acceptance criterion 4 (no wildcard actions) even though additionalActions is 'just' a string array with no type-level wildcard guard",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Correctly identifies additionalActions: [\"s3:*\"] on ReaderIam, cites SPEC criterion 4 violation; omits detail that string array has no type-level wildcard guard."
+      },
+      {
+        "criterion": "Notes that bypassing the PostgresInstance composite for a raw DBInstance construction is itself a red flag independent of the specific prop values it happens to set here -- it silently drops every other guarantee the composite enforces (backupRetentionDays >= 7, referenced-secret discipline) for any future edit to this call site",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Does not identify composite bypass as independent red flag; mentions 'stripping constraints' in Recommendation but not as separate concern about silently dropping future guarantees."
+      },
+      {
+        "criterion": "Ranks the issues by severity in a defensible order consistent with: the hardcoded password and the public/unprotected database as most severe (roughly tied), the wildcard IAM grant next, and the composite bypass as a practice least severe on its own",
+        "weight": 2.0,
+        "score": 0.25,
+        "justification": "Ranks password > publiclyAccessible > deletionProtection > s3, diverging from specified order (password/db-tied > s3 > composite-bypass); omits composite-bypass from ranking entirely."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this') -- restore the PostgresInstance call with secretRef(), remove the wildcard action",
+        "weight": 1.0,
+        "score": 0.75,
+        "justification": "Provides remediations for all 4 identified issues; fixes 1 and 4 are concrete/specific; fixes 2 and 3 ('Set to false/true') lack explicit field names in issue sections despite clarity in Recommendation."
+      }
+    ]
+  }
+}

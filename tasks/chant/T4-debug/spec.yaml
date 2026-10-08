@@ -1,0 +1,24 @@
+stack: chant
+archetype: debug
+id: "T4-debug"
+title: "Fix PostgresInstance backupRetentionDays violating the composite's own invariant"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - chant lint
+  static:
+    enabled: true
+    tools:
+      - chant build
+  semantic:
+    enabled: true
+    assertion_count: 2
+  e2e:
+    enabled: false
+
+defect:
+  description: "src/envs/prod/infra/main.ts's PostgresInstance call sets backupRetentionDays: 5, violating the composite's own SPEC-criterion-2 invariant enforced in postgres-instance.ts: backupRetentionDays must be at least 7 (MINIMUM_BACKUP_RETENTION_DAYS), or the factory throws at build time rather than silently emitting a non-compliant DBInstance"
+  fix: "Set backupRetentionDays to a value >= 7 at the src/envs/prod/infra/main.ts call site (e.g. restore 30, prod's original SPEC-driven value); the invariant itself lives in the composite and must not be weakened there -- postgres-instance.ts is not part of this PR"

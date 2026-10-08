@@ -1,0 +1,47 @@
+# Additional policy granting the dev service user read/write on the new
+# logs bucket only, scoped separately from the existing assets-bucket policy
+# in dev/iam.yaml so neither grant widens the other's access.
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: myapp-dev-logs-policy
+  namespace: infra
+spec:
+  name: myapp-dev-logs-policy
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject"
+          ],
+          "Resource": "arn:aws:s3:::myapp-logs-dev/*"
+        }
+      ]
+    }
+---
+# Attach the new policy to the existing dev service user (myapp-dev-service-account,
+# defined in dev/iam.yaml) via an additional User referencing both policyRefs.
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: User
+metadata:
+  name: myapp-dev-service-account
+  namespace: infra
+spec:
+  name: myapp-dev-service-account
+  path: /
+  policyRefs:
+    - from:
+        name: myapp-dev-service-policy
+        namespace: infra
+    - from:
+        name: myapp-dev-logs-policy
+        namespace: infra
+  tags:
+    - key: Name
+      value: myapp-dev-service-account
+    - key: Environment
+      value: dev

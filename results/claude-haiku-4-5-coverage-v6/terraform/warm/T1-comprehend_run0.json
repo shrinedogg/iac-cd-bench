@@ -1,0 +1,161 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "terraform",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "837cbd4af06f207375d0882e7ee6d931f185e63e",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "4a59154730b5b054",
+      "spec_sha256": "ae00422e77eb16a1",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1511,
+    "output": 2418
+  },
+  "content": "# Terraform Plan Behavior Analysis\n\nGiven the canonical scenario with dev/prod environment separation, here's how Terraform behaves in each case:\n\n## 1. What does the next plan show when a variable flips?\n\nWhen switching from dev to prod (e.g., via `terraform workspace select prod` or loading `prod.tfvars`), the plan displays **all resource modifications** needed to transform dev infrastructure into prod infrastructure:\n\n| Resource | Dev \u2192 Prod Change | Plan Output |\n|---|---|---|\n| **EKS nodes** | 2 \u00d7 t3.medium \u2192 4 \u00d7 t3.large | `~` replace (node group update) |\n| **RDS instance** | db.t3.micro, single-AZ \u2192 db.t3.medium, multi-AZ | `~` replace (instance class + multi-AZ) |\n| **S3 replication** | none \u2192 cross-region to us-west-2 | `+` new replication config |\n| **IAM role** | programmatic \u2192 OIDC trust | `~` update trust policy |\n| **HTTPS** | ALB (internal) \u2192 CloudFront + ACM | `+` new CloudFront distribution, `-` ALB (if resources are replaced) |\n\nThe plan **does not automatically apply**. It shows the delta: Terraform compares the state file (current reality) against the new configuration (desired state with prod variables).\n\n## 2. What happens if the state file is deleted?\n\nDeleting `.terraform.tfstate` causes **critical divergence between Terraform's knowledge and AWS reality**:\n\n**Immediate effect:**\n- `terraform plan` shows all resources as `+` (create), because Terraform has no record they exist\n- Terraform treats the AWS account as empty\n\n**If you then run `terraform apply`:**\n- Attempt to create all resources from scratch\n- **AWS will reject** with `already exists` errors (EKS cluster, S3 bucket, RDS instance, etc.) \u2014 most creation operations are idempotent failures\n- State file remains empty; infrastructure remains unmanaged\n- You're now in an unrecoverable state without external recovery\n\n**Recovery options:**\n- Restore `.tfstate` from backup (S3, version control history, Terraform Cloud)\n- Use `terraform import` to re-adopt each resource (manual, tedious)\n- Use `terraform state pull` if using remote backend (e.g., S3) \u2014 the backend is the single source of truth, not the local file\n\n**Lesson:** Always use **remote state backends** (S3 + DynamoDB lock, Terraform Cloud, etc.) for prod. Local state is fragile.\n\n## 3. How does Terraform handle the RDS instance class change?\n\nRDS instance class changes (dev: `db.t3.micro` \u2192 prod: `db.t3.medium`) plus multi-AZ enablement:\n\n**Plan shows:**\n```\n~ resource \"aws_db_instance\" \"postgres\" {\n      ~ allocated_storage           = 20 \u2192 100\n      ~ instance_class              = \"db.t3.micro\" \u2192 \"db.t3.medium\"  # forces replacement\n      ~ multi_az                    = false \u2192 true                     # forces replacement\n      ...\n  }\n  (Plan shows as \"must be replaced\")\n```\n\n**Terraform's handling:**\n- **Does not** perform in-place modification (both changes trigger replacement)\n- Executes: `destroy old instance` \u2192 `create new instance`\n- **Timing:** If deletion protection is enabled (prod requirement), apply fails unless you remove the flag first\n- **Data loss risk:** RDS automated backups retain data, but the instance ID changes\n- Requires database connection strings to be updated (Terraform outputs would reflect new endpoint)\n\n**If applied:**\n1. Old RDS instance destroyed (with final snapshot if `skip_final_snapshot = false`)\n2. New instance created with prod parameters\n3. Restore from snapshot or start fresh (depending on config)\n4. Downtime occurs (no read replica failover in this scenario)\n\n## 4. What is the difference between state and configuration?\n\n| Aspect | **Configuration (.tf files)** | **State (.tfstate)** |\n|---|---|---|\n| **Role** | Desired infrastructure declaration | Record of deployed reality |\n| **Format** | HCL (human-readable code) | JSON |\n| **Ownership** | Developer/team commits to Git | Terraform owns; should be remote-backed |\n| **Mutability** | Changed by editing code | Changed only by `terraform apply` |\n| **Example** | `resource \"aws_db_instance\" \"postgres\" { instance_class = var.db_class }` | `{\"type\":\"aws_db_instance\",\"instances\":[{\"attributes\":{\"id\":\"prod-postgres-2026\",\"instance_class\":\"db.t3.medium\"}}]}` |\n| **Plan calculation** | (Configuration) \u2212 (State) = Changes | |\n| **Rollback** | Revert Git commit, re-apply | Requires state recovery/import |\n| **Versioning** | Git history | Backend (S3 versioning, Terraform Cloud snapshots) |\n\n**Critical relationship:**\n```\nterraform plan = (configuration with applied variables) - (current state)\nterraform apply = execute changes to make state match configuration\n```\n\nWhen you flip from dev to prod, **configuration changes** (via tfvars), but if state hasn't been pulled (or workspace isn't switched), you're comparing new config against stale/unrelated state, causing plan chaos. This is why workspace isolation or `-var-file` separation is essential for multi-environment IaC.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-ssrs62rg/prod.tfvars",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-ssrs62rg/generated_0.txt"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4882,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 4882,
+      "fenced_blocks": 2,
+      "extracted_files": 2,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 1.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that state file deletion loses all tracked resources",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies that deleting .tfstate causes Terraform to lose its record/tracking: 'Terraform has no record they exist', 'Terraform treats the AWS account as empty', 'infrastructure remains unmanaged'."
+      },
+      {
+        "criterion": "Correctly predicts plan shows instanceClass change",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission correctly predicts plan shows instanceClass change with detailed diff: 'instance_class = \"db.t3.micro\" \u2192 \"db.t3.medium\" # forces replacement', marked as replacement (`~`)."
+      },
+      {
+        "criterion": "Explains that RDS instanceClass change may trigger recreate",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission explains that RDS instanceClass change triggers recreate: 'Executes: destroy old instance \u2192 create new instance'; explicitly states 'does not perform in-place modification'."
+      },
+      {
+        "criterion": "Distinguishes state (current reality) from config (desired state)",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly distinguishes state (Record of deployed reality) from configuration (Desired infrastructure declaration) and explains plan = configuration - state relationship unambiguously."
+      }
+    ]
+  }
+}

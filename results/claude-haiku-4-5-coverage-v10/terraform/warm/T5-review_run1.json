@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "terraform",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "dd01970ce92a5964",
+      "spec_sha256": "f6545befc3558903",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1210,
+    "output": 942
+  },
+  "content": "# Terraform Plan Review: Guidance & Methodology\n\nI notice you've described the review task and provided the canonical scenario spec, but **the actual tfplan JSON file is not included in your message**. To conduct the review you're requesting, I'll need that JSON payload.\n\nHowever, I can outline the **detection methodology** for the two critical issues you've flagged:\n\n## 1. Hidden Database Recreate (Destroy + Create)\n\n**What to look for in tfplan:**\n- Search the `resource_changes` array for the RDS instance resource (e.g., `aws_db_instance.app_db`)\n- Check the `change.actions` field:\n  - **Danger signal**: `[\"delete\", \"create\"]` or equivalent two-step pattern\n  - **Why hidden**: Among 40 changes, a multi-step replacement can be visually lost; the diff may show only attribute changes at first glance\n- Examine the `before` \u2192 `after` comparison:\n  - Changes to `engine_version`, `parameter_group_name`, `allocated_storage` (especially downsizes), or `instance_class` trigger recreation\n  - Multi-AZ enablement on prod changes the AZ/subnet, also forcing recreation\n- **Safeguard verification**:\n  - Confirm `skip_final_snapshot = false` and `final_snapshot_identifier` is set (preserves data)\n  - Verify `deletion_protection = true` is in both dev and prod instances before and after\n\n## 2. Overly Permissive Security Group (0.0.0.0/0 Ingress)\n\n**What to look for:**\n- Locate security group resources (`aws_security_group` or `aws_security_group_rule`)\n- In `change.after.ingress` array or separate rule resources, check:\n  - **Danger signal**: Any rule with `cidr_blocks: [\"0.0.0.0/0\"]` or `ipv6_cidr_blocks: [\"::/0\"]`\n  - Particularly risky if targeting database ports (5432 for PostgreSQL) or admin ports (22, 3389)\n  - **Acceptance criterion violation**: Per spec, prod should have least-privilege; this is typically allowed only for ALB/CloudFront security groups serving HTTPS (ports 80/443)\n\n## Next Steps\n\n**Please provide the tfplan JSON file** (or paste the relevant `resource_changes` section), and I'll:\n1. Pinpoint the exact resource paths and change actions\n2. Flag the specific attribute changes causing recreation\n3. Verify backup/protection settings\n4. Confirm CIDR blocks and port ranges for each security rule\n5. Cross-reference against the dev/prod specs to assess blast radius",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2306,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 2306,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies RDS destroy + create as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses to identify RDS destroy+create, claiming tfplan JSON is missing; provides only detection methodology, not actual identification."
+      },
+      {
+        "criterion": "Identifies 0.0.0.0/0 ingress as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses to identify 0.0.0.0/0 ingress risk, claiming tfplan JSON is missing; provides methodology template instead of actual findings."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not rank any issues by severity; it declines to analyze the plan and requests the JSON file instead."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides no specific remediation steps; it only outlines a detection framework and requests missing input."
+      }
+    ]
+  }
+}

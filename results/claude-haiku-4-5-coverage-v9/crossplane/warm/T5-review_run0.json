@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "crossplane",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "65ba8f1338fa2db12539125d32183373e03dc439",
+      "dirty": false,
+      "branch": "bench/gates-pulumi"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "465d62d4b7855b0f",
+      "spec_sha256": "ca92e9b63f5275ee",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1191,
+    "output": 1187
+  },
+  "content": "# Review: Crossplane Composition Diff\n\n## Summary\nThis diff introduces **two concerns**: one critical compliance violation, and one operational risk for production.\n\n---\n\n## Finding 1: Bucket Versioning Dropped \u2014 **CRITICAL**\n\n**Issue:** S3 bucket versioning has been removed from the composition.\n\n**Acceptance Criteria Violation:**\n- Spec AC1 requires: **\"Bucket: versioning enabled\"**\n- Spec resource table mandates: versioning for **both dev and prod** S3 buckets\n\n**Impact:**\n- Without versioning, accidental overwrites or deletes are unrecoverable\n- Particularly problematic for prod, which also requires cross-region replication\u2014replication depends on versioning for meaningful data protection\n\n**Recommendation:** Restore `versioningConfiguration.enabled: true` on the S3 Composition resource template. This must apply to both dev and prod claims.\n\n---\n\n## Finding 2: `deletionPolicy: Delete` Provider-Wide \u2014 **SIGNIFICANT RISK**\n\n**Issue:** Setting `deletionPolicy: Delete` at the provider level means deleting a Crossplane claim (XClaim) will cascade to delete all underlying AWS resources.\n\n**Operational Risk:**\n- Accidental claim deletion \u2192 infrastructure destruction (no safety net in Crossplane)\n- While the spec requires RDS deletion protection (AC2: \"deletion protection on\"), this is an AWS-level guard only\n- A misconfigured claim deletion or GitOps sync error could still trigger cascading deletes through Crossplane\n\n**Recommendation:** \n- For **prod**: consider `deletionPolicy: Orphan` to require explicit AWS console/CLI removal, or keep `Delete` only if:\n  - Claim deletion is gated by policy/RBAC\n  - Deletion workflows are documented and tested\n- For **dev**: `Delete` is acceptable (faster teardown)\n- Alternatively, use per-claim overrides rather than provider-wide defaults to differentiate dev/prod safety posture\n\n---\n\n## Environment Isolation Check\n\n\u2713 No immediate isolation breach detected in the diff snippet provided, but confirm:\n- Dev and prod claims use separate `providerConfigRef` if regions differ\n- Composition selectors properly gate dev vs. prod resource templates\n\n---\n\n## Blockers\n\n| Issue | Severity | Must Fix? |\n|-------|----------|-----------|\n| Bucket versioning removed | \ud83d\udd34 Critical | **Yes** \u2014 violates AC1 |\n| `deletionPolicy: Delete` prod | \ud83d\udfe0 High | **Yes** \u2014 operational risk for prod |\n\n**Recommendation:** Reject this diff until versioning is restored and deletionPolicy is scoped appropriately (dev: Delete, prod: Orphan or gated).",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2491,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 2491,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.9375,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies deletionPolicy: Delete as destructive risk",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Clearly identifies deletionPolicy: Delete as destructive, explaining cascade deletion of all managed resources and operational risk of accidental claim deletion."
+      },
+      {
+        "criterion": "Identifies dropped bucket versioning as data loss risk",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Explicitly identifies dropped bucket versioning as data loss risk, stating accidental overwrites/deletes become unrecoverable without versioning protection."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Ranks and labels both issues with severity (bucket versioning Critical, deletionPolicy High), providing reasoning via AC1 compliance and operational risk framing, but ranking may reverse standard severity order where provider-wide infrastructure destruction typically ranks higher than S3-specific data loss."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides specific remediation: restore versioningConfiguration.enabled: true for bucket versioning; for deletionPolicy, recommends Orphan for prod or Delete with RBAC gating, plus per-claim overrides for dev/prod differentiation."
+      }
+    ]
+  }
+}

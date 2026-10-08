@@ -1,0 +1,146 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T2-generate",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "47edc739252c0c6e",
+      "spec_sha256": "99d9a22b1a5ac0fa",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[parse all YAML] yq: exit=0\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp-sa\n  namespace: myapp\n  annotations:\n    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/myapp-logs-irsa\n---\napiVersion: source.toolkit.fluxcd.io/v1beta2\nkind: GitRepository\nmetadata:\n  name: knr-ops\n  namespace: flux-system\nspec:\n  interval: 1m\n  url: https://github.com/your-org/knr-ops.git\n  ref:\n    branch: main\n  # Add SOPS decryption if needed:\n  # postBuild:\n  #   substitute: {}\n  #   substituteFrom:\n  #     - kind: Confi\n[validate CRDs] kubeconform: exit=0\nSummary: 15 resources found in 14 files - Valid: 1, Invalid: 0, Errors: 0, Skipped: 14\n"
+    },
+    "static": {
+      "passed": true,
+      "logs": "kustomize build /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/prod: exit=0\nERR: # Warning: 'bases' is deprecated. Please use 'resources' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n# Warning: 'commonLabels' is deprecated. Please use 'labels' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n# Warning: 'patchesStrategicMerge' is deprecated. Please use 'patches' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n\nkustomize build /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/dev: exit=0\nERR: # Warning: 'bases' is deprecated. Please use 'resources' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n# Warning: 'commonLabels' is deprecated. Please use 'labels' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n# Warning: 'patchesStrategicMerge' is deprecated. Please use 'patches' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n\nkustomize build /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/iam/logs-irsa: exit=0\nkustomize build /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/s3/logs: exit=0\nflux build logs-kustomization.yaml: exit=0\nERR: # Warning: 'bases' is deprecated. Please use 'resources' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n# Warning: 'commonLabels' is deprecated. Please use 'labels' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n# Warning: 'patchesStrategicMerge' is deprecated. Please use 'patches' instead. Run 'kustomize edit fix' to update your Kustomization automatically.\n"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 6 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/knr-ops/T2-generate/tests/test_task.py::test_bucket_manifest_exists PASSED [ 16%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/knr-ops/T2-generate/tests/test_task.py::test_bucket_versioning PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/knr-ops/T2-generate/tests/test_task.py::test_bucket_encryption PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/knr-ops/T2-generate/tests/test_task.py::test_public_access_blocked PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/knr-ops/T2-generate/tests/test_task.py::test_iam_role_created PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/knr-ops/T2-generate/tests/test_task.py::test_flux_kustomization_added PASSED [100%]\n\n============================== 6 passed in 0.02s ===============================\n",
+      "passed_count": 6,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1519,
+    "output": 5009
+  },
+  "content": "# Adding ACK-Managed Logs S3 Bucket + IRSA + Flux Kustomization\n\nHere's the idiomatic implementation for knr-ops:\n\n## File Structure\n\n```\ninfra/\n\u251c\u2500\u2500 s3/\n\u2502   \u2514\u2500\u2500 logs/\n\u2502       \u251c\u2500\u2500 kustomization.yaml\n\u2502       \u251c\u2500\u2500 bucket.yaml\n\u2502       \u2514\u2500\u2500 public-access-block.yaml\n\u251c\u2500\u2500 iam/\n\u2502   \u2514\u2500\u2500 logs-irsa/\n\u2502       \u251c\u2500\u2500 kustomization.yaml\n\u2502       \u251c\u2500\u2500 role.yaml\n\u2502       \u2514\u2500\u2500 policy.yaml\n\u251c\u2500\u2500 overlays/\n\u2502   \u251c\u2500\u2500 dev/\n\u2502   \u2502   \u251c\u2500\u2500 kustomization.yaml\n\u2502   \u2502   \u251c\u2500\u2500 s3-logs-patch.yaml\n\u2502   \u2502   \u2514\u2500\u2500 iam-logs-patch.yaml\n\u2502   \u2514\u2500\u2500 prod/\n\u2502       \u251c\u2500\u2500 kustomization.yaml\n\u2502       \u251c\u2500\u2500 s3-logs-patch.yaml\n\u2502       \u2514\u2500\u2500 iam-logs-patch.yaml\n\u2514\u2500\u2500 flux/\n    \u2514\u2500\u2500 logs-kustomization.yaml\n```\n\n---\n\n## 1. Base S3 Bucket Manifest\n\n**`infra/s3/logs/bucket.yaml`**\n```yaml\napiVersion: s3.aws.upbound.io/v1beta1\nkind: Bucket\nmetadata:\n  name: myapp-logs\n  namespace: infra-aws\n  labels:\n    app: myapp-logs\nspec:\n  forProvider:\n    bucket: \"myapp-logs-dev\"  # Patched per environment\n    region: us-east-1\n    versioning:\n      - enabled: true\n    serverSideEncryptionConfiguration:\n      - rule:\n          - applyServerSideEncryptionByDefault:\n              - sseAlgorithm: AES256\n    tags:\n      ManagedBy: flux\n      Component: logging\n  providerConfigRef:\n    name: aws-provider  # References ACK provider config\n  writeConnectionSecretToRef:\n    name: myapp-logs-bucket\n    namespace: infra-aws\n```\n\n**`infra/s3/logs/public-access-block.yaml`**\n```yaml\napiVersion: s3.aws.upbound.io/v1beta1\nkind: BucketPublicAccessBlock\nmetadata:\n  name: myapp-logs-pab\n  namespace: infra-aws\nspec:\n  forProvider:\n    bucketRef:\n      name: myapp-logs\n    blockPublicAcls: true\n    blockPublicPolicy: true\n    ignorePublicAcls: true\n    restrictPublicBuckets: true\n  providerConfigRef:\n    name: aws-provider\n```\n\n**`infra/s3/logs/kustomization.yaml`**\n```yaml\napiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\nmetadata:\n  name: s3-logs\nnamespace: infra-aws\n\nresources:\n  - bucket.yaml\n  - public-access-block.yaml\n```\n\n---\n\n## 2. IRSA Role & Policy\n\n**`infra/iam/logs-irsa/role.yaml`**\n```yaml\napiVersion: iam.aws.upbound.io/v1beta1\nkind: Role\nmetadata:\n  name: myapp-logs-irsa\n  namespace: infra-aws\n  labels:\n    app: myapp-logs\nspec:\n  forProvider:\n    assumeRolePolicyDocument: |\n      {\n        \"Version\": \"2012-10-17\",\n        \"Statement\": [\n          {\n            \"Effect\": \"Allow\",\n            \"Principal\": {\n              \"Federated\": \"OIDC_PROVIDER_ARN\"\n            },\n            \"Action\": \"sts:AssumeRoleWithWebIdentity\",\n            \"Condition\": {\n              \"StringEquals\": {\n                \"OIDC_ISSUER:sub\": \"system:serviceaccount:myapp:myapp-sa\"\n              }\n            }\n          }\n        ]\n      }\n    tags:\n      ManagedBy: flux\n      Component: logging\n  writeConnectionSecretToRef:\n    name: myapp-logs-irsa-role-arn\n    namespace: infra-aws\n  providerConfigRef:\n    name: aws-provider\n```\n\n**`infra/iam/logs-irsa/policy.yaml`**\n```yaml\napiVersion: iam.aws.upbound.io/v1beta1\nkind: RolePolicy\nmetadata:\n  name: myapp-logs-bucket-access\n  namespace: infra-aws\nspec:\n  forProvider:\n    roleRef:\n      name: myapp-logs-irsa\n    policy: |\n      {\n        \"Version\": \"2012-10-17\",\n        \"Statement\": [\n          {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n              \"s3:GetObject\",\n              \"s3:PutObject\",\n              \"s3:DeleteObject\"\n            ],\n            \"Resource\": \"arn:aws:s3:::myapp-logs-*/*\"\n          },\n          {\n            \"Effect\": \"Allow\",\n            \"Action\": [\n              \"s3:ListBucket\",\n              \"s3:GetBucketVersioning\"\n            ],\n            \"Resource\": \"arn:aws:s3:::myapp-logs-*\"\n          }\n        ]\n      }\n  providerConfigRef:\n    name: aws-provider\n```\n\n**`infra/iam/logs-irsa/kustomization.yaml`**\n```yaml\napiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\nmetadata:\n  name: iam-logs-irsa\nnamespace: infra-aws\n\nresources:\n  - role.yaml\n  - policy.yaml\n```\n\n---\n\n## 3. Environment Overlays\n\n**`overlays/dev/s3-logs-patch.yaml`**\n```yaml\napiVersion: s3.aws.upbound.io/v1beta1\nkind: Bucket\nmetadata:\n  name: myapp-logs\n  namespace: infra-aws\nspec:\n  forProvider:\n    bucket: myapp-logs-dev\n    tags:\n      Environment: dev\n```\n\n**`overlays/dev/iam-logs-patch.yaml`**\n```yaml\napiVersion: iam.aws.upbound.io/v1beta1\nkind: Role\nmetadata:\n  name: myapp-logs-irsa\n  namespace: infra-aws\nspec:\n  forProvider:\n    assumeRolePolicyDocument: |\n      {\n        \"Version\": \"2012-10-17\",\n        \"Statement\": [\n          {\n            \"Effect\": \"Allow\",\n            \"Principal\": {\n              \"Federated\": \"arn:aws:iam::DEV_ACCOUNT_ID:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/DEV_OIDC_ID\"\n            },\n            \"Action\": \"sts:AssumeRoleWithWebIdentity\",\n            \"Condition\": {\n              \"StringEquals\": {\n                \"oidc.eks.us-east-1.amazonaws.com/id/DEV_OIDC_ID:sub\": \"system:serviceaccount:myapp:myapp-sa\"\n              }\n            }\n          }\n        ]\n      }\n```\n\n**`overlays/dev/kustomization.yaml`**\n```yaml\napiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\nmetadata:\n  name: knr-ops-dev\nnamespace: flux-system\n\nbases:\n  - ../../infra/s3/logs\n  - ../../infra/iam/logs-irsa\n\npatchesStrategicMerge:\n  - s3-logs-patch.yaml\n  - iam-logs-patch.yaml\n\ncommonLabels:\n  environment: dev\n```\n\n**`overlays/prod/s3-logs-patch.yaml`**\n```yaml\napiVersion: s3.aws.upbound.io/v1beta1\nkind: Bucket\nmetadata:\n  name: myapp-logs\n  namespace: infra-aws\nspec:\n  forProvider:\n    bucket: myapp-logs-prod\n    tags:\n      Environment: prod\n```\n\n**`overlays/prod/iam-logs-patch.yaml`**\n```yaml\napiVersion: iam.aws.upbound.io/v1beta1\nkind: Role\nmetadata:\n  name: myapp-logs-irsa\n  namespace: infra-aws\nspec:\n  forProvider:\n    assumeRolePolicyDocument: |\n      {\n        \"Version\": \"2012-10-17\",\n        \"Statement\": [\n          {\n            \"Effect\": \"Allow\",\n            \"Principal\": {\n              \"Federated\": \"arn:aws:iam::PROD_ACCOUNT_ID:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/PROD_OIDC_ID\"\n            },\n            \"Action\": \"sts:AssumeRoleWithWebIdentity\",\n            \"Condition\": {\n              \"StringEquals\": {\n                \"oidc.eks.us-east-1.amazonaws.com/id/PROD_OIDC_ID:sub\": \"system:serviceaccount:myapp:myapp-sa\"\n              }\n            }\n          }\n        ]\n      }\n```\n\n**`overlays/prod/kustomization.yaml`**\n```yaml\napiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\nmetadata:\n  name: knr-ops-prod\nnamespace: flux-system\n\nbases:\n  - ../../infra/s3/logs\n  - ../../infra/iam/logs-irsa\n\npatchesStrategicMerge:\n  - s3-logs-patch.yaml\n  - iam-logs-patch.yaml\n\ncommonLabels:\n  environment: prod\n```\n\n---\n\n## 4. Flux Kustomization\n\n**`flux/logs-kustomization.yaml`**\n```yaml\n---\napiVersion: source.toolkit.fluxcd.io/v1beta2\nkind: GitRepository\nmetadata:\n  name: knr-ops\n  namespace: flux-system\nspec:\n  interval: 1m\n  url: https://github.com/your-org/knr-ops.git\n  ref:\n    branch: main\n  # Add SOPS decryption if needed:\n  # postBuild:\n  #   substitute: {}\n  #   substituteFrom:\n  #     - kind: ConfigMap\n  #       name: cluster-vars\n\n---\napiVersion: kustomize.toolkit.fluxcd.io/v1beta2\nkind: Kustomization\nmetadata:\n  name: logs-bucket\n  namespace: flux-system\nspec:\n  interval: 10m\n  retryInterval: 1m\n  timeout: 5m\n  sourceRef:\n    kind: GitRepository\n    name: knr-ops\n  path: ./overlays/dev  # or prod based on cluster\n  prune: true\n  wait: true\n  postBuild:\n    substitute:\n      ACCOUNT_ID: \"123456789\"\n      OIDC_ID: \"EXAMPLEID\"\n      OIDC_ISSUER: \"oidc.eks.us-east-1.amazonaws.com/id/EXAMPLEID\"\n    # Or use SOPS:\n    # substituteFrom:\n    #   - kind: Secret\n    #     name: aws-oidc-vars\n  healthChecks:\n    - apiVersion: s3.aws.upbound.io/v1beta1\n      kind: Bucket\n      name: myapp-logs\n      namespace: infra-aws\n```\n\n---\n\n## 5. Application ServiceAccount (for reference)\n\nIn your application namespace, create:\n\n```yaml\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp-sa\n  namespace: myapp\n  annotations:\n    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/myapp-logs-irsa\n```\n\n---\n\n## Integration Checklist\n\n- [ ] Update `overlays/{dev,prod}/kustomization.yaml` to include the new bases if not using the Flux Kustomization above\n- [ ] Substitute `DEV_ACCOUNT_ID`, `PROD_ACCOUNT_ID`, `DEV_OIDC_ID`, `PROD_OIDC_ID`, `OIDC_ISSUER` with cluster-specific values\n- [ ] Verify ACK provider config (`aws-provider`) exists in `infra-aws` namespace\n- [ ] If using SOPS for OIDC secrets, encrypt the patches: `sops -e overlays/dev/iam-logs-patch.yaml > overlays/dev/iam-logs-patch.enc.yaml`\n- [ ] Reference encrypted files in `kustomization.yaml` using `sopsFiles` directive\n- [ ] Apply: `flux reconcile ks logs-bucket --with-source`\n- [ ] Verify: `kubectl get bucket,role -n infra-aws`\n\nThis implementation follows knr-ops idioms: base + overlay separation, environment isolation, ACK CRDs, and Flux-native reconciliation.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/s3/logs/bucket.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/s3/logs/public-access-block.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/s3/logs/kustomization.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/iam/logs-irsa/role.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/iam/logs-irsa/policy.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/infra/iam/logs-irsa/kustomization.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/dev/s3-logs-patch.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/dev/iam-logs-patch.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/dev/kustomization.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/prod/s3-logs-patch.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/prod/iam-logs-patch.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/overlays/prod/kustomization.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/flux/logs-kustomization.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-zi0suvkx/generated_13.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 8879,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 8879,
+      "fenced_blocks": 15,
+      "extracted_files": 14,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

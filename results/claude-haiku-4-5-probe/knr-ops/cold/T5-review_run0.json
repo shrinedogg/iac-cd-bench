@@ -1,0 +1,32 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1565,
+    "output": 1443
+  },
+  "content": "# Security Review: knr-ops PR Diff\n\nBased on the PR diff preview provided, I've identified the following security issues ranked by severity:\n\n## Critical Issues (Block Merge)\n\n### 1. **S3 Bucket Public Read Access**\n- **Issue**: New S3 bucket policy grants public read access\n- **Violation**: Acceptance Criterion #1 (no public access); storage of application assets should be private\n- **Risk**: Unauthorized data exposure; potential compliance violations (GDPR, HIPAA, etc.)\n- **Remediation**: \n  - Remove `Principal: \"*\"` from the policy\n  - Restrict access to CloudFront OAI (if using CloudFront) or specific IAM roles only\n  - Ensure bucket blocks public ACLs via `BlockPublicAcls: true`\n\n### 2. **Plaintext Password in Environment Variables**\n- **Issue**: App deployment manifest contains plaintext password in `env` vars\n- **Violation**: Acceptance Criterion #3 (secrets never stored plaintext in Git); stack-native secret mechanism required\n- **Risk**: Credential exposure in Git history; visible in pod specs; accessible to anyone with cluster read access\n- **Remediation**:\n  - Store password in a Kubernetes Secret or use SOPS encryption (knr-ops native method)\n  - Reference via `valueFrom.secretKeyRef` instead of hardcoded `value`\n  - For knr-ops specifically: use SOPS to encrypt the manifest or use a SecretStore reference pattern\n  - Rotate the exposed credential immediately\n\n---\n\n## Warning Issues (Fix Before Merge)\n\n### 3. **Missing Container Resource Limits**\n- **Issue**: App deployment lacks `resources.limits` on containers\n- **Risk**: Resource exhaustion attacks; pod eviction; cluster instability; noisy neighbor problems\n- **Remediation**:\n  - Add `resources.requests` (min guaranteed) and `resources.limits` (max allowed) to all containers\n  - Example:\n    ```yaml\n    resources:\n      requests:\n        cpu: 100m\n        memory: 128Mi\n      limits:\n        cpu: 500m\n        memory: 512Mi\n    ```\n\n---\n\n## Info/Verified\n\n### 4. **RDS Instance Class Change**\n- \u2705 No security issue if the new class meets environment requirements\n- **Verify**: Confirm the instance class matches the spec (prod: `db.t3.medium` multi-AZ; dev: `db.t3.micro`)\n- Ensure deletion protection, backup retention (\u22657 days), and encryption remain enabled\n\n---\n\n## Summary Table\n\n| Issue | Severity | Must Fix | Impact |\n|-------|----------|----------|--------|\n| S3 public access | \ud83d\udd34 CRITICAL | Yes | Data breach risk |\n| Plaintext secrets | \ud83d\udd34 CRITICAL | Yes | Credential exposure |\n| Missing resource limits | \ud83d\udfe1 WARNING | Yes | Cluster stability |\n| RDS class change | \u2139\ufe0f INFO | Verify | Depends on new class |\n\n---\n\n## Recommendation\n\n**Do not merge** until:\n1. S3 bucket policy is restricted to private access only\n2. Plaintext password is moved to a SOPS-encrypted Secret or native Kubernetes Secret\n3. Container resource limits are defined for all deployments",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2865
+  }
+}

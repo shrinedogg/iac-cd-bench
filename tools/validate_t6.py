@@ -17,12 +17,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TASKS = ROOT / "tasks"
-STACKS = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript"]
+STACKS = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript", "chant", "bare"]
 
 failures = []
 
 for stack in STACKS:
     task_dir = TASKS / stack / "T6-semantics"
+    if stack == "chant" and not (task_dir / "golden" / "answer_key.md").exists():
+        # TODO(#3/#4): tasks/chant/T6-semantics doesn't exist yet; drop this
+        # guard once the chant golden base + tasks land.
+        print(f"SKIP {stack}: T6-semantics not yet materialized (see #3/#4)")
+        continue
+    if stack == "bare" and not (task_dir / "golden" / "answer_key.md").exists():
+        # TODO(#37/#38): tasks/bare/T6-semantics doesn't exist yet; drop this
+        # guard once the bare golden base + tasks land.
+        print(f"SKIP {stack}: T6-semantics not yet materialized (see #37/#38)")
+        continue
     key_md = (task_dir / "golden" / "answer_key.md").read_text()
     m = re.search(r"```json\s*\n(.*?)```", key_md, re.DOTALL)
     assert m, f"{stack}: no JSON block in golden answer key"

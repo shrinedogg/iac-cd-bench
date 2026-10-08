@@ -1,0 +1,140 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "5d31d5b4f4978cf1",
+      "spec_sha256": "bcd08e8b63913689",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[tsc check] tsc: exit=2\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/components/compute.ts(4,22): error TS2307: Cannot find module '@pulumi/eks' or its corresponding type declarations.\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/components/database.ts(40,17): error TS2353: Object literal may only specify known properties, and 'databaseName' does not exist in type 'InstanceArgs'.\n../../../../../../."
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-typescript, runtime: nodejs)\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::iac-cd-bench-pulumi-typescript::pulumi:pulumi:Stack::iac-cd-bench-pulumi-typescript-dev]\nWe failed to locate the entry point for your program: /private/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/\n\nHere's what we think went wrong:\n\n  * Your program's 'main' file (/private/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/index.js) does not exist.\n\nResources:\n    + 1 to create\n\nERR: warning: Could not find a package.json or package.yaml file for the program. Using the Pulumi program directory as the project root.\n"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 6 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_answer_is_present PASSED [ 16%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_a_component_resource_is_defined PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_the_component_registers_itself PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_children_are_parented_to_the_component PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_aliases_are_used PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_aliases_name_a_previous_identity PASSED [100%]\n\n============================== 6 passed in 0.01s ===============================\n",
+      "passed_count": 6,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1191,
+    "output": 7352
+  },
+  "content": "# Migrating Flat Pulumi TypeScript to ComponentResource with Aliases\n\nHere's a complete migration pattern for your canonical scenario, preventing resource replacement through proper `aliases` usage.\n\n## Core Pattern\n\nWhen refactoring flat Pulumi code into ComponentResources, resources get new URNs. Use `aliases` to tell Pulumi these are the same physical cloud resources.\n\n## File Structure (Post-Migration)\n\n```\nsrc/\n\u251c\u2500\u2500 components/\n\u2502   \u251c\u2500\u2500 storage.ts\n\u2502   \u251c\u2500\u2500 database.ts\n\u2502   \u251c\u2500\u2500 iam.ts\n\u2502   \u251c\u2500\u2500 compute.ts\n\u2502   \u2514\u2500\u2500 networking.ts\n\u2514\u2500\u2500 index.ts\ndev.yaml\nprod.yaml\n```\n\n## Implementation\n\n### 1. StorageComponent\n\n```typescript\n// src/components/storage.ts\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nexport interface StorageComponentArgs {\n    environment: \"dev\" | \"prod\";\n}\n\nexport class StorageComponent extends pulumi.ComponentResource {\n    public bucket: aws.s3.Bucket;\n\n    constructor(\n        name: string,\n        args: StorageComponentArgs,\n        opts?: pulumi.ComponentResourceOptions\n    ) {\n        super(\"custom:storage:StorageComponent\", name, {}, opts);\n\n        this.bucket = new aws.s3.Bucket(\n            \"app-assets\",\n            {\n                versioning: { enabled: true },\n                serverSideEncryptionConfiguration: {\n                    rule: {\n                        applyServerSideEncryptionByDefault: {\n                            sseAlgorithm: \"AES256\",\n                        },\n                    },\n                },\n                blockPublicAcls: true,\n                blockPublicPolicy: true,\n                ignorePublicAcls: true,\n                restrictPublicBuckets: true,\n                // Prod: cross-region replication to us-west-2\n                ...(args.environment === \"prod\" && {\n                    replicationConfiguration: {\n                        role: new aws.iam.Role(\"replication-role\", {\n                            assumeRolePolicy: pulumi.jsonStringify({\n                                Version: \"2012-10-17\",\n                                Statement: [{\n                                    Action: \"sts:AssumeRole\",\n                                    Effect: \"Allow\",\n                                    Principal: { Service: \"s3.amazonaws.com\" },\n                                }],\n                            }),\n                        }, { parent: this }).arn,\n                        rules: [{\n                            id: \"replicate-all\",\n                            status: \"Enabled\",\n                            priority: 1,\n                            destination: {\n                                bucket: `arn:aws:s3:::app-assets-replica-us-west-2`,\n                                replicationTime: { status: \"Enabled\", time: 15 },\n                                metrics: { status: \"Enabled\", eventThreshold: 15 },\n                            },\n                        }],\n                    },\n                }),\n            },\n            {\n                parent: this,\n                // Map old flat resource URN to new component-scoped resource\n                aliases: [{ name: \"app-assets\" }],\n            }\n        );\n\n        this.registerOutputs();\n    }\n}\n```\n\n### 2. DatabaseComponent\n\n```typescript\n// src/components/database.ts\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nexport interface DatabaseComponentArgs {\n    environment: \"dev\" | \"prod\";\n}\n\nexport class DatabaseComponent extends pulumi.ComponentResource {\n    public instance: aws.rds.Instance;\n\n    constructor(\n        name: string,\n        args: DatabaseComponentArgs,\n        opts?: pulumi.ComponentResourceOptions\n    ) {\n        super(\"custom:database:DatabaseComponent\", name, {}, opts);\n\n        const config = {\n            dev: {\n                instanceClass: \"db.t3.micro\",\n                multiAz: false,\n                allocatedStorage: 20,\n                backupRetention: 3,\n            },\n            prod: {\n                instanceClass: \"db.t3.medium\",\n                multiAz: true,\n                allocatedStorage: 100,\n                backupRetention: 7,\n            },\n        }[args.environment];\n\n        this.instance = new aws.rds.Instance(\n            \"postgres\",\n            {\n                instanceClass: config.instanceClass,\n                engine: \"postgres\",\n                engineVersion: \"14\",\n                databaseName: \"appdb\",\n                username: \"appuser\",\n                password: new pulumi.Config().requireSecret(\"db-password\"),\n                allocatedStorage: config.allocatedStorage,\n                storageEncrypted: true,\n                multiAz: config.multiAz,\n                backupRetentionPeriod: config.backupRetention,\n                deletionProtection: args.environment === \"prod\",\n                publiclyAccessible: false,\n                skipFinalSnapshot: args.environment === \"dev\",\n                parameterGroupName: new aws.rds.ParameterGroup(\n                    \"pg14-params\",\n                    { family: \"postgres14\" },\n                    { parent: this }\n                ).name,\n            },\n            {\n                parent: this,\n                aliases: [{ name: \"postgres\" }],\n            }\n        );\n\n        this.registerOutputs();\n    }\n}\n```\n\n### 3. IamComponent\n\n```typescript\n// src/components/iam.ts\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nexport interface IamComponentArgs {\n    environment: \"dev\" | \"prod\";\n}\n\nexport class IamComponent extends pulumi.ComponentResource {\n    public user: aws.iam.User;\n    public role: aws.iam.Role;\n    public accessKey: aws.iam.AccessKey;\n\n    constructor(\n        name: string,\n        args: IamComponentArgs,\n        opts?: pulumi.ComponentResourceOptions\n    ) {\n        super(\"custom:iam:IamComponent\", name, {}, opts);\n\n        this.user = new aws.iam.User(\n            \"service-account\",\n            { name: `app-service-${args.environment}` },\n            { parent: this, aliases: [{ name: \"service-account\" }] }\n        );\n\n        const assumeRolePolicy = pulumi.jsonStringify({\n            Version: \"2012-10-17\",\n            Statement: [\n                {\n                    Action: \"sts:AssumeRole\",\n                    Effect: \"Allow\",\n                    Principal:\n                        args.environment === \"prod\"\n                            ? {\n                                Federated: pulumi.concat(\n                                    \"arn:aws:iam::\",\n                                    aws.getCallerIdentity().accountId,\n                                    \":oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLK7S7FCC4D04E1B5C6E\"\n                                ),\n                            }\n                            : { AWS: this.user.arn },\n                },\n            ],\n        });\n\n        this.role = new aws.iam.Role(\n            \"app-role\",\n            { assumeRolePolicy },\n            {\n                parent: this,\n                aliases: [{ name: \"app-role\" }],\n            }\n        );\n\n        // Prod: minimal policy; dev: broader for testing\n        const policy = new aws.iam.RolePolicy(\n            \"app-policy\",\n            {\n                role: this.role.id,\n                policy: pulumi.jsonStringify({\n                    Version: \"2012-10-17\",\n                    Statement: [\n                        {\n                            Action: args.environment === \"prod\"\n                                ? [\"s3:GetObject\", \"s3:ListBucket\"]\n                                : \"s3:*\",\n                            Effect: \"Allow\",\n                            Resource: \"*\",\n                        },\n                        {\n                            Action: args.environment === \"prod\"\n                                ? [\"rds-db:connect\"]\n                                : [\"rds:*\"],\n                            Effect: \"Allow\",\n                            Resource: \"*\",\n                        },\n                    ],\n                }),\n            },\n            { parent: this, aliases: [{ name: \"app-policy\" }] }\n        );\n\n        this.accessKey = new aws.iam.AccessKey(\n            \"service-key\",\n            { user: this.user.name },\n            { parent: this, aliases: [{ name: \"service-key\" }] }\n        );\n\n        this.registerOutputs({\n            roleArn: this.role.arn,\n            accessKeyId: this.accessKey.id,\n        });\n    }\n}\n```\n\n### 4. ComputeComponent (EKS)\n\n```typescript\n// src/components/compute.ts\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport * as eks from \"@pulumi/eks\";\n\nexport interface ComputeComponentArgs {\n    environment: \"dev\" | \"prod\";\n    vpcId: pulumi.Input<string>;\n    subnetIds: pulumi.Input<string>[];\n}\n\nexport class ComputeComponent extends pulumi.ComponentResource {\n    public cluster: eks.Cluster;\n\n    constructor(\n        name: string,\n        args: ComputeComponentArgs,\n        opts?: pulumi.ComponentResourceOptions\n    ) {\n        super(\"custom:compute:ComputeComponent\", name, {}, opts);\n\n        const config = {\n            dev: { nodeCount: 2, instanceType: \"t3.medium\" },\n            prod: { nodeCount: 4, instanceType: \"t3.large\" },\n        }[args.environment];\n\n        this.cluster = new eks.Cluster(\n            \"app-cluster\",\n            {\n                vpcId: args.vpcId,\n                subnetIds: args.subnetIds,\n                desiredCapacity: config.nodeCount,\n                minSize: config.nodeCount,\n                maxSize: args.environment === \"prod\" ? 8 : 4,\n                instanceType: config.instanceType,\n                enabledClusterLogTypes: [\"api\", \"audit\"],\n                encryptionConfig: { resources: [\"secrets\"], provider: { keyArn: \"\" } },\n            },\n            { parent: this, aliases: [{ name: \"app-cluster\" }] }\n        );\n\n        this.registerOutputs({\n            kubeconfig: this.cluster.kubeconfig,\n        });\n    }\n}\n```\n\n### 5. NetworkingComponent\n\n```typescript\n// src/components/networking.ts\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\n\nexport interface NetworkingComponentArgs {\n    environment: \"dev\" | \"prod\";\n    targetGroupArn?: pulumi.Input<string>;\n}\n\nexport class NetworkingComponent extends pulumi.ComponentResource {\n    public loadBalancer: aws.lb.LoadBalancer | aws.cloudfront.Distribution;\n    public listener: aws.lb.Listener | undefined;\n\n    constructor(\n        name: string,\n        args: NetworkingComponentArgs,\n        opts?: pulumi.ComponentResourceOptions\n    ) {\n        super(\"custom:networking:NetworkingComponent\", name, {}, opts);\n\n        if (args.environment === \"dev\") {\n            // Dev: internal ALB\n            this.loadBalancer = new aws.lb.LoadBalancer(\n                \"app-alb\",\n                {\n                    internal: true,\n                    loadBalancerType: \"application\",\n                },\n                { parent: this, aliases: [{ name: \"app-alb\" }] }\n            );\n\n            this.listener = new aws.lb.Listener(\n                \"https-listener\",\n                {\n                    loadBalancerArn: this.loadBalancer.arn,\n                    protocol: \"HTTPS\",\n                    port: 443,\n                    defaultActions: [{\n                        type: \"forward\",\n                        targetGroupArn: args.targetGroupArn!,\n                    }],\n                    certificateArn: new pulumi.Config().require(\n                        \"certificate-arn\"\n                    ),\n                },\n                { parent: this, aliases: [{ name: \"https-listener\" }] }\n            );\n        } else {\n            // Prod: CloudFront + ACM\n            const oai = new aws.cloudfront.OriginAccessIdentity(\n                \"oai\",\n                { comment: \"OAI for app assets\" },\n                { parent: this }\n            );\n\n            this.loadBalancer = new aws.cloudfront.Distribution(\n                \"cdn\",\n                {\n                    enabled: true,\n                    isIpv6Enabled: true,\n                    origins: [\n                        {\n                            domainName: args.targetGroupArn || \"example.com\",\n                            originId: \"app-origin\",\n                        },\n                    ],\n                    defaultCacheBehavior: {\n                        allowedMethods: [\n                            \"GET\",\n                            \"HEAD\",\n                            \"DELETE\",\n                            \"OPTIONS\",\n                            \"PATCH\",\n                            \"POST\",\n                            \"PUT\",\n                        ],\n                        cachedMethods: [\"GET\", \"HEAD\"],\n                        targetOriginId: \"app-origin\",\n                        forwardedValues: {\n                            queryString: true,\n                            cookies: { forward: \"all\" },\n                            headers: [\"*\"],\n                        },\n                        viewerProtocolPolicy: \"redirect-to-https\",\n                        minTtl: 0,\n                        defaultTtl: 0,\n                        maxTtl: 0,\n                    },\n                    restrictions: { geoRestriction: { restrictionType: \"none\" } },\n                    viewerCertificate: {\n                        acmCertificateArn: new pulumi.Config().require(\n                            \"certificate-arn\"\n                        ),\n                        sslSupportMethod: \"sni-only\",\n                        minimumProtocolVersion: \"TLSv1.2_2021\",\n                    },\n                },\n                { parent: this, aliases: [{ name: \"cdn\" }] }\n            );\n        }\n\n        this.registerOutputs();\n    }\n}\n```\n\n### 6. Main Index\n\n```typescript\n// src/index.ts\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport { StorageComponent } from \"./components/storage\";\nimport { DatabaseComponent } from \"./components/database\";\nimport { IamComponent } from \"./components/iam\";\nimport { ComputeComponent } from \"./components/compute\";\nimport { NetworkingComponent } from \"./components/networking\";\n\nconst config = new pulumi.Config();\nconst environment = config.require(\"environment\") as \"dev\" | \"prod\";\n\n// VPC (assume existing or create here)\nconst vpc = new aws.ec2.Vpc(\"app-vpc\", {\n    cidrBlock: \"10.0.0.0/16\",\n});\n\nconst subnets = [\n    new aws.ec2.Subnet(\"subnet-1\", { vpcId: vpc.id, cidrBlock: \"10.0.1.0/24\" }),\n    new aws.ec2.Subnet(\"subnet-2\", { vpcId: vpc.id, cidrBlock: \"10.0.2.0/24\" }),\n];\n\n// Instantiate components\nconst storage = new StorageComponent(`storage`, { environment });\nconst database = new DatabaseComponent(`database`, { environment });\nconst iam = new IamComponent(`iam`, { environment });\nconst compute = new ComputeComponent(`compute`, {\n    environment,\n    vpcId: vpc.id,\n    subnetIds: subnets.map(s => s.id),\n});\nconst networking = new NetworkingComponent(`networking`, {\n    environment,\n    targetGroupArn: \"arn:aws:elasticloadbalancing:us-east-1:ACCOUNT:targetgroup/app/*\",\n});\n\n// Exports\nexport const bucketName = storage.bucket.id;\nexport const dbEndpoint = database.instance.endpoint;\nexport const roleArn = iam.role.arn;\nexport const clusterName = compute.cluster.core.cluster.name;\nexport const loadBalancerDns =\n    networking.loadBalancer instanceof aws.lb.LoadBalancer\n        ? networking.loadBalancer.dnsName\n        : networking.loadBalancer.domainName;\n```\n\n### 7. Stack Configuration\n\n```yaml\n# dev.yaml\nconfig:\n  environment: dev\n  aws:region: us-east-1\n  certificate-arn: arn:aws:acm:us-east-1:ACCOUNT:certificate/dev-cert\n  db-password:\n    secure: AAABAxxxxx  # pulumi config set --secret\n\n# prod.yaml\nconfig:\n  environment: prod\n  aws:region: us-east-1\n  certificate-arn: arn:aws:acm:us-east-1:ACCOUNT:certificate/prod-cert\n  db-password:\n    secure: AAABAyyyyy\n```\n\n## Migration Workflow\n\n```bash\n# 1. Export current state (check resource URNs)\npulumi stack export > pre-migration.json\n\n# 2. Refactor code (add ComponentResources with aliases)\n# (copy code above)\n\n# 3. Preview changes (should show no replacements)\npulumi preview\n\n# 4. If preview shows \"*Replace*\", adjust aliases:\n#    - Verify names match old flat resource names exactly\n#    - Check parent: this is set on all aliased resources\n#    - Re-run preview\n\n# 5. Apply when safe\npulumi up\n\n# 6. Verify (compare state URNs)\npulumi stack export > post-migration.json\n```\n\n## Critical Rules\n\n| Rule | Why | Example |\n|------|-----|---------|\n| **Alias name must match old resource name exactly** | URN includes name path | Old: `aws:s3/bucket:Bucket::app-assets` \u2192 `aliases: [{ name: \"app-assets\" }]` |\n| **Set `parent: this` on all aliased resources** | Parent path is part of URN | Without it, URN becomes `...::StorageComponent$app-assets`, not matching |\n| **One alias per old resource** | Deduplication | Don't alias same resource twice in different components |\n| **Aliases only adopt; don't rename** | They prevent replacement, not drift | If you rename a resource without alias, it will be replaced |\n| **Test in dev stack first** | Catch errors early | Always migrate dev before prod |\n\n## Troubleshooting\n\nIf `pulumi preview` shows `*Replace*`:\n\n1. **Check URN mismatch**: `pulumi stack export | grep \"urn:\"` to see old URNs\n2. **Verify name path**: `old-name` in flat != `parent$old-name` in component \u2192 fix alias\n3. **Missing parent**: Ensure all aliased resources have `parent: this`\n4. **Wrong parent type**: Don't mix ComponentResource with Resource; use super() consistently\n\nThis pattern scales to your prod environment\u2014no code changes needed, only stack config (`prod.yaml`) with different sizing and region.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/components/storage.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/components/database.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/components/iam.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/components/compute.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/components/networking.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/src/index.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-w66sbse_/dev.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 17722,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 17722,
+      "fenced_blocks": 9,
+      "extracted_files": 8,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

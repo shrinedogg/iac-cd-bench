@@ -1,0 +1,29 @@
+stack: bare
+archetype: review
+id: "T5-review"
+title: "Review PR diff for security issues"
+answer_format: rubric
+
+stages:
+  lint:
+    enabled: false
+  static:
+    enabled: false
+  semantic:
+    enabled: false
+  e2e:
+    enabled: false
+
+rubric:
+  - criterion: "Identifies the plaintext database password committed to prod/db-secret.yaml, replacing the documented out-of-band placeholder"
+    weight: 3
+  - criterion: "Identifies that prod/s3-bucket.yaml removes the public access block and adds a bucket policy granting s3:GetObject to Principal '*' (public read exposure)"
+    weight: 3
+  - criterion: "Identifies that prod/rds.yaml sets publiclyAccessible: true and deletionProtection: false on the production database"
+    weight: 2
+  - criterion: "Identifies that prod/app.yaml drops the container's resource requests/limits"
+    weight: 1
+  - criterion: "Ranks the four issues by severity in an order consistent with: plaintext password and public bucket as the most severe, RDS exposure next, missing resource limits least severe"
+    weight: 2
+  - criterion: "Provides a specific, concrete remediation for each issue identified (not just 'fix this')"
+    weight: 1

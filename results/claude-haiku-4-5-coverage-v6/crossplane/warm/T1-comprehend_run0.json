@@ -1,0 +1,168 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "crossplane",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "837cbd4af06f207375d0882e7ee6d931f185e63e",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "17327cd3984fe04f",
+      "spec_sha256": "6bb510121a5af8ac",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1579,
+    "output": 3866
+  },
+  "content": "# Crossplane Composition Reconciliation: `storageGB` 20\u219250 GB Trace\n\n## 1. Flow Through XRD \u2192 Composition \u2192 Managed Resources\n\n### Step 1a: Claim Modification\n```yaml\napiVersion: spine.example.com/v1alpha1\nkind: WebappDB\nmetadata:\n  name: app-prod\nspec:\n  storageGB: 50  # changed from 20\n```\n\nWhen the claim spec is patched, the Crossplane controller detects the change via its watch on the XRD resource type.\n\n### Step 1b: XRD Validation & Matching\n- Crossplane's claim controller retrieves the XRD (`WebappDB`) from the apiserver\n- It checks that `storageGB: 50` passes the XRD's OpenAPI schema validation (e.g., `type: integer`, `minimum: 10`, `maximum: 500`)\n- It verifies the claim has the required `metadata.namespace` and that a `Composition` matches this XRD's `spec.claimNames` and any `spec.compositeTypeRef` filters\n\n### Step 1c: Composition Rendering (Function Pipeline)\nThe matched Composition is invoked. In function-pipeline mode:\n\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: webapp-db\nspec:\n  compositeTypeRef:\n    apiVersion: spine.example.com/v1alpha1\n    kind: WebappDB\n  mode: Pipeline\n  pipeline:\n    - step: patch-and-transform\n      functionRef:\n        name: function-patch-and-transform\n      input:\n        apiVersion: pt.fn.crossplane.io/v1beta1\n        kind: Resources\n        resources:\n          - name: rds-instance\n            base:\n              apiVersion: database.aws.crossplane.io/v1beta1\n              kind: RDSInstance\n              spec:\n                allocatedStorage: 20  # template default\n                engine: postgres\n            patches:\n              - type: FromCompositeFieldValue\n                fromFieldPath: spec.storageGB\n                toFieldPath: spec.allocatedStorage\n                # transforms: multiply by 1 if storageGB is direct GB\n              - type: FromCompositeFieldValue\n                fromFieldPath: metadata.labels[\"environment\"]\n                toFieldPath: metadata.labels[\"environment\"]\n          - name: s3-bucket\n            base:\n              apiVersion: s3.aws.crossplane.io/v1beta1\n              kind: Bucket\n              spec:\n                versioningConfiguration:\n                  status: Enabled\n                serverSideEncryptionConfiguration:\n                  rules:\n                    - applyServerSideEncryptionByDefault:\n                        sseAlgorithm: AES256\n            patches:\n              # No dependency on storageGB; bucket size is not constrained by claim param\n```\n\n**Key point**: The `storageGB` patch is evaluated **once per reconciliation loop**. The patch extracts `spec.storageGB` from the claim and writes it to the RDS managed resource's `spec.allocatedStorage`.\n\n---\n\n## 2. RDS Instance: Updated In-Place\n\n### Answer: **In-Place Update**\n\nThe RDS instance is **updated in-place**, not recreated.\n\n**Why:**\n- The Crossplane AWS provider translates `spec.allocatedStorage: 50` to an AWS SDK call\n- AWS RDS supports increasing `allocatedStorage` without deletion (modify operation)\n- Crossplane's `external-name` annotation links the managed resource to the existing RDS instance ARN; it does not recreate\n- The `DeletionPolicy` is `Orphan` by default; only explicit deletion of the managed resource triggers destruction\n\n**Reconciliation steps:**\n1. Provider detects drift: existing RDS has `AllocatedStorage: 20`, desired is `50`\n2. Provider calls `ModifyDBInstance(DBInstanceIdentifier=..., AllocatedStorage=50, ApplyImmediately=false)`\n3. AWS modifies the instance during the next maintenance window (or `ApplyImmediately=true` if configured)\n4. Provider polls `DescribeDBInstances()` and updates the managed resource's `status.atProvider.allocatedStorage`\n5. Once status reaches `available`, `status.conditions[type=Ready]` is set to `True`\n\n**Observation in the Spine scenario:**\n- **Dev** (db.t3.micro): increasing from 20GB to 50GB is unusual for a micro instance (typical: 20GB max practical). The RDS instance class may need adjustment separately.\n- **Prod** (db.t3.medium): can safely accommodate 50GB allocated storage.\n\n---\n\n## 3. S3 Bucket: No Changes\n\n### Answer: **S3 bucket remains unchanged**\n\nThe S3 bucket spec has **no dependency on `storageGB`**. The composition patches the RDS resource only:\n\n```yaml\nresources:\n  - name: s3-bucket\n    base: { ... }  # versioning, encryption configured\n    patches: [ ]   # NO patches reference claim.spec.storageGB\n```\n\n**Why the bucket is not affected:**\n- In the Spine spec, the S3 bucket stores *application assets* (code, configs), not database backups\n- Bucket size is not a hard constraint in S3 (no \"allocated storage\" concept; you pay per GB stored)\n- No composition patch maps `storageGB` to any bucket parameter\n- No composition includes a bucket creation *conditional* on `storageGB` threshold\n\n**Result:** S3 bucket continues to serve versioned, encrypted assets; no reconciliation triggered for it.\n\n---\n\n## 4. ReadinessChecks: Controlling Reconciliation Order\n\n### Role in Reconciliation\n\n`ReadinessChecks` are **status conditions** that Crossplane evaluates to determine if a managed resource is \"ready for downstream use.\"\n\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nspec:\n  resources:\n    - name: rds-instance\n      ...\n      readinessChecks:\n        - type: MatchString\n          fieldPath: status.atProvider.dbInstanceStatus\n          matchString: available\n        - type: MatchInteger\n          fieldPath: status.atProvider.allocatedStorage\n          matchInteger: 50  # Wait until modified to 50 GB\n    - name: iam-role\n      ...\n      readinessChecks:\n        - type: MatchCondition\n          fieldPath: status.conditions[type=Ready].status\n          matchCondition: \"True\"\n```\n\n### Reconciliation Behavior During 20\u219250 GB Update\n\n1. **User patches claim \u2192 RDS patch applied**\n   - Composition re-evaluates\n   - `spec.allocatedStorage: 50` is sent to AWS\n\n2. **ReadinessChecks block downstream resources**\n   - RDS `status.atProvider.dbInstanceStatus: modifying` (not `available` yet)\n   - `status.atProvider.allocatedStorage: 20` (modification in progress)\n   - Readiness checks **fail**\n   - The Composite Resource (XR) status shows `Ready: False`\n   - If IAM or secrets depend on RDS readiness, those are **not created/updated yet**\n\n3. **AWS modifies the RDS instance**\n   - Takes ~5\u201315 minutes depending on storage volume\n\n4. **Provider polls and detects completion**\n   - `status.atProvider.dbInstanceStatus: available`\n   - `status.atProvider.allocatedStorage: 50`\n   - Readiness checks **pass**\n   - Composite Resource status shows `Ready: True`\n\n5. **Downstream resources proceed**\n   - Any resources defined *after* RDS in the pipeline, or with explicit dependency (via `dependsOn` or readiness checks), now proceed\n   - Secrets referencing the RDS endpoint are created/updated\n\n### Key Point\nReadinessChecks **prevent resource cascades** during partial updates. Without them, a dependent resource (e.g., application Secret with DB endpoint) might be created while RDS is still modifying, leading to transient errors.\n\n---\n\n## 5. Crossplane Reconciliation Loop Mechanics\n\n### Continuous Reconciliation Model\n\nCrossplane operates **unlike Terraform**. It reconciles continuously:\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 Claim (WebappDB) spec.storageGB: 20                             \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                           \u2193 (User patches)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 Claim (WebappDB) spec.storageGB: 50                             \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n    \u2191                                                           \n    \u2514\u2500 Crossplane watches this resource via Kubernetes API\n                           \u2193 (Controller detects change event)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 Claim Controller Reconcile Loop (triggered)                      \u2502\n\u2502  1. Load XRD definition                                           \u2502\n\u2502  2. Load matched Composition                                      \u2502\n\u2502  3. Invoke composition pipeline (function-patch-and-transform)   \u2502\n\u2502  4. Render managed resource specs (RDS with storageGB\u219250)        \u2502\n\u2502  5. Apply patches                                                \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                           \u2193 (Create or Update)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 RDSInstance (managed resource)                                   \u2502\n\u2502   spec.allocatedStorage: 50 (changed from 20)                   \u2502\n\u2502   status: { conditions: [Ready: False], ... }                   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                           \u2193 (Provider reconcile loop)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 AWS RDS API                                                      \u2502\n\u2502   ModifyDBInstance(allocatedStorage=50, ApplyImmediately=false)  \u2502\n\u2502   Poll DescribeDBInstances() every 30s                           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                           \u2193 (Status updates flow back)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 RDSInstance status.atProvider                                    \u2502\n\u2502   allocatedStorage: 50 (observed)                                \u2502\n\u2502   dbInstanceStatus: modifying \u2192 available                        \u2502\n\u2502   conditions[Ready]: False \u2192 True                                \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                           \u2193 (Status reflected)\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 Claim (WebappDB) status                                          \u2502\n\u2502   conditions[Ready]: False \u2192 True (once all resources ready)     \u2502\n\u2502   resourceRefs: [RDSInstance, S3Bucket, IAMRole, ...]           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### Reconciliation Loop Frequency\n\n- **Claim controller**: Watches claims; triggers on change (CRD event) + periodic re-reconciliation (default 1 hour)\n- **Provider controller**: Watches managed resources; external reconcile every ~30 seconds (configurable)\n- **No apply-only semantics**: Changes are **idempotent and continuous**. If someone manually modifies the RDS instance in AWS, the next provider reconciliation will revert it.\n\n### Conflict Resolution: Desired State Wins\n\nIf AWS drifts (e.g., manual modification):\n```\nDesired (Composition):  spec.allocatedStorage: 50\nActual (AWS):          AllocatedStorage: 60 (manually increased)\nResult:                Provider will modify back to 50 (desired wins)\n```\n\nThis is the **GitOps principle**: Composition is the source of truth.\n\n---\n\n## Summary Table\n\n| Aspect | Behavior |\n|--------|----------|\n| **RDS instance** | In-place update via `ModifyDBInstance`; no recreation |\n| **S3 bucket** | Unchanged (no `storageGB` dependency) |\n| **ReadinessChecks** | Block downstream resources until `dbInstanceStatus: available` and `allocatedStorage: 50` |\n| **Claim status** | Shows `Ready: False` during modification; `Ready: True` once all resources match desired state |\n| **Reconciliation trigger** | Claim spec change + periodic resync (every 1 hour default) |\n| **Drift detection** | Provider polls AWS; reverts manual changes on next reconciliation |\n| **Deletion policy** | Default `Orphan`: RDS instance persists if managed resource is deleted |\n\n---\n\n## Practical Considerations for Spine (Dev/Prod)\n\n- **Dev (db.t3.micro)**: Requesting 50 GB allocated storage may exceed recommended limits for micro instances. The provider may reject or warn. Consider also scaling the instance class.\n- **Prod (db.t3.medium)**: Safe to scale to 50 GB; multi-AZ ensures no downtime during modification.\n- **No application restarts**: The RDS modification does not restart connections; existing connections may be briefly unavailable, but clients with retry logic will reconnect.\n- **Backup considerations**: Increase backup retention (`preferredBackupWindow`) if larger data set warrants it.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-j5rwxeh6/generated_0.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-j5rwxeh6/generated_1.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-j5rwxeh6/generated_2.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 12261,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 12261,
+      "fenced_blocks": 6,
+      "extracted_files": 3,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.96875,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Correctly traces XRD \u2192 Composition \u2192 managed resource path",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission traces the complete path: Claim modification \u2192 XRD matching via claimNames \u2192 Composition pipeline \u2192 patch-and-transform function \u2192 RDS allocatedStorage update \u2192 AWS ModifyDBInstance call. All steps explicitly shown."
+      },
+      {
+        "criterion": "Identifies that storageGB change triggers patch \u2192 RDS update",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Explicitly shows patch FromCompositeFieldValue mapping spec.storageGB to RDS spec.allocatedStorage. Section 3 clearly states S3 bucket is unaffected since it has no dependency on storageGB. Distinguishes affected from unaffected resources."
+      },
+      {
+        "criterion": "States that RDS instanceClass change is in-place update",
+        "weight": 1.0,
+        "score": 0.75,
+        "justification": "States RDS updates are in-place generally, but doesn't explicitly confirm this for instanceClass changes. Hedges instanceClass with 'may need adjustment separately,' creating ambiguity about whether in-place logic applies to it."
+      },
+      {
+        "criterion": "Explains ReadinessChecks gate the reconciliation",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Provides comprehensive explanation: defines ReadinessChecks as status conditions, shows YAML examples, explains how they block downstream resources during modification (dbInstanceStatus: modifying \u2192 available), and clarifies they prevent cascades. Thoroughly gates reconciliation logic."
+      },
+      {
+        "criterion": "Describes Crossplane's continuous reconciliation loop",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Describes continuous reconciliation with watch-based triggering, periodic resync intervals (claim 1h, provider 30s), idempotent operations, and drift detection. Flowchart and detailed sequence show full loop from Claim through status reflection. Correctly conveys continuous vs. apply-once semantics."
+      }
+    ]
+  }
+}

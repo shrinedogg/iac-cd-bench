@@ -1,0 +1,31 @@
+{
+  "model": "claude-opus-5",
+  "task": "T6-semantics",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 7 items\n\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/knr-ops/T6-semantics/tests/test_task.py::test_q1_rds_class_change_in_place PASSED [ 14%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/knr-ops/T6-semantics/tests/test_task.py::test_q2_prune_kustomization PASSED [ 28%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/knr-ops/T6-semantics/tests/test_task.py::test_q3_default_deletion_policy_deletes PASSED [ 42%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/knr-ops/T6-semantics/tests/test_task.py::test_q4_retain_annotation_orphans PASSED [ 57%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/knr-ops/T6-semantics/tests/test_task.py::test_q5_suspended_kustomization_applies_nothing PASSED [ 71%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/knr-ops/T6-semantics/tests/test_task.py::test_q6_dependency_gate_blocks_apps_dev PASSED [ 85%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/knr-ops/T6-semantics/tests/test_task.py::test_q7_reconcile_order PASSED [100%]\n\n============================== 7 passed in 0.01s ===============================\n",
+      "passed_count": 7,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2,
+    "output": 596
+  },
+  "content": "```json\n{\n  \"q1\": \"updated-in-place\",\n  \"q2\": {\"kustomization\": \"infra-aws\", \"outcome\": \"pruned\"},\n  \"q3\": \"deleted\",\n  \"q4\": \"retained\",\n  \"q5\": {\"changes\": \"false\", \"reason\": \"apps-prod has suspend: true, so Flux does not reconcile it\"},\n  \"q6\": {\"apps_dev_reconciles\": \"false\", \"reason\": \"infra-aws never becomes Ready due to the failing healthCheck, so the dependsOn gate blocks apps-dev\"},\n  \"q7\": [\"infra-controllers\", \"infra-aws\", \"apps-dev\"]\n}\n```\n\nNotes on the two that hinge on ACK specifics: Q1 \u2014 a `dbInstanceClass` change maps to `ModifyDBInstance`, which keeps the same `app-db-prod` identity (downtime during the resize, no replacement). Q3 \u2014 the Buckets carry no `services.k8s.aws/deletion-policy` annotation, so ACK's default `delete` applies and the real S3 bucket is removed when the CR is pruned; Q4's DBInstance does carry `retain`, so the RDS database survives."
+}

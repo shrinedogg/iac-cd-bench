@@ -1,0 +1,161 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "pulumi-python",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "2bfac0be6fff1a28",
+      "spec_sha256": "78091641558a342d",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1221,
+    "output": 1234
+  },
+  "content": "# Analysis: Pulumi Preview Behavior\n\nI notice that **no actual Pulumi Python program or stack config has been provided** \u2014 only the canonical scenario specification. I cannot identify which property triggered a specific replace without the code. However, I can address your three questions with what would apply to this architecture:\n\n## 1. Which property would trigger DB replace?\n\nIn the given scenario, these RDS property changes **force replacement** (not in-place update):\n\n- **`instance_class`**: dev (db.t3.micro) \u2192 prod (db.t3.medium) \u2014 forces replacement\n- **`multi_az`**: false \u2192 true (moving dev to prod config) \u2014 forces replacement\n- **`storage_encrypted`**: false \u2192 true \u2014 forces replacement\n- **`deletion_protection`**: toggling this value \u2014 typically requires replacement\n\nIf the preview shows replace, examine the diff in `pulumi preview` output. Look for:\n```\nType: aws:rds:Instance\nChanges:\n  [~] instanceClass: \"db.t3.micro\" => \"db.t3.medium\"  # This line shows [replace]\n```\n\nThe bracketed notation `[~]` indicates modification; `[replace]` explicitly marks replacement-required fields.\n\n## 2. What does `pulumi up --target` skip?\n\n```bash\npulumi up --target arn:pulumi:aws:rds:Instance::prod-db\n```\n\nThis **skips** any resource NOT in the dependency graph of the target:\n- Other S3 buckets (unrelated)\n- IAM roles that don't feed into the RDS instance\n- The Kubernetes cluster (separate branch)\n- The ALB/CloudFront (not upstream of RDS)\n\nIt **will process**:\n- The RDS instance itself\n- Its security group (dependency)\n- Any KMS key it references (dependency)\n- The subnet group it uses (dependency)\n\nEffectively: **only the target + its upstream dependencies are updated**.\n\n## 3. How does Pulumi handle secrets in outputs?\n\n**At preview/console:**\n- Secrets appear as `[secret]` (masked)\n- The actual value is never logged\n\n**In stack state file (`Pulumi.prod.yaml.enc`):**\n- Encrypted using the stack's passphrase-derived key\n- Created via `pulumi.secret()` or `config.get_secret()`\n\n**In stack outputs:**\n```python\npulumi.export(\"db_password\", db.master_password)  # Pulumi auto-detects if it's a Secret\n```\n- Output marked as secret in the stack metadata\n- `pulumi stack output db_password` still returns the plaintext (if authenticated)\n- Logs and CI/CD systems receiving the output must handle it securely\n\n---\n\n**To give precise answers to questions 1 and 2, please share:**\n- Your `__main__.py` (or equivalent)\n- Your `Pulumi.prod.yaml` stack config\n- The actual `pulumi preview` output showing the replace",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-y9fag3_j/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-y9fag3_j/Pulumi.prod.yaml.enc"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2537,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 2537,
+      "fenced_blocks": 3,
+      "extracted_files": 2,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.7142857142857143,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that instanceClass change triggers RDS replacement",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies instanceClass change (db.t3.micro \u2192 db.t3.medium) forces RDS replacement and shows how it appears in pulumi preview output."
+      },
+      {
+        "criterion": "Explains that --target only applies to specified resources",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly explains --target skips unrelated resources and only processes the target plus its dependency graph; matches reference claim that other resources are skipped entirely."
+      },
+      {
+        "criterion": "States that secrets are encrypted in state and masked in outputs",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission states both claims: secrets encrypted in state file (passphrase-derived key) and masked in CLI output as [secret]; fully satisfies the criterion."
+      },
+      {
+        "criterion": "Describes Pulumi's preview lifecycle",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not describe preview lifecycle (load state, compute diff, show actions, return without API calls); only shows example output format without explaining the process."
+      }
+    ]
+  }
+}

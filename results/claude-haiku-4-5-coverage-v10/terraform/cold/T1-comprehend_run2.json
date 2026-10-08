@@ -1,0 +1,164 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "terraform",
+  "run": 2,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "4a59154730b5b054",
+      "spec_sha256": "ae00422e77eb16a1",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1221,
+    "output": 3444
+  },
+  "content": "# Terraform Plan Behavior: Variable Flip Scenario\n\n## 1. What the Next Plan Shows When a Variable Flips\n\nWhen a variable flips (e.g., switching environments from `dev` to `prod` via workspace or tfvars file), the plan compares the *new configuration* against the *current state* and displays:\n\n**Create operations** for resources that don't yet exist:\n- If switching to prod state for the first time, new S3 cross-region replication rules, CloudFront distribution, multi-AZ standby RDS replica, and 4-node EKS cluster\n- IAM OIDC trust configuration (prod-specific)\n\n**In-place updates** for attribute changes on existing resources (where AWS allows):\n- EKS node group: `desired_size` 2 \u2192 4, `instance_types` t3.medium \u2192 t3.large\n- RDS: `instance_class` db.t3.micro \u2192 db.t3.medium, `multi_az` false \u2192 true\n- S3: encryption and versioning rules applied (if not already present)\n- ALB \u2192 CloudFront swap (destroy ALB, create CloudFront)\n\n**Destroy operations** if the variable controls conditional resource creation:\n- Internal ALB removed in prod (replaced by CloudFront)\n\nThe plan output will show:\n```\nPlan: X to add, Y to change, Z to destroy\n```\n\nThe specific counts depend on whether you use **workspaces** (separate state per environment) or **tfvars files** (single state, variable-driven logic). Using workspaces is the idiomatic approach for this scenario because each environment has its own state file, preventing accidental cross-environment contamination.\n\n---\n\n## 2. What Happens If the State File Is Deleted\n\nIf the `.tfstate` file (or remote state backend) is lost:\n\n**Immediate consequence:**\n- `terraform plan` treats the infrastructure as non-existent and shows *all resources as requiring creation*\n- Terraform has no record of managed resource IDs, outputs, or attributes\n\n**Apply behavior (critical risk):**\n- Terraform attempts to create every resource from scratch\n- **S3 bucket creation fails** (bucket names are globally unique; AWS rejects duplicate)\n- **RDS instance creation fails** (endpoint already exists, cannot recreate with same identifier)\n- **IAM role creation fails** (role name conflicts)\n- EKS cluster creation fails (endpoint already routable)\n\n**Result: Apply error, partial rollback, infrastructure in limbo:**\nThe state is now out of sync with reality. You have two recovery paths:\n\n1. **Restore from backup** (recommended): retrieve state from S3 backup, Terraform Cloud history, or version control\n2. **Reimport resources** (manual):\n   ```\n   terraform import aws_db_instance.postgres arn:aws:rds:...\n   terraform import aws_s3_bucket.app bucket-name\n   terraform import aws_eks_cluster.main cluster-name\n   ```\n\n**For this scenario**, losing prod state is a P1 incident; losing dev state is recoverable but requires ~30 minutes of reimporting. Always use remote state with versioning and backup (e.g., S3 backend with versioning enabled, or Terraform Cloud).\n\n---\n\n## 3. How Terraform Handles RDS Instance Class Change\n\nWhen `instance_class` changes (e.g., dev db.t3.micro \u2192 prod db.t3.medium):\n\n**Plan output:**\n```\n# aws_db_instance.postgres will be updated in-place\n  ~ resource \"aws_db_instance\" \"postgres\" {\n      ~ instance_class           = \"db.t3.micro\" -> \"db.t3.medium\"\n        id                       = \"prod-postgres\"\n        engine                   = \"postgres\"\n        ...\n    }\n```\n\n**During apply:**\n- Terraform calls AWS `ModifyDBInstance` API\n- The change is scheduled for the configured maintenance window (default: Sunday 03:00\u201304:00 UTC)\n- **Database remains available**, but experiences 1\u20132 minutes of downtime during the modification\n- If using Multi-AZ (prod), failover to standby occurs first; standby is promoted, primary is updated\n- Terraform monitors the modification and updates state once AWS reports `available` status\n\n**Important constraints:**\n- **Upgrade** (micro \u2192 medium): Always allowed\n- **Downgrade** (medium \u2192 micro): May fail if DB size exceeds small instance capacity\n- **Hardware generation** (t3 \u2192 t4): May require replacement (`ForceModifyDBInstance` flag or destroy/recreate)\n\n**Best practice for this scenario:**\n```hcl\nresource \"aws_db_instance\" \"postgres\" {\n  instance_class           = var.environment == \"prod\" ? \"db.t3.medium\" : \"db.t3.micro\"\n  apply_immediately        = false  # Use maintenance window, not immediate downtime\n  deletion_protection      = true\n  skip_final_snapshot      = false\n  backup_retention_period  = 7\n}\n```\n\nIf `apply_immediately = true`, the change applies immediately with downtime; prod should avoid this.\n\n---\n\n## 4. State vs. Configuration: Conceptual Difference\n\n| Aspect | Configuration | State |\n|--------|---------------|-------|\n| **Location** | `.tf` files in Git | `.tfstate` file (local or remote backend) |\n| **Format** | HCL (human-readable) | JSON (machine-readable) |\n| **Purpose** | Declare *desired* infrastructure | Track *actual* infrastructure (as last known by Terraform) |\n| **Authority** | Source of truth for intent | Source of truth for resource IDs and current attributes |\n| **Secrets** | Can reference, but not stored directly | Stored in plaintext (encryption at rest recommended) |\n| **Drift** | Not aware of runtime changes to AWS | Detects diff when `plan` compares config \u2192 state \u2192 AWS reality |\n\n**Example:**\n\n**Configuration (`main.tf`):**\n```hcl\nresource \"aws_db_instance\" \"postgres\" {\n  instance_class  = \"db.t3.micro\"  # What we want\n  allocated_storage = 20\n}\n```\n\n**State (`.tfstate`):**\n```json\n{\n  \"resources\": [\n    {\n      \"type\": \"aws_db_instance\",\n      \"name\": \"postgres\",\n      \"instances\": [\n        {\n          \"id\": \"prod-postgres\",\n          \"attributes\": {\n            \"arn\": \"arn:aws:rds:...\",\n            \"endpoint\": \"prod-postgres.c123456789.us-east-1.rds.amazonaws.com\",\n            \"instance_class\": \"db.t3.micro\",  // What actually exists (or last known)\n            \"allocated_storage\": \"20\"\n          }\n        }\n      ]\n    }\n  ]\n}\n```\n\n**The Planning Algorithm:**\n\n1. Load configuration from `.tf` files\n2. Load state from backend\n3. Refresh state by querying AWS (optional; `terraform plan -refresh=true`)\n4. Compute diff: `desired (config) - actual (state)`\n5. Display plan: resources to create, update, destroy\n6. On `apply`, execute AWS API calls and update state with responses\n\n**Why this matters for your scenario:**\n\n- **Environment isolation**: Using separate workspaces means dev state and prod state are independent. Accidentally applying dev config to prod state doesn't happen because they're different state files.\n- **Drift**: If someone manually upgrades the prod RDS instance in the AWS console to db.t3.large, the state still says db.t3.micro. The next `plan` won't detect this because `plan` compares config (db.t3.micro desired) to state (db.t3.micro stored), not to AWS reality (db.t3.large actual). Use `terraform refresh` or `terraform plan -refresh=true` to detect this drift.\n- **Secrets**: The DB connection string is stored in state. Use remote state with encryption at rest, and never commit `.tfstate` to Git. Use SOPS or `-var-file` for passwords, not hardcoded strings in config.\n\n**For this scenario**, the canonical setup is:\n- Configuration: one `main.tf` with `var.environment` branching logic\n- State: separate workspace per environment (`terraform workspace select dev` / `terraform workspace select prod`)\n- Secrets: SOPS-encrypted tfvars file, or AWS Secrets Manager referenced via `data` source, never in state plaintext",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-p320hawh/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-p320hawh/generated_1.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-p320hawh/generated_2.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-p320hawh/generated_0.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-p320hawh/main.tf"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 7453,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 7453,
+      "fenced_blocks": 6,
+      "extracted_files": 5,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.84375,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that state file deletion loses all tracked resources",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission clearly states state deletion causes Terraform to treat infrastructure as non-existent, showing all resources as creation (~+), and explains apply failures due to unique constraints (S3, RDS, IAM)."
+      },
+      {
+        "criterion": "Correctly predicts plan shows instanceClass change",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Submission predicts plan shows in-place update (~) with ModifyDBInstance; reference answer states instance_class is a required replacement attribute causing destroy/create (~-/~+). Material factual disagreement on plan output type."
+      },
+      {
+        "criterion": "Explains that RDS instanceClass change may trigger recreate",
+        "weight": 1.0,
+        "score": 0.75,
+        "justification": "Submission explains that hardware generation changes (t3\u2192t4) may require replacement/destroy-recreate, partially satisfying the criterion. However, it emphasizes ModifyDBInstance as primary path, conflicting with reference answer's definitive replacement statement."
+      },
+      {
+        "criterion": "Distinguishes state (current reality) from config (desired state)",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly distinguishes configuration (desired state in .tf files) from state (actual state in .tfstate), explains planning algorithm computes diff between them, and identifies state as source of truth for deployed resources."
+      }
+    ]
+  }
+}

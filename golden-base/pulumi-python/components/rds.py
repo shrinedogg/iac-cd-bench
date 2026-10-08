@@ -6,11 +6,10 @@ from typing import Any
 
 import pulumi
 from pulumi import ComponentResource, Output, ResourceOptions
-from pulumi.aws.db import Instance, InstanceEngineVersion
-from pulumi.aws.subnet import SubnetGroup
+from pulumi.aws.rds import Instance, SubnetGroup
 
-# Supported engine versions pulled at runtime; defaults to latest minor.
-ENGINE_VERSION: Output[str] = InstanceEngineVersion.POSTGRES_17.latest()
+# RDS PostgreSQL engine version; use a recent supported version
+ENGINE_VERSION = "17.1"
 
 
 class RDSInstance(ComponentResource):

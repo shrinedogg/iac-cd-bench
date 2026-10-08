@@ -1,0 +1,163 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "pulumi-typescript",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1149e6c689227cf1",
+      "spec_sha256": "5f3fd0d7e16716c6",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1197,
+    "output": 756
+  },
+  "content": "# Pulumi Preview Security Review\n\nYou've provided the acceptance criteria and scenario specification, but **the actual Pulumi preview JSON output is not included in your request**. I cannot perform the review without it.\n\n## What I'm Ready to Check\n\nOnce you provide the JSON, I will analyze it for:\n\n### High-Priority Security Issues\n\n1. **Plaintext Secrets in Outputs**\n   - RDS database password, connection strings, or DB user credentials appearing in `outputs` field\n   - Any secret marked as non-sensitive (`secret: false` or omitted) in the preview\n\n2. **Stateful Resource Replacement**\n   - RDS instance or S3 bucket flagged for `destroy` + `create` (instead of update)\n   - EKS cluster replacement that would cause downtime\n   - Missing `deleteBeforeReplace` or improper lifecycle handling\n\n3. **Missing Protect Flag**\n   - RDS instance without `protectFromDeletion: true`\n   - S3 bucket (especially prod) without protection\n   - Database backups not retained (< 7 days)\n\n### Against Acceptance Criteria\n\n- S3 encryption and versioning enabled\n- RDS deletion protection, multi-AZ (prod), backup retention\n- IAM actions (no wildcards in prod)\n- EKS node instance types and counts per environment\n\n## Next Step\n\nPlease provide the Pulumi preview JSON (typically from `pulumi preview --json` or the raw output). Include:\n- The `resources` array with planned changes\n- The `outputs` section\n- Which stack (`dev` or `prod`)\n\nI'll then give you a detailed security report with specific line references and remediation steps.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1527,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1527,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies secret in plaintext outputs as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses to analyze, stating JSON is missing; describes what it would look for but identifies no actual plaintext secrets."
+      },
+      {
+        "criterion": "Identifies stateful resource replacement as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses to perform review; describes categories of resource replacement risks but identifies no actual stateful resources flagged for replacement."
+      },
+      {
+        "criterion": "Identifies missing protect flag as destructive risk",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission refuses to analyze; lists protection types to check (RDS, S3) but identifies no actual resources missing protect flags."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission provides no ranking of actual identified issues by severity; only outlines what constitutes high-priority categories conditionally."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides no specific remediation steps; only generic descriptions of what acceptance criteria should be met, no actual fixes for identified issues."
+      }
+    ]
+  }
+}

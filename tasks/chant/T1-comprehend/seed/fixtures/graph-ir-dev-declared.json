@@ -1,0 +1,535 @@
+{
+  "nodes": [
+    {
+      "id": "ackCharts",
+      "kind": "K8s::Flux::HelmRepository",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "ackCharts.name"
+        },
+        "namespace": {
+          "$ref": "ackCharts.namespace"
+        },
+        "uid": {
+          "$ref": "ackCharts.uid"
+        },
+        "status": {
+          "$ref": "ackCharts.status"
+        }
+      },
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "assetsBucket",
+      "kind": "K8s::S3::Bucket",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "assetsBucket.name"
+        },
+        "namespace": {
+          "$ref": "assetsBucket.namespace"
+        },
+        "uid": {
+          "$ref": "assetsBucket.uid"
+        },
+        "status": {
+          "$ref": "assetsBucket.status"
+        }
+      },
+      "compositeParent": "SecureBucket",
+      "compositeInstance": "assets",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "clusterAppKustomization",
+      "kind": "K8s::Flux::Kustomization",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "clusterAppKustomization.name"
+        },
+        "namespace": {
+          "$ref": "clusterAppKustomization.namespace"
+        },
+        "uid": {
+          "$ref": "clusterAppKustomization.uid"
+        },
+        "status": {
+          "$ref": "clusterAppKustomization.status"
+        }
+      },
+      "compositeParent": "FluxKustomization",
+      "compositeInstance": "clusterApp",
+      "sourceLoc": {
+        "file": "delivery/main.ts"
+      }
+    },
+    {
+      "id": "clusterCluster",
+      "kind": "K8s::CAPI::Cluster",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "clusterCluster.name"
+        },
+        "namespace": {
+          "$ref": "clusterCluster.namespace"
+        },
+        "uid": {
+          "$ref": "clusterCluster.uid"
+        },
+        "status": {
+          "$ref": "clusterCluster.status"
+        }
+      },
+      "compositeParent": "RegionCluster",
+      "compositeInstance": "cluster",
+      "sourceLoc": {
+        "file": "clusters/main.ts"
+      }
+    },
+    {
+      "id": "clusterControlPlane",
+      "kind": "K8s::Controlplane::AWSManagedControlPlane",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "clusterControlPlane.name"
+        },
+        "namespace": {
+          "$ref": "clusterControlPlane.namespace"
+        },
+        "uid": {
+          "$ref": "clusterControlPlane.uid"
+        },
+        "status": {
+          "$ref": "clusterControlPlane.status"
+        }
+      },
+      "compositeParent": "RegionCluster",
+      "compositeInstance": "cluster",
+      "sourceLoc": {
+        "file": "clusters/main.ts"
+      }
+    },
+    {
+      "id": "clusterFluxAddon",
+      "kind": "K8s::Addons::HelmChartProxy",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "clusterFluxAddon.name"
+        },
+        "namespace": {
+          "$ref": "clusterFluxAddon.namespace"
+        },
+        "uid": {
+          "$ref": "clusterFluxAddon.uid"
+        },
+        "status": {
+          "$ref": "clusterFluxAddon.status"
+        }
+      },
+      "compositeParent": "RegionCluster",
+      "compositeInstance": "cluster",
+      "sourceLoc": {
+        "file": "clusters/main.ts"
+      }
+    },
+    {
+      "id": "clusterInfra",
+      "kind": "K8s::Infrastructure::AWSManagedCluster",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "clusterInfra.name"
+        },
+        "namespace": {
+          "$ref": "clusterInfra.namespace"
+        },
+        "uid": {
+          "$ref": "clusterInfra.uid"
+        },
+        "status": {
+          "$ref": "clusterInfra.status"
+        }
+      },
+      "compositeParent": "RegionCluster",
+      "compositeInstance": "cluster",
+      "sourceLoc": {
+        "file": "clusters/main.ts"
+      }
+    },
+    {
+      "id": "clusterNodePoolAwsPool",
+      "kind": "K8s::Infrastructure::AWSManagedMachinePool",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "clusterNodePoolAwsPool.name"
+        },
+        "namespace": {
+          "$ref": "clusterNodePoolAwsPool.namespace"
+        },
+        "uid": {
+          "$ref": "clusterNodePoolAwsPool.uid"
+        },
+        "status": {
+          "$ref": "clusterNodePoolAwsPool.status"
+        }
+      },
+      "compositeParent": "RegionNodePool",
+      "compositeInstance": "cluster",
+      "sourceLoc": {
+        "file": "clusters/main.ts"
+      }
+    },
+    {
+      "id": "clusterNodePoolMachinePool",
+      "kind": "K8s::CAPI::MachinePool",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "clusterNodePoolMachinePool.name"
+        },
+        "namespace": {
+          "$ref": "clusterNodePoolMachinePool.namespace"
+        },
+        "uid": {
+          "$ref": "clusterNodePoolMachinePool.uid"
+        },
+        "status": {
+          "$ref": "clusterNodePoolMachinePool.status"
+        }
+      },
+      "compositeParent": "RegionNodePool",
+      "compositeInstance": "cluster",
+      "sourceLoc": {
+        "file": "clusters/main.ts"
+      }
+    },
+    {
+      "id": "databaseInstance",
+      "kind": "K8s::Rds::DBInstance",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "databaseInstance.name"
+        },
+        "namespace": {
+          "$ref": "databaseInstance.namespace"
+        },
+        "uid": {
+          "$ref": "databaseInstance.uid"
+        },
+        "status": {
+          "$ref": "databaseInstance.status"
+        }
+      },
+      "compositeParent": "PostgresInstance",
+      "compositeInstance": "database",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "iamControllerRelease",
+      "kind": "K8s::Flux::HelmRelease",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "iamControllerRelease.name"
+        },
+        "namespace": {
+          "$ref": "iamControllerRelease.namespace"
+        },
+        "uid": {
+          "$ref": "iamControllerRelease.uid"
+        },
+        "status": {
+          "$ref": "iamControllerRelease.status"
+        }
+      },
+      "compositeParent": "AckController",
+      "compositeInstance": "iamController",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "infraAppKustomization",
+      "kind": "K8s::Flux::Kustomization",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "infraAppKustomization.name"
+        },
+        "namespace": {
+          "$ref": "infraAppKustomization.namespace"
+        },
+        "uid": {
+          "$ref": "infraAppKustomization.uid"
+        },
+        "status": {
+          "$ref": "infraAppKustomization.status"
+        }
+      },
+      "compositeParent": "FluxKustomization",
+      "compositeInstance": "infraApp",
+      "sourceLoc": {
+        "file": "delivery/main.ts"
+      }
+    },
+    {
+      "id": "rdsControllerRelease",
+      "kind": "K8s::Flux::HelmRelease",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "rdsControllerRelease.name"
+        },
+        "namespace": {
+          "$ref": "rdsControllerRelease.namespace"
+        },
+        "uid": {
+          "$ref": "rdsControllerRelease.uid"
+        },
+        "status": {
+          "$ref": "rdsControllerRelease.status"
+        }
+      },
+      "compositeParent": "AckController",
+      "compositeInstance": "rdsController",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "readerPolicy",
+      "kind": "K8s::Iam::Policy",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "readerPolicy.name"
+        },
+        "namespace": {
+          "$ref": "readerPolicy.namespace"
+        },
+        "uid": {
+          "$ref": "readerPolicy.uid"
+        },
+        "status": {
+          "$ref": "readerPolicy.status"
+        }
+      },
+      "compositeParent": "ReaderIam",
+      "compositeInstance": "reader",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "readerRole",
+      "kind": "K8s::Iam::Role",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "readerRole.name"
+        },
+        "namespace": {
+          "$ref": "readerRole.namespace"
+        },
+        "uid": {
+          "$ref": "readerRole.uid"
+        },
+        "status": {
+          "$ref": "readerRole.status"
+        }
+      },
+      "compositeParent": "ReaderIam",
+      "compositeInstance": "reader",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "readerUser",
+      "kind": "K8s::Iam::User",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "readerUser.name"
+        },
+        "namespace": {
+          "$ref": "readerUser.namespace"
+        },
+        "uid": {
+          "$ref": "readerUser.uid"
+        },
+        "status": {
+          "$ref": "readerUser.status"
+        }
+      },
+      "compositeParent": "ReaderIam",
+      "compositeInstance": "reader",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "s3ControllerRelease",
+      "kind": "K8s::Flux::HelmRelease",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "s3ControllerRelease.name"
+        },
+        "namespace": {
+          "$ref": "s3ControllerRelease.namespace"
+        },
+        "uid": {
+          "$ref": "s3ControllerRelease.uid"
+        },
+        "status": {
+          "$ref": "s3ControllerRelease.status"
+        }
+      },
+      "compositeParent": "AckController",
+      "compositeInstance": "s3Controller",
+      "sourceLoc": {
+        "file": "infra/main.ts"
+      }
+    },
+    {
+      "id": "sourceGitRepository",
+      "kind": "K8s::Flux::GitRepository",
+      "lexicon": "k8s",
+      "attrs": {
+        "name": {
+          "$ref": "sourceGitRepository.name"
+        },
+        "namespace": {
+          "$ref": "sourceGitRepository.namespace"
+        },
+        "uid": {
+          "$ref": "sourceGitRepository.uid"
+        },
+        "status": {
+          "$ref": "sourceGitRepository.status"
+        }
+      },
+      "compositeParent": "FluxGitRepository",
+      "compositeInstance": "source",
+      "sourceLoc": {
+        "file": "delivery/main.ts"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "iamControllerRelease",
+      "to": "ackCharts",
+      "kind": "ref",
+      "viaAttr": "spec"
+    },
+    {
+      "from": "rdsControllerRelease",
+      "to": "ackCharts",
+      "kind": "ref",
+      "viaAttr": "spec"
+    },
+    {
+      "from": "s3ControllerRelease",
+      "to": "ackCharts",
+      "kind": "ref",
+      "viaAttr": "spec"
+    }
+  ],
+  "groups": {
+    "byLexicon": {
+      "k8s": [
+        "ackCharts",
+        "assetsBucket",
+        "clusterAppKustomization",
+        "clusterCluster",
+        "clusterControlPlane",
+        "clusterFluxAddon",
+        "clusterInfra",
+        "clusterNodePoolAwsPool",
+        "clusterNodePoolMachinePool",
+        "databaseInstance",
+        "iamControllerRelease",
+        "infraAppKustomization",
+        "rdsControllerRelease",
+        "readerPolicy",
+        "readerRole",
+        "readerUser",
+        "s3ControllerRelease",
+        "sourceGitRepository"
+      ]
+    },
+    "byComposite": {
+      "AckController": [
+        "iamControllerRelease",
+        "rdsControllerRelease",
+        "s3ControllerRelease"
+      ],
+      "FluxGitRepository": [
+        "sourceGitRepository"
+      ],
+      "FluxKustomization": [
+        "clusterAppKustomization",
+        "infraAppKustomization"
+      ],
+      "PostgresInstance": [
+        "databaseInstance"
+      ],
+      "ReaderIam": [
+        "readerPolicy",
+        "readerRole",
+        "readerUser"
+      ],
+      "RegionCluster": [
+        "clusterCluster",
+        "clusterControlPlane",
+        "clusterFluxAddon",
+        "clusterInfra"
+      ],
+      "RegionNodePool": [
+        "clusterNodePoolAwsPool",
+        "clusterNodePoolMachinePool"
+      ],
+      "SecureBucket": [
+        "assetsBucket"
+      ]
+    },
+    "byStack": {
+      "k8s": [
+        "ackCharts",
+        "assetsBucket",
+        "clusterAppKustomization",
+        "clusterCluster",
+        "clusterControlPlane",
+        "clusterFluxAddon",
+        "clusterInfra",
+        "clusterNodePoolAwsPool",
+        "clusterNodePoolMachinePool",
+        "databaseInstance",
+        "iamControllerRelease",
+        "infraAppKustomization",
+        "rdsControllerRelease",
+        "readerPolicy",
+        "readerRole",
+        "readerUser",
+        "s3ControllerRelease",
+        "sourceGitRepository"
+      ]
+    }
+  }
+}

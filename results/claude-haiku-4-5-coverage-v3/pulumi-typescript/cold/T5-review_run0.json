@@ -1,0 +1,163 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1149e6c689227cf1",
+      "spec_sha256": "5f3fd0d7e16716c6",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1197,
+    "output": 494
+  },
+  "content": "# Review Request: No Preview JSON Provided\n\nI'm ready to review your Pulumi preview JSON for security issues, but **I don't see the preview JSON content in your message**. \n\nTo proceed with the security review, please provide:\n\n1. **The Pulumi preview JSON output** \u2014 the complete JSON from `pulumi preview --json` (or the relevant portion if very large)\n2. **Which stack** \u2014 `dev` or `prod` (this affects acceptable configurations, e.g., IAM wildcard actions are stricter for prod)\n\n## I will check for:\n\n- **Secrets in plaintext outputs** \u2014 any DB connection strings, API keys, or credentials exposed outside of `SecureOutput`\n- **Stateful resource replacement** \u2014 EKS clusters, RDS instances, or S3 buckets marked for deletion/recreation\n- **Missing `protect` flag** \u2014 critical resources (RDS, cluster) without `protect: true` in dev/test scenarios where accidental deletion is risky\n- **Additional security gaps** \u2014 against the acceptance criteria you've specified (bucket versioning/encryption, RDS deletion protection, IAM policies, etc.)\n\nPlease paste or share the preview JSON, and I'll deliver a detailed security assessment.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1134,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1134,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies secret in plaintext outputs as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests preview JSON input rather than identifying any secrets in plaintext as security risk."
+      },
+      {
+        "criterion": "Identifies stateful resource replacement as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests preview JSON input rather than identifying stateful resource replacement as data loss risk."
+      },
+      {
+        "criterion": "Identifies missing protect flag as destructive risk",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission requests preview JSON input rather than identifying missing protect flag as destructive risk."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission requests preview JSON input rather than ranking any security issues by severity."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission requests preview JSON input rather than providing specific remediation steps for any issues."
+      }
+    ]
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "chant",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "837cbd4af06f207375d0882e7ee6d931f185e63e",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "95c10b4aa33c9a8d",
+      "spec_sha256": "015dc357f151354b",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 2520,
+    "output": 2261
+  },
+  "content": "# Security Review: Prod Database & IAM Changes\n\nThis diff introduces **four critical security regressions** against the canonical scenario spec and your own composite safeguards. All must be fixed before merge.\n\n---\n\n## Issues by Severity\n\n### \ud83d\udd34 CRITICAL #1: Hardcoded Database Master Password\n\n**What:** Line `masterUserPassword: \"Prod2026!DbPass\",`  \n**Impact:** Production database credentials are committed as plaintext to Git. This value and all historical commits containing it are now exposed permanently to anyone with repository access. The old code explicitly prevented this by accepting only a `SecretRef` (\"rotated into the cluster by the platform runbook; never in git\").  \n**Fix:** Remove the literal password. Restore usage of a Kubernetes Secret reference. The original pattern:\n```typescript\nconst masterPassword: SecretRef = {\n  name: \"myapp-prod-db-master\",\n  namespace: INFRA_NAMESPACE,\n  key: \"password\",\n};\n```\nallows the actual value to be injected out-of-band and never stored in the repo.\n\n---\n\n### \ud83d\udd34 CRITICAL #2: Publicly Accessible Database\n\n**What:** Line `publiclyAccessible: true,`  \n**Impact:** The production PostgreSQL instance is now routable from the public internet. Combined with the hardcoded password now in Git history, this is an open door to database compromise. The canonical spec mandates \"no publicly accessible\" for prod. Your `PostgresInstance` composite enforced `publiclyAccessible: false` unconditionally for exactly this reason.  \n**Fix:** Change to `publiclyAccessible: false,` immediately.\n\n---\n\n### \ud83d\udd34 CRITICAL #3: Deletion Protection Disabled\n\n**What:** Line `deletionProtection: false,`  \n**Impact:** The production database can now be destroyed with a single AWS API call or console click. The canonical spec requires deletion protection enabled. Your `PostgresInstance` composite enforced `deletionProtection: true` unconditionally to prevent this.  \n**Fix:** Change to `deletionProtection: true,`.\n\n---\n\n### \ud83d\udfe0 HIGH #4: Wildcard S3 Permissions\n\n**What:** Line `additionalActions: [\"s3:*\"],`  \n**Impact:** The service account is granted all S3 actions (read, write, delete, list, etc.) on the prod cluster. The canonical spec requires \"no wildcard actions on prod\" and mandates least-privilege IAM. This single action grant is broader than necessary for reading application assets.  \n**Fix:** Replace `[\"s3:*\"]` with the specific actions needed, e.g.:\n```typescript\nadditionalActions: [\"s3:GetObject\", \"s3:GetObjectVersion\"],\n```\nor similar scoped permissions.\n\n---\n\n## Summary Table\n\n| Issue | Severity | Field | Requirement Violated |\n|-------|----------|-------|----------------------|\n| Hardcoded password in source | CRITICAL | `masterUserPassword` | Secret never in Git; stack-native encryption |\n| Database publicly accessible | CRITICAL | `publiclyAccessible` | Spec: \"no publicly accessible\" |\n| Deletion protection off | CRITICAL | `deletionProtection` | Spec: \"deletion protection on\" |\n| Wildcard S3 actions | HIGH | `additionalActions` | Spec: \"no wildcard actions on prod\"; least privilege |\n\n**Recommendation:** Do not merge. Return to `PostgresInstance` composite or restore all three database guardrails and fix the IAM wildcard. The comment \"TODO: move back once there's time\" suggests this is temporary \u2014 be aware that until reverted, your prod database is exposed to compromise.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-chant-y3lmhc3s/generated_0.ts"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3354,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3354,
+      "fenced_blocks": 2,
+      "extracted_files": 1,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.8333333333333334,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that the diff hardcodes a plaintext-looking database password directly into spec.masterUserPassword, bypassing secretRef()/SecretRef entirely -- the referenced-provenance discipline this golden depends on to keep material out of git",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission explicitly identifies hardcoded plaintext password \"Prod2026!DbPass\" in masterUserPassword, explains exposure risk, and provides concrete SecretRef remediation pattern."
+      },
+      {
+        "criterion": "Identifies that abandoning PostgresInstance for a raw new DBInstance({...}) sets publiclyAccessible: true and deletionProtection: false, directly reversing SPEC acceptance criterion 2's non-negotiable posture (both are pinned, not props, inside the composite)",
+        "weight": 3.0,
+        "score": 0.75,
+        "justification": "Submission identifies both bad values (publiclyAccessible: true, deletionProtection: false) and composite enforcement, but does not explicitly state that abandoning PostgresInstance for raw DBInstance is what enabled these opposite values."
+      },
+      {
+        "criterion": "Identifies the additionalActions: [\"s3:*\"] wildcard added to the prod reader's ReaderIam call, violating SPEC acceptance criterion 4 (no wildcard actions) even though additionalActions is 'just' a string array with no type-level wildcard guard",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission explicitly identifies additionalActions: [\"s3:*\"] wildcard, explains it violates spec criterion 4 and least-privilege principle, and provides concrete fix with named actions."
+      },
+      {
+        "criterion": "Notes that bypassing the PostgresInstance composite for a raw DBInstance construction is itself a red flag independent of the specific prop values it happens to set here -- it silently drops every other guarantee the composite enforces (backupRetentionDays >= 7, referenced-secret discipline) for any future edit to this call site",
+        "weight": 1.0,
+        "score": 0.25,
+        "justification": "Submission gestures at returning to PostgresInstance composite but does not explain why the composite bypass itself is a red flag independent of specific prop values, nor does it mention loss of backup retention or future edit protections."
+      },
+      {
+        "criterion": "Ranks the issues by severity in a defensible order consistent with: the hardcoded password and the public/unprotected database as most severe (roughly tied), the wildcard IAM grant next, and the composite bypass as a practice least severe on its own",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Submission ranks password and public/unprotected database as most severe and wildcard as high/lower, matching expected pattern, but fails to identify and rank composite bypass as a separate least-severe structural issue."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this') -- restore the PostgresInstance call with secretRef(), remove the wildcard action",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission provides specific concrete remediations for each issue: restore SecretRef pattern for password, change boolean flags for accessibility/deletion, replace wildcard with named S3 actions\u2014all beyond generic 'fix this' advice."
+      }
+    ]
+  }
+}

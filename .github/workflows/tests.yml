@@ -1,0 +1,79 @@
+name: tests
+
+# Nothing ran the test suite automatically. The structural guards added for
+# #84 (a golden must pass its gates) and #75 (a grader must fail its seed)
+# only help if something forces them to run — otherwise they are the same
+# unenforced promise as preflight's comment about a test file that did not
+# exist (#88).
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install python deps
+        # Install the project, not a guessed subset. pyproject declares httpx,
+        # pydantic and jsonschema; installing only pytest+pyyaml made CI fail
+        # on `ModuleNotFoundError: No module named 'httpx'` for a dependency
+        # the repo had declared all along.
+        run: pip install -e ".[dev]"
+
+      - name: Install pinned toolchain
+        # Best effort. Tests that need a binary skip when it is absent rather
+        # than failing (see tests/test_golden_gates.py), so a partial
+        # toolchain still exercises everything that does not shell out.
+        continue-on-error: true
+        run: |
+          curl -fsSL https://mise.run | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
+
+      - name: mise install
+        continue-on-error: true
+        run: mise install || true
+
+      - name: Make the pins global so shims resolve outside the repo
+        # The gates shell out with cwd set to a materialized temp workspace,
+        # which is not inside this repo, so mise's project-scoped resolution
+        # finds no mise.toml and every shim fails with
+        # `No version is set for shim: kubeconform`. It never bites locally
+        # because those tools come from homebrew rather than a shim. Copying
+        # the pins to the global config makes them resolve from any cwd.
+        continue-on-error: true
+        run: |
+          mkdir -p ~/.config/mise
+          cp mise.toml ~/.config/mise/config.toml
+          mise install || true
+          mise ls --installed 2>/dev/null | head -20 || true
+
+      - name: Report what the toolchain actually provides
+        # Printed, not asserted: the point is that a skip is visible rather
+        # than silently indistinguishable from a pass.
+        run: |
+          for b in yq kubeconform kustomize flux terraform tsc npm chant ruff pulumi crossplane; do
+            printf '%-14s %s\n' "$b" "$(command -v "$b" || echo '-- absent --')"
+          done
+
+      - name: Vendored CRD schemas are present and relaxed
+        run: python3 tools/vendor_schemas.py --check
+
+      - name: pytest
+        run: python3 -m pytest tests/ -q --tb=short -rs
+
+      - name: Structural guards must not be silently skipped
+        # The two tests this workflow exists for. If the toolchain is too thin
+        # for them to run, say so loudly rather than reporting a green tick.
+        run: |
+          python3 -m pytest tests/test_grader_seeds.py -q --tb=line
+          python3 -m pytest tests/test_preflight.py -q --tb=line

@@ -1,0 +1,5 @@
+readerPolicy  K8s::Iam::Policy  d3dcfc95-9da9-43ed-af40-7acb6733f6f0
+readerRole  K8s::Iam::Role  afa2d040-cf6a-4fb3-8d19-af8c041826e2
+— observed from snapshot 25a34bf taken 2026-08-25T15:25:11.089Z · bound 2/2
+— 2 of 3 K8s::Iam::Policy/K8s::Iam::Role matched  (query: kind:Iam attr:labels=component":"identity)
+  · excluded assetsReplicaRole — fails attr:labels=component":"identity

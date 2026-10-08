@@ -1,0 +1,25 @@
+stack: bare
+archetype: debug
+id: "T4-debug"
+title: "Fix Deployment selector/template label mismatch that kubectl apply rejects"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - yq
+      - kubeconform
+  static:
+    enabled: true
+    tools:
+      - kubectl apply --dry-run=client
+  semantic:
+    enabled: true
+    assertion_count: 2
+  e2e:
+    enabled: false
+
+defect:
+  description: "prod/app.yaml's Deployment spec.selector.matchLabels requires version: v2, which spec.template.metadata.labels does not provide -- the API server rejects the apply because the selector does not match the template labels"
+  fix: "Make prod/app.yaml's Deployment spec.selector.matchLabels a subset of spec.template.metadata.labels (e.g. add version: v2 to the template labels, or remove it from the selector) so the object validates and applies; keep the Service's selector matching the (fixed) template labels"

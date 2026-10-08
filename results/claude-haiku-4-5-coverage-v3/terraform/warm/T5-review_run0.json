@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "terraform",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "dd01970ce92a5964",
+      "spec_sha256": "f6545befc3558903",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1210,
+    "output": 836
+  },
+  "content": "# Terraform Plan Review: Missing Input\n\nI don't see the actual **tfplan JSON output** in your message. To review the 40 changes and identify:\n\n1. **DB recreate (destroy + create) hidden in no-ops**\n2. **0.0.0.0/0 ingress rule added to security group**\n\n\u2026I'll need you to provide the raw Terraform plan JSON (output from `terraform plan -json > plan.json` or similar).\n\n## What to Look For When You Provide It\n\nBased on your canonical scenario, here's the framework I'll apply:\n\n### \ud83d\udea8 High-Risk Patterns\n\n| Red Flag | Why It Matters | Location in Plan |\n|---|---|---|\n| `aws_db_instance` with `change.actions = [\"delete\", \"create\"]` | **Destructive**: database lost, data gone, requires restore | Search `type: \"aws_db_instance\"` + `actions` array |\n| `aws_security_group_rule` or `aws_security_group.ingress` with CIDR `0.0.0.0/0` + protocol `tcp`/`-1` | **Compliance risk**: violates least-privilege (AC-4), exposes prod DB | Search `\"ingress\"` blocks, check `cidr_blocks` and `from_port` |\n| `aws_rds_cluster_instance` or `aws_db_instance.publicly_accessible = true` | Violates AC-2 (RDS not publicly accessible) | Search `publicly_accessible` changes |\n| `aws_s3_bucket` with encryption removed or versioning disabled | Violates AC-1 | Search bucket policy/encryption removals |\n\n### \u2705 What to Confirm\n\n- **No-ops are truly no-ops**: `change.actions = [\"no-op\"]` only (watch for false negatives in plan formatting)\n- **Environment isolation**: Changes confined to single workspace/`*.tfvars` (not cross-pollinating dev\u2192prod)\n- **RDS deletion protection**: `skip_final_snapshot = false` + `final_snapshot_identifier` set\n\n---\n\n**Please paste or attach the tfplan JSON**, and I'll systematically scan it against these criteria with specific resource addresses flagged.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1769,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1769,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies RDS destroy + create as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests the plan JSON without identifying any RDS destroy+create issue in an actual Terraform resource."
+      },
+      {
+        "criterion": "Identifies 0.0.0.0/0 ingress as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests the plan JSON without identifying any 0.0.0.0/0 ingress rule in an actual security group resource."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not identify or rank any issues by severity; it only provides a checklist pattern without completing the review task."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission does not provide remediation steps for identified issues because it refuses the task and requests missing input instead."
+      }
+    ]
+  }
+}

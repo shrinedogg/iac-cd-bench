@@ -1,0 +1,162 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "65ba8f1338fa2db12539125d32183373e03dc439",
+      "dirty": false,
+      "branch": "bench/gates-pulumi"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "a3e2ccaf37e35ce6",
+      "spec_sha256": "0c1f10c1d2fb471e",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1223,
+    "output": 2208
+  },
+  "content": "# Pulumi Preview Behavior Analysis\n\n## 1. Which Property Triggered the Replace?\n\nIn the given scenario, when previewing a change from **dev to prod** (or vice versa), the most likely property triggering a replace on the RDS instance is:\n\n- **`multiAz`** \u2014 Changing from `false` (dev: single AZ) to `true` (prod: multi-AZ) forces replacement in AWS RDS. This is an immutable property after instance creation.\n- **Secondary candidate: `instanceClass`** \u2014 Changing from `db.t3.micro` (dev) to `db.t3.medium` (prod) may trigger replacement if the upgrade path is not compatible within the t3 family (though Pulumi often handles in-place modification for some class transitions).\n\nIn the Pulumi preview output, you would see:\n```\naws:rds:Instance (rds-instance):\n  ~ multiAz: false => true [replace]\n```\n\nCheck the preview diff carefully for the `~` marker combined with `[replace]` to confirm which property is the culprit.\n\n---\n\n## 2. What Does `pulumi up --target` Skip?\n\nThe `--target` flag narrows the update scope by **only updating the specified resource and its immediate dependencies**. It skips:\n\n- **Unrelated resources** \u2014 Any resource not in the dependency graph of the target\n- **Dependent resources** \u2014 Resources that depend on the target but are not explicit dependencies themselves (orphans are left untouched)\n- **State refresh** \u2014 Non-targeted resources are not re-queried; their state remains stale in the preview\n\n**Example:**  \n```bash\npulumi up --target arn:aws:rds:us-east-1:123456789:db/my-db\n```\nWill update only the RDS instance and any security groups or parameter groups directly referenced in its definition. It will **skip** ALB, Kubernetes cluster, S3 bucket, IAM roles, and any other resources.\n\n**Important caveat:** If the targeted resource *depends on* an undeployed resource, Pulumi will error; `--target` does not override dependency requirements.\n\n---\n\n## 3. How Does Pulumi Handle Secrets in Outputs?\n\nPulumi encrypts secrets at rest and masks them in CLI output:\n\n| Mechanism | Behavior |\n|---|---|\n| **At rest in stack state** | Encrypted using the stack's symmetric encryption key (managed backend or local KMS integration) |\n| **In `pulumi preview` / `pulumi up` output** | Displayed as `[secret]` placeholder; actual value is never printed |\n| **In `pulumi stack output`** | Returns `[secret]` by default; use `--show-secrets` flag to reveal plaintext |\n| **In Pulumi.yaml config** | Use `pulumi.config.requireSecret('key')` to mark config values as sensitive; stored encrypted |\n| **In TypeScript code** | Use `pulumi.secret(value)` to wrap outputs; Pulumi automatically propagates the secret marker through the DAG |\n| **In exported stack outputs** | If an output references a secret, the entire output is marked secret (contagion) |\n\n**For the DB connection string (per spec):**\n```typescript\nconst dbPassword = config.requireSecret('dbPassword'); // Encrypted in stack config\nexport const connectionString = pulumi.interpolate`postgres://user:${dbPassword}@...`; \n// Output is automatically marked secret; CLI shows [secret]\n```\n\nStack state file excerpt:\n```yaml\noutputs:\n  connectionString:\n    secretValue: \"AAABxxx...\" # encrypted blob\n    secretMetadata: true      # marks it as secret\n```",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-h3gyfkg6/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-h3gyfkg6/generated_0.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-h3gyfkg6/generated_0.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3238,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3238,
+      "fenced_blocks": 4,
+      "extracted_files": 3,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.7142857142857143,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that instanceClass change triggers RDS replacement",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Identifies instanceClass as secondary candidate with heavy hedging ('may trigger if upgrade path not compatible'), not as unambiguous trigger; positions multiAz as primary answer instead."
+      },
+      {
+        "criterion": "Explains that --target only applies to specified resources",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Clearly explains --target narrows scope to specified resource and immediate dependencies only, explicitly stating what is skipped (unrelated resources) with concrete example."
+      },
+      {
+        "criterion": "States that secrets are encrypted in state and masked in outputs",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Directly states both required components: secrets encrypted at rest in stack state AND masked as [secret] placeholder in CLI preview/output; provides concrete implementation details."
+      },
+      {
+        "criterion": "Describes Pulumi's preview lifecycle",
+        "weight": 2.0,
+        "score": 0.25,
+        "justification": "Discusses what appears in preview output (diff markers, secrets masked) and --target effects, but does not describe the lifecycle sequence of preview operations (parse \u2192 execute \u2192 compare \u2192 generate preview)."
+      }
+    ]
+  }
+}

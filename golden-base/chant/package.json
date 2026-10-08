@@ -1,0 +1,29 @@
+{
+  "name": "iac-cd-bench-golden-chant",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "chant golden implementation of scenario/SPEC.md for the IaC/CD benchmark",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "chant lint src",
+    "build:dev:delivery": "chant build src/envs/dev/delivery -f yaml -o dist/dev/delivery.yaml",
+    "build:dev:infra": "chant build src/envs/dev/infra -f yaml -o dist/dev/infra/manifests.yaml",
+    "build:dev:clusters": "chant build src/envs/dev/clusters -f yaml -o dist/dev/clusters/manifests.yaml",
+    "build:dev": "npm run build:dev:delivery && npm run build:dev:infra && npm run build:dev:clusters",
+    "build:prod:delivery": "chant build src/envs/prod/delivery -f yaml -o dist/prod/delivery.yaml",
+    "build:prod:infra": "chant build src/envs/prod/infra -f yaml -o dist/prod/infra/manifests.yaml",
+    "build:prod:clusters": "chant build src/envs/prod/clusters -f yaml -o dist/prod/clusters/manifests.yaml",
+    "build:prod": "npm run build:prod:delivery && npm run build:prod:infra && npm run build:prod:clusters",
+    "kubeconform": "kubeconform -ignore-missing-schemas -summary dist/dev/delivery.yaml dist/dev/infra/manifests.yaml dist/dev/clusters/manifests.yaml dist/prod/delivery.yaml dist/prod/infra/manifests.yaml dist/prod/clusters/manifests.yaml",
+    "verify": "npm run typecheck && npm run lint && npm run build:dev && npm run build:prod && npm run kubeconform"
+  },
+  "dependencies": {
+    "@intentius/chant": "file:vendor/intentius-chant-0.49.0.tgz",
+    "@intentius/chant-lexicon-k8s": "file:vendor/intentius-chant-lexicon-k8s-0.49.0.tgz"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "bare",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "x/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q7_no_cross_directory_gating PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: q1: expected updated-in-place, got 'replaced'\n    assert ('updated' in 'replaced' or 'replaced' == 'in-place'\n     +  where 'replaced' = _norm('replaced')\n     +    where 'replaced' = <built-in method get of dict object at 0x10a7a9c80>('q1', '')\n     +      where <built-in method get of dict object at 0x10a7a9c80> = {'q1': 'replaced', 'q2': {'deleted': False, 'reason': \"kubectl apply without --prune is declarative-only for files specified; missing manifests don't trigger deletion\"}, 'q3': 'exists', 'q4': {'succeeds': True, 'reason': 'Deployment selectors are mutable; apply succeeds but creates label/selector mismatch, triggering new pod reconciliation'}, ...}.get\n      \n      - in-place\n      + replaced)\n/Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py:67: AssertionError: q1: expected updated-in-place, got 'replaced'\nE   AssertionError: q4 succeeds: expected false, got True\n    assert True is False\n/Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py:90: AssertionError: q4 succeeds: expected false, got True\n=========================== short test summary info ============================\nFAILED ../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q1_rds_class_change_in_place\nFAILED ../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q4_immutable_selector_rejected\n========================= 2 failed, 5 passed in 0.01s ==========================\n",
+      "passed_count": 5,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 4340
+  },
+  "content": "```json\n{\n  \"q1\": \"replaced\",\n  \"q2\": {\"deleted\": false, \"reason\": \"kubectl apply without --prune is declarative-only for files specified; missing manifests don't trigger deletion\"},\n  \"q3\": \"exists\",\n  \"q4\": {\"succeeds\": true, \"reason\": \"Deployment selectors are mutable; apply succeeds but creates label/selector mismatch, triggering new pod reconciliation\"},\n  \"q5\": \"client-side\",\n  \"q6\": {\"namespace_first\": true, \"reason\": \"kubectl processes files in alphanumeric order; 00-namespaces.yaml applies before all namespaced resources\"},\n  \"q7\": {\"blocked\": false, \"reason\": \"Plain kubectl apply has no orchestration, health gates, or cross-environment dependency checks; each apply is independent\"}\n}\n```"
+}

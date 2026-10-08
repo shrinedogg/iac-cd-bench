@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "pulumi-typescript",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "a3e2ccaf37e35ce6",
+      "spec_sha256": "0c1f10c1d2fb471e",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1223,
+    "output": 2446
+  },
+  "content": "# Pulumi Preview & Replace Behavior Analysis\n\nBased on the canonical scenario (dev: single-AZ unencrypted RDS vs. prod: multi-AZ encrypted RDS), here are answers to your three questions:\n\n## 1. Which Property Triggered the Replace?\n\n**Most likely: `storageEncrypted` or `kmsKeyId`**\n\nIn AWS RDS via Pulumi, enabling encryption on an existing database instance **requires replacement**\u2014you cannot enable encryption on a running instance in-place. If the preview shows replace and the code is transitioning dev toward prod parity, adding encryption is the culprit.\n\nOther properties that trigger replace:\n- `engine` or `engineVersion` (major changes)\n- `masterUsername` (cannot be modified after creation)\n- `dbName` (initial name, immutable)\n- `dbSubnetGroupName` (requires replacement in some cases)\n- `storageType` (gp2 \u2194 io1 requires replacement)\n\nTo confirm: run `pulumi preview --json` and search the diff for `replace: true` on the RDS resource; the property name in the diff is your answer.\n\n## 2. What Does `pulumi up --target` Skip?\n\n`pulumi up --target <resource>` **skips all resources without a direct or transitive dependency relationship** to the target.\n\n**Example:** If you run `pulumi up --target aws:rds:Instance/main`:\n- \u2713 Updates: RDS instance + anything that **depends on it** (e.g., security group rules, IAM policy referencing the endpoint)\n- \u2717 Skips: EKS cluster, ALB, S3 bucket, IAM roles, TargetGroups\u2014unless they have an explicit dependency path to/from the RDS instance\n- \u2717 Skips: Unrelated resources in the same stack\n\n**Key behavior:** `--target` is a **strict dependency filter**, not a resource name glob. Only the named resource and its transitive dependents are updated.\n\n## 3. How Does Pulumi Handle Secrets in Outputs?\n\nPulumi automatically marks output values derived from secrets as secret and enforces these protections:\n\n| Mechanism | Behavior |\n|-----------|----------|\n| **ConfigSecret** | `config.requireSecret()` marks the retrieved value as secret |\n| **Output masking** | All logs and console output show `[secret]` instead of plaintext |\n| **State encryption** | Secrets are encrypted at rest in the stack state file (passphrase-protected) |\n| **Display gating** | `pulumi stack output <name>` hides secret outputs; requires `--show-secrets` |\n| **Cross-stack refs** | Exported secrets remain secret when imported by other stacks |\n| **CI/CD safety** | Secrets are never logged in `pulumi up` or `pulumi preview` output by default |\n\n**In your scenario:** The DB connection string secret (encrypted via SOPS at source, retrieved by Pulumi's config mechanism) is automatically marked secret when exported. It never appears in logs, stack exports, or CI/CD output without explicit `--show-secrets`.\n\n---\n\n**To identify the exact replace trigger in your code:**\n```bash\npulumi preview --json | jq '.resourceChanges[] | select(.type==\"aws:rds:Instance\") | .changes'\n```\n\nThe `properties` field will show which RDS attribute differs between the old and new state.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3004,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3004,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.42857142857142855,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that instanceClass change triggers RDS replacement",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission identifies storageEncrypted/kmsKeyId and other properties as replacement triggers but makes no mention of instanceClass as a trigger."
+      },
+      {
+        "criterion": "Explains that --target only applies to specified resources",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly states --target is a strict dependency filter applying only to the named resource and its transitive dependents, skipping unrelated resources."
+      },
+      {
+        "criterion": "States that secrets are encrypted in state and masked in outputs",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission explicitly states secrets are encrypted in stack state file and masked as [secret] in outputs and logs without --show-secrets flag."
+      },
+      {
+        "criterion": "Describes Pulumi's preview lifecycle",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not describe Pulumi's preview lifecycle (state reading, code evaluation, desired state computation, comparison, plan generation). Only mentions preview command usage."
+      }
+    ]
+  }
+}

@@ -5,7 +5,7 @@ export interface RDSArgs {
   instanceClass: string;
   dbUser: string;
   dbName: string;
-  dbPassword: pulumi.Secret;
+  dbPassword: pulumi.Input<string>;
   multiAz: boolean;
   deletionProtection: boolean;
   backupRetention: number;
@@ -15,7 +15,7 @@ export interface RDSArgs {
 
 export class RDSComponent extends pulumi.ComponentResource {
   public readonly endpoint: pulumi.Output<string>;
-  public readonly password: pulumi.Output<string>;
+  public readonly password: pulumi.Output<string | undefined>;
   public readonly id: pulumi.Output<string>;
 
   constructor(name: string, args: RDSArgs, opts?: pulumi.ComponentResourceOptions) {
@@ -35,7 +35,7 @@ export class RDSComponent extends pulumi.ComponentResource {
       engineVersion: "16",
       instanceClass: args.instanceClass,
       dbName: args.dbName,
-      dbUsername: args.dbUser,
+      username: args.dbUser,
       password: args.dbPassword,
       deletionProtection: args.deletionProtection,
       backupRetentionPeriod: args.backupRetention,
@@ -49,7 +49,7 @@ export class RDSComponent extends pulumi.ComponentResource {
     }, { dependsOn: [subnetGroup] });
 
     this.endpoint = instance.endpoint;
-    this.password = args.dbPassword;
+    this.password = instance.password;
     this.id = instance.id;
   }
 }

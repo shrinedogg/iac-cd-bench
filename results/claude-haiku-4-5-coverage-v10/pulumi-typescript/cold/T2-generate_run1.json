@@ -1,0 +1,147 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T2-generate",
+  "stack": "pulumi-typescript",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "cc02c2a62d382b9a",
+      "spec_sha256": "7b0aaf914a8426fa",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[tsc check] tsc: exit=2\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/components/applicationStack.ts(3,25): error TS2307: Cannot find module '@pulumi/random' or its corresponding type declarations.\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/components/applicationStack.ts(209,21): error TS1308: 'await' expressions are only allowed within async functions and at the top levels of modules.\n../../../../../../.."
+    },
+    "static": {
+      "passed": false,
+      "logs": "pulumi preview --non-interactive --diff: exit=1 examined=1\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::app-infrastructure::pulumi:pulumi:Stack::app-infrastructure-dev]\nResources:\n    + 1 to create\n\nERR: warning: Could not find a package.json or package.yaml file for the program. Using the Pulumi program directory as the project root.\nerror: Running program '/private/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/' failed with an unh",
+      "examined": 1,
+      "tools": [
+        {
+          "tool": "pulumi",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+          "exit": 1,
+          "examined": 1
+        }
+      ]
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_components_dir PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_bucket_component PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_component PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_bucket_versioning PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_deletion_protection FAILED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: the RDS component should support deletionProtection\n    assert False\n     +  where False = any(<generator object test_rds_deletion_protection.<locals>.<genexpr> at 0x10a915d20>)\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T2-generate/tests/test_task.py:85: AssertionError: the RDS component should support deletionProtection\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T2-generate/tests/test_task.py::test_rds_deletion_protection\n========================= 1 failed, 5 passed in 0.01s ==========================\n",
+      "passed_count": 5,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1226,
+    "output": 4452
+  },
+  "content": "# Pulumi ComponentResource: Service Stack\n\nHere's a complete TypeScript implementation wrapping S3, RDS, and IAM into a reusable ComponentResource with dev/prod support.\n\n## Structure\n\n```\n.\n\u251c\u2500\u2500 Pulumi.yaml\n\u251c\u2500\u2500 Pulumi.dev.yaml\n\u251c\u2500\u2500 Pulumi.prod.yaml\n\u251c\u2500\u2500 index.ts\n\u2514\u2500\u2500 components/\n    \u2514\u2500\u2500 applicationStack.ts\n```\n\n---\n\n## `components/applicationStack.ts`\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport * as aws from \"@pulumi/aws\";\nimport * as random from \"@pulumi/random\";\n\ninterface ApplicationStackArgs {\n  environment: string;\n  bucketName: string;\n  dbInstanceClass: string;\n  dbAllocatedStorage: number;\n  enableCrossRegionReplication?: boolean;\n  replicationRegion?: string;\n}\n\nexport interface ApplicationStackOutputs {\n  bucketName: pulumi.Output<string>;\n  bucketArn: pulumi.Output<string>;\n  rdsEndpoint: pulumi.Output<string>;\n  rdsPort: pulumi.Output<number>;\n  iamRoleArn: pulumi.Output<string>;\n  iamRoleName: pulumi.Output<string>;\n  dbSecurityGroupId: pulumi.Output<string>;\n}\n\n/**\n * ApplicationStack ComponentResource\n * \n * Wraps S3 bucket (versioned, encrypted), RDS PostgreSQL (deletion-protected),\n * and IAM role for service accounts. Supports dev/prod configuration.\n */\nexport class ApplicationStack extends pulumi.ComponentResource {\n  public readonly bucketName: pulumi.Output<string>;\n  public readonly bucketArn: pulumi.Output<string>;\n  public readonly rdsEndpoint: pulumi.Output<string>;\n  public readonly rdsPort: pulumi.Output<number>;\n  public readonly iamRoleArn: pulumi.Output<string>;\n  public readonly iamRoleName: pulumi.Output<string>;\n  public readonly dbSecurityGroupId: pulumi.Output<string>;\n\n  constructor(\n    name: string,\n    args: ApplicationStackArgs,\n    opts?: pulumi.ComponentResourceOptions\n  ) {\n    super(\"custom:service:ApplicationStack\", name, {}, opts);\n\n    const parentOpts = { parent: this };\n\n    // ========== S3 Bucket ==========\n    const bucket = new aws.s3.Bucket(\n      `${name}-bucket`,\n      {\n        bucket: args.bucketName,\n        forceDestroy: false, // Prevent accidental deletion\n        tags: {\n          Environment: args.environment,\n          ManagedBy: \"Pulumi\",\n        },\n      },\n      parentOpts\n    );\n\n    // Versioning\n    const versioning = new aws.s3.BucketVersioningV2(\n      `${name}-versioning`,\n      {\n        bucket: bucket.id,\n        versioningConfiguration: {\n          status: \"Enabled\",\n        },\n      },\n      parentOpts\n    );\n\n    // Server-side encryption (AES-256)\n    const encryption = new aws.s3.BucketServerSideEncryptionConfigurationV2(\n      `${name}-encryption`,\n      {\n        bucket: bucket.id,\n        rules: [\n          {\n            applyServerSideEncryptionByDefault: {\n              sseAlgorithm: \"AES256\",\n            },\n          },\n        ],\n      },\n      parentOpts\n    );\n\n    // Block public access\n    const publicAccessBlock = new aws.s3.BucketPublicAccessBlock(\n      `${name}-public-access-block`,\n      {\n        bucket: bucket.id,\n        blockPublicAcls: true,\n        blockPublicPolicy: true,\n        ignorePublicAcls: true,\n        restrictPublicBuckets: true,\n      },\n      parentOpts\n    );\n\n    // Cross-region replication (prod only)\n    if (args.enableCrossRegionReplication && args.replicationRegion) {\n      const replicationRole = new aws.iam.Role(\n        `${name}-replication-role`,\n        {\n          assumeRolePolicy: pulumi.output({\n            Version: \"2012-10-17\",\n            Statement: [\n              {\n                Action: \"sts:AssumeRole\",\n                Effect: \"Allow\",\n                Principal: {\n                  Service: \"s3.amazonaws.com\",\n                },\n              },\n            ],\n          }),\n        },\n        parentOpts\n      );\n\n      new aws.iam.RolePolicy(\n        `${name}-replication-policy`,\n        {\n          role: replicationRole.id,\n          policy: {\n            Version: \"2012-10-17\",\n            Statement: [\n              {\n                Effect: \"Allow\",\n                Action: [\n                  \"s3:GetReplicationConfiguration\",\n                  \"s3:ListBucket\",\n                ],\n                Resource: bucket.arn,\n              },\n              {\n                Effect: \"Allow\",\n                Action: [\n                  \"s3:GetObjectVersionForReplication\",\n                  \"s3:GetObjectVersionAcl\",\n                ],\n                Resource: pulumi.interpolate`${bucket.arn}/*`,\n              },\n              {\n                Effect: \"Allow\",\n                Action: [\n                  \"s3:ReplicateObject\",\n                  \"s3:ReplicateDelete\",\n                ],\n                Resource: pulumi.interpolate`arn:aws:s3:::${args.bucketName}-replica/*`,\n              },\n            ],\n          },\n        },\n        parentOpts\n      );\n\n      new aws.s3.BucketReplicationConfig(\n        `${name}-replication`,\n        {\n          bucket: bucket.id,\n          role: replicationRole.arn,\n          rules: [\n            {\n              status: \"Enabled\",\n              priority: 1,\n              filter: {\n                prefix: \"\",\n              },\n              destination: {\n                bucket: pulumi.interpolate`arn:aws:s3:::${args.bucketName}-replica`,\n                replicationTime: {\n                  status: \"Enabled\",\n                  time: {\n                    minutes: 15,\n                  },\n                },\n                metrics: {\n                  status: \"Enabled\",\n                  eventThreshold: {\n                    minutes: 15,\n                  },\n                },\n              },\n            },\n          ],\n        },\n        { ...parentOpts, dependsOn: [bucket, versioning] }\n      );\n    }\n\n    // ========== RDS PostgreSQL Instance ==========\n    const dbPasswordSecret = new random.RandomPassword(\n      `${name}-db-password`,\n      {\n        length: 32,\n        special: true,\n      },\n      parentOpts\n    );\n\n    // Database subnet group (assumes VPC + subnets exist or creates default)\n    const dbSubnetGroup = new aws.rds.SubnetGroup(\n      `${name}-db-subnet-group`,\n      {\n        subnetIds: (await aws.ec2.getSubnets({ filters: [] })).ids, // Use default VPC subnets\n        tags: {\n          Environment: args.environment,\n        },\n      },\n      parentOpts\n    );\n\n    // Security group for RDS\n    const dbSecurityGroup = new aws.ec2.SecurityGroup(\n      `${name}-db-security-group`,\n      {\n        description: `Security group for ${name} RDS instance`,\n        ingress: [\n          {\n            fromPort: 5432,\n            toPort: 5432,\n            protocol: \"tcp\",\n            cidrBlocks: [\"10.0.0.0/8\"], // Restrict to VPC CIDR\n          },\n        ],\n        egress: [\n          {\n            fromPort: 0,\n            toPort: 0,\n            protocol: \"-1\",\n            cidrBlocks: [\"0.0.0.0/0\"],\n          },\n        ],\n        tags: {\n          Environment: args.environment,\n        },\n      },\n      parentOpts\n    );\n\n    const rdsInstance = new aws.rds.Instance(\n      `${name}-postgres`,\n      {\n        allocatedStorage: args.dbAllocatedStorage,\n        storageType: \"gp3\",\n        engine: \"postgres\",\n        engineVersion: \"14.7\",\n        instanceClass: args.dbInstanceClass,\n        dbName: \"appdb\",\n        username: \"postgres\",\n        password: dbPasswordSecret.result,\n        dbSubnetGroupName: dbSubnetGroup.name,\n        vpcSecurityGroupIds: [dbSecurityGroup.id],\n        publicly_accessible: false,\n        skipFinalSnapshot: false,\n        finalSnapshotIdentifier: pulumi.interpolate`${name}-final-snapshot-${Date.now()}`,\n        backupRetentionPeriod: 7,\n        backupWindow: \"03:00-04:00\",\n        maintenanceWindow: \"mon:04:00-mon:05:00\",\n        deleteProtection: true,\n        enableIAMDatabaseAuthentication: true,\n        multiAz: args.environment === \"prod\",\n        storageEncrypted: true,\n        tags: {\n          Environment: args.environment,\n          ManagedBy: \"Pulumi\",\n        },\n      },\n      parentOpts\n    );\n\n    // ========== IAM Role for Service Accounts ==========\n    const serviceRole = new aws.iam.Role(\n      `${name}-service-role`,\n      {\n        assumeRolePolicy: pulumi.output({\n          Version: \"2012-10-17\",\n          Statement: [\n            {\n              Action: \"sts:AssumeRole\",\n              Effect: \"Allow\",\n              Principal: {\n                AWS: `arn:aws:iam::${aws.getCallerIdentity({}).accountId}:root`, // Replace with IRSA principal in prod\n              },\n            },\n          ],\n        }),\n        tags: {\n          Environment: args.environment,\n        },\n      },\n      parentOpts\n    );\n\n    // S3 bucket policy for service role\n    const s3Policy = new aws.iam.RolePolicy(\n      `${name}-s3-policy`,\n      {\n        role: serviceRole.id,\n        policy: {\n          Version: \"2012-10-17\",\n          Statement: [\n            {\n              Effect: \"Allow\",\n              Action: [\n                \"s3:GetObject\",\n                \"s3:PutObject\",\n                \"s3:DeleteObject\",\n                \"s3:ListBucket\",\n                \"s3:GetObjectVersion\",\n              ],\n              Resource: [\n                bucket.arn,\n                pulumi.interpolate`${bucket.arn}/*`,\n              ],\n            },\n          ],\n        },\n      },\n      parentOpts\n    );\n\n    // RDS policy for service role\n    const rdsPolicy = new aws.iam.RolePolicy(\n      `${name}-rds-policy`,\n      {\n        role: serviceRole.id,\n        policy: {\n          Version: \"2012-10-17\",\n          Statement: [\n            {\n              Effect: \"Allow\",\n              Action: [\n                \"rds-db:connect\",\n              ],\n              Resource: pulumi.interpolate`arn:aws:rds:${aws.getRegion().name}:${aws.getCallerIdentity().accountId}:db:${rdsInstance.identifier}`,\n            },\n          ],\n        },\n      },\n      parentOpts\n    );\n\n    // ========== Outputs ==========\n    this.bucketName = bucket.bucket;\n    this.bucketArn = bucket.arn;\n    this.rdsEndpoint = rdsInstance.endpoint;\n    this.rdsPort = rdsInstance.port;\n    this.iamRoleArn = serviceRole.arn;\n    this.iamRoleName = serviceRole.name;\n    this.dbSecurityGroupId = dbSecurityGroup.id;\n\n    this.registerOutputs({\n      bucketName: this.bucketName,\n      bucketArn: this.bucketArn,\n      rdsEndpoint: this.rdsEndpoint,\n      rdsPort: this.rdsPort,\n      iamRoleArn: this.iamRoleArn,\n      iamRoleName: this.iamRoleName,\n      dbSecurityGroupId: this.dbSecurityGroupId,\n    });\n  }\n}\n```\n\n---\n\n## `index.ts`\n\n```typescript\nimport * as pulumi from \"@pulumi/pulumi\";\nimport { ApplicationStack } from \"./components/applicationStack\";\n\nconst config = new pulumi.Config();\nconst environment = pulumi.getStack();\n\n// Read environment-specific config\nconst bucketNameBase = config.require(\"bucketNameBase\");\nconst dbInstanceClass = config.require(\"dbInstanceClass\");\nconst dbAllocatedStorage = config.getNumber(\"dbAllocatedStorage\") || 20;\nconst enableCrossRegionReplication = config.getBoolean(\"enableCrossRegionReplication\") || false;\n\nconst appStack = new ApplicationStack(`app-${environment}`, {\n  environment,\n  bucketName: `${bucketNameBase}-${environment}-${Date.now()}`,\n  dbInstanceClass,\n  dbAllocatedStorage,\n  enableCrossRegionReplication,\n  replicationRegion: \"us-west-2\",\n});\n\n// Export stack outputs\nexport const bucketName = appStack.bucketName;\nexport const bucketArn = appStack.bucketArn;\nexport const rdsEndpoint = appStack.rdsEndpoint;\nexport const rdsPort = appStack.rdsPort;\nexport const serviceRoleArn = appStack.iamRoleArn;\nexport const serviceRoleName = appStack.iamRoleName;\nexport const dbSecurityGroupId = appStack.dbSecurityGroupId;\n```\n\n---\n\n## `Pulumi.yaml`\n\n```yaml\nname: app-infrastructure\nruntime: nodejs\ndescription: Application infrastructure with S3, RDS, and IAM\n```\n\n---\n\n## `Pulumi.dev.yaml`\n\n```yaml\nconfig:\n  bucketNameBase: myapp-assets\n  dbInstanceClass: db.t3.micro\n  dbAllocatedStorage: 20\n  enableCrossRegionReplication: false\n```\n\n---\n\n## `Pulumi.prod.yaml`\n\n```yaml\nconfig:\n  bucketNameBase: myapp-assets\n  dbInstanceClass: db.t3.medium\n  dbAllocatedStorage: 100\n  enableCrossRegionReplication: true\n```\n\n---\n\n## Deployment\n\n```bash\n# Install dependencies\nnpm install @pulumi/pulumi @pulumi/aws @pulumi/random\n\n# Deploy to dev\npulumi stack select dev\npulumi up\n\n# Deploy to prod\npulumi stack select prod\npulumi up\n\n# View outputs\npulumi stack output bucketName\npulumi stack output rdsEndpoint\npulumi stack output serviceRoleArn\n```\n\n---\n\n## Acceptance Criteria Checklist\n\n| Criterion | Implementation |\n|-----------|-----------------|\n| **S3 Versioning** | `BucketVersioningV2` with status: \"Enabled\" |\n| **S3 Encryption** | AES-256 via `BucketServerSideEncryptionConfigurationV2` |\n| **S3 Public Access** | Blocked via `BucketPublicAccessBlock` (all flags true) |\n| **RDS Deletion Protection** | `deleteProtection: true` |\n| **RDS Backup Retention** | `backupRetentionPeriod: 7` days minimum |\n| **RDS Not Public** | `publicly_accessible: false`, security group restricts to VPC |\n| **RDS Multi-AZ (Prod)** | `multiAz: args.environment === \"prod\"` |\n| **RDS Encryption** | `storageEncrypted: true` |\n| **IAM Least Privilege** | Granular S3/RDS policies, no wildcards on prod |\n| **Environment Isolation** | Dev/prod use separate stacks with distinct configs |\n| **Cross-Region Replication (Prod)** | Conditional on `enableCrossRegionReplication` flag |\n\n---\n\n## Notes\n\n- **DB Password**: Generated securely via `RandomPassword`; store in AWS Secrets Manager in production\n- **Subnets**: References default VPC subnets; in production, specify explicit VPC/subnet configuration\n- **IRSA (prod)**: Replace `Principal.AWS` with EKS OIDC provider ARN for actual IRSA trust\n- **Timestamps**: Bucket names include timestamps to ensure global uniqueness",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/components/applicationStack.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/index.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/Pulumi.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/Pulumi.dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-1l7_2g7c/Pulumi.prod.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 13759,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 13759,
+      "fenced_blocks": 7,
+      "extracted_files": 6,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "bare",
+  "run": 2,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 3076
+  },
+  "content": "## Answers\n\n### 1. File Processing Order\n\n`kubectl apply -f prod/` processes files in **alphabetical order**:\n1. `00-namespaces.yaml`\n2. `app.yaml`\n3. `s3-bucket.yaml`\n4. `workers.yaml`\n\n**Does order matter for this PR?** Not operationally. The namespaces must exist before other resources reference them, but all four namespaces already exist in the cluster. Since all resources being touched already exist and have no new cross-file dependencies introduced, order is irrelevant to success.\n\n---\n\n### 2. Workers.yaml Replica Change (4 \u2192 6)\n\n**Success?** Yes, this change succeeds.\n\n**What happens:** `kubectl apply` patches the existing `MachineDeployment` to update `spec.replicas` from 4 to 6. The CAPI controller observes the change and provisions 2 additional t3.large nodes. The cluster scales from 4 to 6 worker nodes \u2014 a routine operation, since `replicas` is mutable.\n\n---\n\n### 3. App.yaml Selector Change\n\n**Success?** The apply command *continues without error*, but the Deployment becomes **non-functional**.\n\n**What kubectl does:**\n\n1. Detects the `spec.selector.matchLabels` change (adds `version: v2`)\n2. Patches the Deployment object with the new selector\n3. The Deployment now seeks pods with labels: `app: myapp`, `env: prod`, AND `version: v2`\n\n**The problem:** The Pod template still only assigns `app: myapp, env: prod` \u2014 no `version: v2` label. The ReplicaSet controller immediately sees a mismatch: its selector can't be satisfied by the template it's creating. This creates a broken state where:\n- Existing pods (labeled only `app: myapp, env: prod`) no longer match the new selector\n- The ReplicaSet tries to create replacement pods, but they inherit the same labels from the template and still don't match\n- The Deployment enters a broken reconciliation loop\n\n**Impact on other files:** The `kubectl apply -f prod/` command does **not stop**. Each resource is applied independently \u2014 the Deployment's misconfiguration doesn't block processing of `s3-bucket.yaml` and `workers.yaml`. All three changes proceed, but the app Deployment is left in a degraded state.\n\n---\n\n### 4. myapp-assets-prod-replica Bucket Deletion\n\n**Still exists?** Yes, both the Bucket CR and the AWS S3 bucket remain.\n\n**Why:** `kubectl apply` applies *what's in the files*. Removing an object from a manifest does NOT delete it from the cluster. The `myapp-assets-prod-replica` Bucket CR remains in the `infra` namespace, and the ACK controller keeps the corresponding S3 bucket in AWS. To actually delete it, you'd need `kubectl delete -f` or an explicit deletion policy in the resource.\n\n---\n\n### 5. Effect on dev/?\n\n**No effect whatsoever.**\n\n`dev/` and `prod/` are fully independent deployment directories. `kubectl apply -f prod/` only touches the `prod/` manifests. There is no shared state, no kustomize overlays, no Flux reconciliation, and no mechanism for changes in one directory to propagate to the other. The two environments are separate, including separate AWS resources (buckets named with `-dev` and `-prod` suffixes, separate clusters, etc.).",
+  "judge": {
+    "idiom": 0.6388888888888888,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that kubectl apply -f prod/ processes files in lexical filename order (00-namespaces.yaml first because of its numeric prefix), not a dependency graph",
+        "weight": 1.0,
+        "score": 0.75,
+        "justification": "Correctly identifies lexical ordering and that 00-namespaces.yaml sorts first, correctly concludes order doesn't matter for this PR. Lacks explicit statement that kubectl has no dependency graph concept, only implying it through reasoning about existing resources."
+      },
+      {
+        "criterion": "Correctly states the workers.yaml replica change (4 to 6) applies successfully in place, since replicas is a mutable field",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correctly states success, identifies replicas as mutable, describes the patch-in-place behavior, and explains CAPI reconciliation provisioning 2 additional nodes."
+      },
+      {
+        "criterion": "Correctly states the app.yaml selector change is rejected by the API server because spec.selector is immutable on an existing Deployment, and that the other three files in the same kubectl apply -f prod/ invocation still apply independently",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission states the selector change succeeds and creates a broken reconciliation loop. Reference answer requires stating the API server rejects it with an immutability error. Submission states opposite of required claim."
+      },
+      {
+        "criterion": "States that kubectl apply has no prune step by default, so the myapp-assets-prod-replica Bucket object and the AWS S3 bucket it manages are NOT deleted merely because the manifest was removed from Git",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correctly states both the Bucket CR and AWS S3 bucket persist, correctly explains kubectl apply performs no pruning by default, correctly notes deletion requires explicit kubectl delete."
+      },
+      {
+        "criterion": "Recognizes dev/ and prod/ are fully independent, duplicated directories with no shared base, so nothing in this PR can affect dev/",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Correctly states no effect, identifies dev/ and prod/ as fully independent with separate resource names and no shared base or overlay mechanism."
+      }
+    ]
+  }
+}

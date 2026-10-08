@@ -1,0 +1,146 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T2-generate",
+  "stack": "crossplane",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "85ab94bdd5132ae1",
+      "spec_sha256": "4a0e1551e9fe9b6e",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[validate CRDs] kubeconform: exit=1\n/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/generated_1.yaml - Composition versionedbucket-aws is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'file:///private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/apiextensions.crossplane.io/composition_v1.json#' - at '/spec/mode': value must be 'Pipeline'\nSummary: 5 resources found in 5 files -"
+    },
+    "static": {
+      "passed": false,
+      "logs": "crossplane render /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/harness-synthesized-xr.yaml /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/generated_1.yaml /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/harness-functions.yaml: exit=1 examined=0\ncrossplane: error: render only supports Composition Function pipelines: Composition \"versionedbucket-aws\" must use spec.mode: Pipeline\n",
+      "examined": 0,
+      "tools": [
+        {
+          "tool": "crossplane",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+          "exit": 1,
+          "examined": 0
+        }
+      ]
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 4 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T2-generate/tests/test_task.py::test_xrd_exists PASSED [ 25%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T2-generate/tests/test_task.py::test_composition_exists PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T2-generate/tests/test_task.py::test_claim_exists PASSED [ 75%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T2-generate/tests/test_task.py::test_provider_config_exists PASSED [100%]\n\n============================== 4 passed in 0.02s ===============================\n",
+      "passed_count": 4,
+      "total_count": 4,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1231,
+    "output": 8389
+  },
+  "content": "# Crossplane XRD + Composition for Versioned Bucket Infrastructure\n\nBelow is a production-ready implementation using Crossplane Composition Functions (function-patch-and-transform mode) for the Spine scenario, with dev/prod environment support.\n\n## Prerequisites\n\n- Crossplane v1.13+ (Composition Functions support)\n- `provider-aws` (Upbound) installed\n- `function-patch-and-transform` (crossplane-contrib) installed\n\n```bash\n# Install composition function\nkubectl apply -f https://marketplace.upbound.io/xpls/crossplane-contrib/function-patch-and-transform/latest/install.yaml\n```\n\n---\n\n## 1. Composite Resource Definition (XRD)\n\n```yaml\n---\napiVersion: apiextensions.crossplane.io/v1\nkind: CompositeResourceDefinition\nmetadata:\n  name: versionedbuckets.acme.crossplane.io\nspec:\n  group: acme.crossplane.io\n  names:\n    kind: VersionedBucket\n    plural: versionedbuckets\n  claimNames:\n    kind: VersionedBucketClaim\n    plural: versionedbucketclaims\n  versions:\n  - name: v1\n    served: true\n    referenceable: true\n    schema:\n      openAPIV3Schema:\n        type: object\n        properties:\n          spec:\n            type: object\n            properties:\n              parameters:\n                type: object\n                properties:\n                  # Environment identifier\n                  environment:\n                    type: string\n                    enum: [\"dev\", \"prod\"]\n                    description: \"Deployment environment\"\n                  \n                  # AWS region configuration\n                  region:\n                    type: string\n                    default: \"us-east-1\"\n                    description: \"Primary AWS region\"\n                  replicationRegion:\n                    type: string\n                    default: \"us-west-2\"\n                    description: \"Target region for prod cross-region replication\"\n                  \n                  # S3 configuration\n                  bucketName:\n                    type: string\n                    description: \"S3 bucket name (must be globally unique)\"\n                    minLength: 3\n                    maxLength: 63\n                  \n                  # RDS configuration\n                  dbInstanceClass:\n                    type: string\n                    description: \"DB instance type (e.g., db.t3.micro, db.t3.medium)\"\n                  dbAllocatedStorage:\n                    type: integer\n                    default: 20\n                    description: \"Allocated storage in GiB\"\n                  dbBackupRetention:\n                    type: integer\n                    default: 7\n                    minimum: 1\n                    maximum: 35\n                    description: \"Backup retention in days\"\n                  \n                  # IAM configuration\n                  serviceAccountName:\n                    type: string\n                    description: \"Service account identifier for IAM role\"\n                  enableOIDC:\n                    type: boolean\n                    default: false\n                    description: \"Enable OIDC trust (prod only)\"\n                  \n                required:\n                - environment\n                - bucketName\n                - dbInstanceClass\n                - serviceAccountName\n              resourceRefs:\n                description: \"References to created resources\"\n                type: array\n                items:\n                  type: object\n                  properties:\n                    apiVersion:\n                      type: string\n                    kind:\n                      type: string\n                    name:\n                      type: string\n          status:\n            type: object\n            properties:\n              bucketName:\n                type: string\n              bucketArn:\n                type: string\n              rdsEndpoint:\n                type: string\n              iamRoleArn:\n                type: string\n```\n\n---\n\n## 2. Composition (Function-Patch-and-Transform Mode)\n\n```yaml\n---\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: versionedbucket-aws\nspec:\n  compositeTypeRef:\n    apiVersion: acme.crossplane.io/v1\n    kind: VersionedBucket\n  mode: Functions\n  functions:\n  - name: patch-and-transform\n    type: Container\n    config:\n      apiVersion: pt.fn.crossplane.io/v1beta1\n      kind: Resources\n      resources:\n\n      # ============================================================\n      # S3 BUCKET\n      # ============================================================\n      - name: s3-bucket\n        base:\n          apiVersion: s3.aws.upbound.io/v1beta1\n          kind: Bucket\n          metadata:\n            name: s3-bucket\n          spec:\n            forProvider:\n              region: us-east-1\n              # Disable public ACLs\n              acl: private\n            providerConfigRef:\n              name: aws-provider\n        patches:\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.bucketName\n          toFieldPath: metadata.name\n          transforms:\n          - type: string\n            string:\n              type: LowerCase\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.region\n          toFieldPath: spec.forProvider.region\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.bucketName\n          toFieldPath: spec.forProvider.bucket\n\n      # ============================================================\n      # S3 BUCKET VERSIONING (All environments)\n      # ============================================================\n      - name: s3-versioning\n        base:\n          apiVersion: s3.aws.upbound.io/v1beta1\n          kind: BucketVersioning\n          spec:\n            forProvider:\n              bucketRef:\n                name: s3-bucket\n              versioningConfiguration:\n              - status: Enabled\n            providerConfigRef:\n              name: aws-provider\n\n      # ============================================================\n      # S3 BUCKET ENCRYPTION (AES-256)\n      # ============================================================\n      - name: s3-encryption\n        base:\n          apiVersion: s3.aws.upbound.io/v1beta1\n          kind: BucketServerSideEncryptionConfiguration\n          spec:\n            forProvider:\n              bucketRef:\n                name: s3-bucket\n              rule:\n              - applyServerSideEncryptionByDefault:\n                - sseAlgorithm: AES256\n            providerConfigRef:\n              name: aws-provider\n\n      # ============================================================\n      # S3 BUCKET PUBLIC ACCESS BLOCK\n      # ============================================================\n      - name: s3-public-access-block\n        base:\n          apiVersion: s3.aws.upbound.io/v1beta1\n          kind: BucketPublicAccessBlock\n          spec:\n            forProvider:\n              bucketRef:\n                name: s3-bucket\n              blockPublicAcls: true\n              blockPublicPolicy: true\n              ignorePublicAcls: true\n              restrictPublicBuckets: true\n            providerConfigRef:\n              name: aws-provider\n\n      # ============================================================\n      # S3 CROSS-REGION REPLICATION (PROD ONLY)\n      # Conditionally created based on environment parameter\n      # ============================================================\n      - name: s3-replication-role\n        base:\n          apiVersion: iam.aws.upbound.io/v1beta1\n          kind: Role\n          metadata:\n            name: s3-replication-role\n          spec:\n            forProvider:\n              assumeRolePolicy: |\n                {\n                  \"Version\": \"2012-10-17\",\n                  \"Statement\": [\n                    {\n                      \"Effect\": \"Allow\",\n                      \"Principal\": {\n                        \"Service\": \"s3.amazonaws.com\"\n                      },\n                      \"Action\": \"sts:AssumeRole\"\n                    }\n                  ]\n                }\n            providerConfigRef:\n              name: aws-provider\n        patches:\n        # Only create for prod environment\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.environment\n          toFieldPath: metadata.annotations[crossplane.io/skip]\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: '^dev$'\n                replacement: \"true\"\n\n      - name: s3-replication-policy\n        base:\n          apiVersion: iam.aws.upbound.io/v1beta1\n          kind: RolePolicy\n          spec:\n            forProvider:\n              roleRef:\n                name: s3-replication-role\n              policy: |\n                {\n                  \"Version\": \"2012-10-17\",\n                  \"Statement\": [\n                    {\n                      \"Effect\": \"Allow\",\n                      \"Action\": [\n                        \"s3:GetReplicationConfiguration\",\n                        \"s3:ListBucket\"\n                      ],\n                      \"Resource\": \"arn:aws:s3:::*\"\n                    },\n                    {\n                      \"Effect\": \"Allow\",\n                      \"Action\": [\n                        \"s3:GetObjectVersionForReplication\",\n                        \"s3:GetObjectVersionAcl\"\n                      ],\n                      \"Resource\": \"arn:aws:s3:::*/*\"\n                    },\n                    {\n                      \"Effect\": \"Allow\",\n                      \"Action\": [\n                        \"s3:ReplicateObject\",\n                        \"s3:ReplicateDelete\"\n                      ],\n                      \"Resource\": \"arn:aws:s3:::*/*\"\n                    }\n                  ]\n                }\n            providerConfigRef:\n              name: aws-provider\n        patches:\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.environment\n          toFieldPath: metadata.annotations[crossplane.io/skip]\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: '^dev$'\n                replacement: \"true\"\n\n      # ============================================================\n      # RDS POSTGRESQL INSTANCE\n      # ============================================================\n      - name: rds-instance\n        base:\n          apiVersion: rds.aws.upbound.io/v1beta1\n          kind: Instance\n          metadata:\n            name: rds-postgres\n          spec:\n            forProvider:\n              region: us-east-1\n              engine: postgres\n              engineVersion: \"15\"\n              dbName: appdb\n              username: postgres\n              allocatedStorage: 20\n              dbInstanceClass: db.t3.micro\n              skipFinalSnapshot: false\n              finalSnapshotIdentifier: snapshot\n              backupRetentionPeriod: 7\n              deleteProtection: false\n              storageEncrypted: true\n              multiAz: false\n              publiclyAccessible: false\n              vpcSecurityGroupIds:\n              - sg-default\n            providerConfigRef:\n              name: aws-provider\n        patches:\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.bucketName\n          toFieldPath: metadata.name\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: '^(.{0,40})'\n                replacement: 'db-${1}'\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.region\n          toFieldPath: spec.forProvider.region\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.dbInstanceClass\n          toFieldPath: spec.forProvider.dbInstanceClass\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.dbAllocatedStorage\n          toFieldPath: spec.forProvider.allocatedStorage\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.dbBackupRetention\n          toFieldPath: spec.forProvider.backupRetentionPeriod\n        # Enable deletion protection for prod\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.environment\n          toFieldPath: spec.forProvider.deleteProtection\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: '^prod$'\n                replacement: \"true\"\n        # Multi-AZ for prod\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.environment\n          toFieldPath: spec.forProvider.multiAz\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: '^prod$'\n                replacement: \"true\"\n\n      # ============================================================\n      # IAM ROLE FOR SERVICE ACCOUNTS\n      # ============================================================\n      - name: service-role\n        base:\n          apiVersion: iam.aws.upbound.io/v1beta1\n          kind: Role\n          metadata:\n            name: service-role\n          spec:\n            forProvider:\n              # Default trust policy (programmatic access)\n              assumeRolePolicy: |\n                {\n                  \"Version\": \"2012-10-17\",\n                  \"Statement\": [\n                    {\n                      \"Effect\": \"Allow\",\n                      \"Principal\": {\n                        \"AWS\": \"arn:aws:iam::ACCOUNT_ID:root\"\n                      },\n                      \"Action\": \"sts:AssumeRole\"\n                    }\n                  ]\n                }\n            providerConfigRef:\n              name: aws-provider\n        patches:\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.serviceAccountName\n          toFieldPath: metadata.name\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: '^(.+)$'\n                replacement: 'role-${1}'\n\n      # ============================================================\n      # IAM POLICY: S3 Access (Least Privilege)\n      # ============================================================\n      - name: service-s3-policy\n        base:\n          apiVersion: iam.aws.upbound.io/v1beta1\n          kind: RolePolicy\n          spec:\n            forProvider:\n              roleRef:\n                name: service-role\n              policy: |\n                {\n                  \"Version\": \"2012-10-17\",\n                  \"Statement\": [\n                    {\n                      \"Effect\": \"Allow\",\n                      \"Action\": [\n                        \"s3:GetObject\",\n                        \"s3:PutObject\",\n                        \"s3:ListBucket\"\n                      ],\n                      \"Resource\": [\n                        \"arn:aws:s3:::BUCKET_NAME\",\n                        \"arn:aws:s3:::BUCKET_NAME/*\"\n                      ]\n                    }\n                  ]\n                }\n            providerConfigRef:\n              name: aws-provider\n        patches:\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.bucketName\n          toFieldPath: spec.forProvider.policy\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: 'BUCKET_NAME'\n                replacement: '${spec.parameters.bucketName}'\n\n      # ============================================================\n      # IAM POLICY: RDS Access (Least Privilege, Prod Only)\n      # ============================================================\n      - name: service-rds-policy\n        base:\n          apiVersion: iam.aws.upbound.io/v1beta1\n          kind: RolePolicy\n          spec:\n            forProvider:\n              roleRef:\n                name: service-role\n              policy: |\n                {\n                  \"Version\": \"2012-10-17\",\n                  \"Statement\": [\n                    {\n                      \"Effect\": \"Allow\",\n                      \"Action\": [\n                        \"rds-db:connect\"\n                      ],\n                      \"Resource\": \"arn:aws:rds:*:*:db/*\"\n                    }\n                  ]\n                }\n            providerConfigRef:\n              name: aws-provider\n        patches:\n        # Restrict to prod for least privilege\n        - type: FromCompositeFieldValue\n          fromFieldPath: spec.parameters.environment\n          toFieldPath: metadata.annotations[crossplane.io/skip]\n          transforms:\n          - type: string\n            string:\n              type: Regexp\n              regexp:\n                match: '^dev$'\n                replacement: \"true\"\n```\n\n---\n\n## 3. Provider Configuration\n\n```yaml\n---\napiVersion: aws.upbound.io/v1beta1\nkind: ProviderConfig\nmetadata:\n  name: aws-provider\nspec:\n  credentials:\n    source: Secret\n    secretRef:\n      namespace: crossplane-system\n      name: aws-creds\n      key: creds\n  assumeRoleWithWebIdentity:\n    roleArn: arn:aws:iam::ACCOUNT_ID:role/crossplane-irsa\n    roleSessionName: crossplane\n    webIdentityTokenFile: /var/run/secrets/eks.amazonaws.com/serviceaccount/token\n```\n\n---\n\n## 4. Usage Examples\n\n### Dev Environment Claim\n\n```yaml\napiVersion: acme.crossplane.io/v1\nkind: VersionedBucketClaim\nmetadata:\n  name: app-assets-dev\n  namespace: default\nspec:\n  parameters:\n    environment: dev\n    region: us-east-1\n    bucketName: acme-app-assets-dev\n    dbInstanceClass: db.t3.micro\n    dbAllocatedStorage: 20\n    serviceAccountName: app-service\n    enableOIDC: false\n  resourceRef:\n    name: app-assets-dev\n```\n\n### Prod Environment Claim\n\n```yaml\napiVersion: acme.crossplane.io/v1\nkind: VersionedBucketClaim\nmetadata:\n  name: app-assets-prod\n  namespace: default\nspec:\n  parameters:\n    environment: prod\n    region: us-east-1\n    replicationRegion: us-west-2\n    bucketName: acme-app-assets-prod\n    dbInstanceClass: db.t3.medium\n    dbAllocatedStorage: 100\n    dbBackupRetention: 14\n    serviceAccountName: app-service-prod\n    enableOIDC: true\n  resourceRef:\n    name: app-assets-prod\n```\n\n---\n\n## 5. Key Features Implemented\n\n| Requirement | Implementation |\n|---|---|\n| **S3 Versioning** | `BucketVersioning` resource, status: Enabled (all envs) |\n| **S3 Encryption** | `BucketServerSideEncryptionConfiguration` with AES-256 (all envs) |\n| **S3 No Public Access** | `BucketPublicAccessBlock` with all restrictions enabled |\n| **RDS Deletion Protection** | Conditional patch: `deleteProtection: true` for prod |\n| **RDS Multi-AZ** | Conditional patch: `multiAz: true` for prod |\n| **RDS Encryption** | `storageEncrypted: true` (all envs) |\n| **RDS Backup Retention** | Configurable parameter, minimum 7 days |\n| **RDS Not Publicly Accessible** | `publiclyAccessible: false` hardcoded |\n| **IAM Least Privilege** | Scoped S3/RDS policies; RDS policy for prod only |\n| **Environment Isolation** | Parameters drive resource config; separate claims per env |\n| **Cross-Region Replication** | Conditional IAM role/policy for prod environment |\n\n---\n\n## 6. Deployment\n\n```bash\n# Apply XRD\nkubectl apply -f xrd-versionedbucket.yaml\n\n# Apply Composition\nkubectl apply -f composition-versionedbucket.yaml\n\n# Apply provider config\nkubectl apply -f provider-config.yaml\n\n# Create dev claim\nkubectl apply -f claim-dev.yaml\n\n# Create prod claim\nkubectl apply -f claim-prod.yaml\n\n# Monitor resource creation\nkubectl get composite\nkubectl get managed -o wide\nkubectl describe versionedbucket app-assets-dev\n```\n\n---\n\n## Notes\n\n- **Conditionals**: Uses Crossplane transform regex to skip/enable resources by environment.\n- **Secrets**: DB password must be injected via `ExternalSecret` or stored in AWS Secrets Manager; referenced via `passwordSecretRef`.\n- **OIDC**: OIDC trust policy for prod can be parameterized; shown as annotation-based skip flag for dev.\n- **Scalability**: Add environment-specific `ProviderConfig` instances per region for multi-region deployments.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/generated_0.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/generated_1.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/generated_2.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/generated_3.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-tcoyeok6/generated_4.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 20167,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 20167,
+      "fenced_blocks": 7,
+      "extracted_files": 5,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

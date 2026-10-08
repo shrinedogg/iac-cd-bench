@@ -15,6 +15,8 @@ import sys
 import logging
 from pathlib import Path
 
+from bench.stages import lint
+
 log = logging.getLogger(__name__)
 
 
@@ -47,9 +49,12 @@ def run_semantic(task_dir: Path, workspace: Path | None = None) -> dict:
     """
     test_file = task_dir / "tests" / "test_task.py"
     if not test_file.exists():
+        # A task with no grader was not semantically checked. Recording that
+        # as a pass handed every run of the 20 task dirs that ship no
+        # tests/test_task.py a free third of its correctness axis. See
+        # bench.stages.lint.inapplicable.
         return {
-            "passed": True,
-            "logs": "no semantic tests",
+            **lint.inapplicable("no semantic tests", "gate_defect"),
             "passed_count": 0,
             "total_count": 0,
             "safety_pass": True,

@@ -3,16 +3,80 @@ python = "3.11"
 node = "20"
 
 [tools]
-flux = "2.5.0"
+# mise's registry plugin is "flux2" (not "flux" - that name doesn't resolve
+# and was silently failing to install, which meant bench/stages/static.py's
+# `flux build kustomization` calls for every knr-ops run hit `NOT FOUND:
+# flux` instead of actually validating anything). The installed binary is
+# still named `flux`, matching what static.py invokes.
+flux2 = "2.5.0"
 kustomize = "5.6.0"
-konflate = "1.3.0"
+# "konflate" doesn't exist in mise's tool registry either (`mise install`
+# fails outright on it, blocking every other pin below) and, unlike the
+# flux/flux2 case, nothing in bench/ ever shells out to it - it's only
+# mentioned in README.md's stack-description table, not invoked by
+# bench/preflight.py's STACK_BINARIES or any stage runner. Dropped rather
+# than renamed: there is no real package to pin it to.
 crossplane-cli = "1.20.0"
+# kubeconform and terraform are invoked by the gates but were never pinned, so
+# they resolved from whatever the machine happened to have (homebrew here) and
+# were simply absent in CI — the golden-gate tests for knr-ops, bare, crossplane
+# and terraform skipped there while passing locally. preflight already lists
+# both in STACK_BINARIES; this makes the pin match what the stages actually run.
+kubeconform = "0.7.0"
+terraform = "1.15.8"
+# opentofu was pinned while nothing in bench/ or tools/ ever invokes `tofu`.
+# The terraform stack shells out to `terraform`, which on this machine is
+# HashiCorp Terraform v1.15.8, not OpenTofu — so the pin named a tool the
+# harness does not use and left the one it does use unpinned. Kept for now
+# because dropping it is a scope decision about which tool the arm is meant to
+# measure, but it is not what runs.
 opentofu = "1.8.0"
 tflint = "0.53.0"
+ruff = "0.8.4"
 checkov = "3.3.0"
 pulumi = "3.150.0"
 kind = "0.26.0"
-docker = "27.0"
+# "docker" is likewise not a resolvable mise registry name (mise suggests
+# docker-cli/dockle/docker-slim, none of which are the same thing) - and
+# even a correctly-named pin wouldn't give you a working `docker` the way
+# the CLI-only tools above do: what actually matters version-wise is the
+# daemon, which mise can't manage regardless. Only the e2e tier's
+# STACK_BINARIES probe needs `docker` on PATH at all (bench/preflight.py);
+# it resolves from the host's own Docker install (Docker Desktop/Colima/
+# similar). Dropped from the pin list rather than mise-renamed, same "no
+# real package" reason as konflate.
+# TypeScript toolchain, pinned via mise's npm backend. node itself is already
+# pinned above via [env]. Version 5.9.3 matches what @intentius/chant's own
+# devDependency pins for its build. tsc only ever typechecks files inside a
+# workspace against that workspace's own tsconfig.json/node_modules, so a
+# globally mise-installed tsc resolves those correctly regardless of where
+# tsc itself lives - confirmed working (see below).
+"npm:typescript" = "5.9.3"
+
+# chant CLI (@intentius/chant) is deliberately NOT pinned here, unlike tsc
+# above. mise's npm backend installs it into an isolated, content-addressed
+# "virtual store" (~/.cache/aube/virtual-store/...), and chant's own plugin
+# loader resolves a workspace's vendored lexicon plugin
+# (@intentius/chant-lexicon-k8s, vendored per-workspace under
+# node_modules/@intentius/ - see golden-base/chant/vendor/README.md) in a way
+# that requires chant to see the invoking workspace's own node_modules tree.
+# An isolated-store install structurally can't: reproduced directly on this
+# machine, `chant lint .`/`chant build .` from mise's global install fail
+# with "Cannot find package '@intentius/chant-lexicon-k8s'" against
+# golden-base/chant (which has its own node_modules/@intentius/chant-lexicon-k8s
+# already installed), while the *same version* installed as a normal flat
+# global npm package (`npm install -g @intentius/chant@0.49.0`) resolves it
+# without issue. Every actual chant-stack invocation in this codebase
+# (bench/stages/lint.py, bench/stages/static.py, and the per-run node_modules
+# bootstrap in bench/runner.py/bench/stages/e2e.py) shells out to a bare
+# `chant` on PATH with cwd set to the workspace - it depends on whichever
+# `chant` resolves there being able to see that workspace's node_modules. The
+# vendored tarballs under golden-base/chant/vendor/ are the source of truth
+# for the measured version; gates resolve `chant` through the workspace's
+# node_modules via `workspace_bin()`. A global
+# `npm install -g @intentius/chant@0.49.0` is only the fallback for when the
+# bootstrap has not run, and a global 0.46.0 would be measured silently through
+# that fallback.
 
 [python.environments]
 default = { require_internet = false }

@@ -1,0 +1,70 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "bare",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1861
+  },
+  "content": "# Security Review: Critical Issues Found\n\nThis PR introduces **5 security issues**, including 3 that are CRITICAL and must be blocked.\n\n## Issues by Severity\n\n### \ud83d\udd34 CRITICAL (3)\n\n#### 1. **Plaintext Database Password in Version Control**\n- **File:** `prod/db-secret.yaml`\n- **Issue:** Password `\"Summer2026!Prod#db\"` is committed in plaintext. The spec explicitly requires secrets to be encrypted at rest via stack-native mechanisms (SOPS, Crossplane SecretStore, Pulumi ConfigSecret, or chant secret refs).\n- **Impact:** Anyone with Git access has prod DB credentials; leaked in any backup, archive, or accidental fork.\n- **Fix:** Remove the plaintext value. Use a stack-native secret mechanism that never stores plaintext in Git.\n\n#### 2. **S3 Bucket Made Publicly Readable**\n- **File:** `prod/s3-bucket.yaml`\n- **Issue:** Removed `publicAccessBlock` restrictions and added a bucket policy that grants `s3:GetObject` to `Principal: \"*\"` (anyone on the internet). This violates the spec requirement: *\"Bucket: \u2026 no public access\"*.\n- **Impact:** Application assets are readable by anyone; potential exposure of proprietary content, configs, or sensitive data.\n- **Fix:** Remove the public policy and restore the `publicAccessBlock` with all `true` values.\n\n#### 3. **RDS Database Exposed to the Internet**\n- **File:** `prod/rds.yaml`\n- **Issue:** Changed `publiclyAccessible: false` \u2192 `true`. This puts the database on the public internet, violating the spec requirement: *\"RDS: \u2026 no publicly accessible\"*.\n- **Impact:** RDS is directly reachable from the internet; combined with the plaintext password leak above, the prod database is fully compromised.\n- **Fix:** Set `publiclyAccessible: false`.\n\n---\n\n### \ud83d\udfe0 HIGH\n\n#### 4. **Deletion Protection Disabled on RDS**\n- **File:** `prod/rds.yaml`\n- **Issue:** Changed `deletionProtection: true` \u2192 `false`. Violates spec requirement: *\"RDS: deletion protection on\"*.\n- **Impact:** Database can be accidentally or maliciously deleted with a single API call.\n- **Fix:** Set `deletionProtection: true`.\n\n---\n\n### \ud83d\udfe1 MEDIUM\u2013HIGH\n\n#### 5. **Resource Requests and Limits Removed**\n- **File:** `prod/app.yaml`\n- **Issue:** Removed CPU/memory `requests` and `limits` on the container. Without requests, the pod may not be scheduled correctly or reserve capacity; without limits, it can consume unbounded resources and cause denial of service to other workloads.\n- **Impact:** Degraded cluster stability and potential pod evictions or node pressure.\n- **Fix:** Restore the original resource specifications.\n\n---\n\n## Recommendation\n\n**Block this PR.** All 5 issues must be resolved before merge, with the 3 CRITICAL items (plaintext secret, public bucket, public RDS) being show-stoppers for a prod environment. These changes read like either accidental commits or a test scenario gone wrong \u2014 they directly contradict the infrastructure spec.",
+  "judge": {
+    "idiom": 0.9166666666666666,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies the plaintext database password committed to prod/db-secret.yaml, replacing the documented out-of-band placeholder",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission identifies plaintext password `\"Summer2026!Prod#db\"` in prod/db-secret.yaml replacing the documented placeholder pattern; correctly assesses Git exposure risk."
+      },
+      {
+        "criterion": "Identifies that prod/s3-bucket.yaml removes the public access block and adds a bucket policy granting s3:GetObject to Principal '*' (public read exposure)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission explicitly identifies removal of `publicAccessBlock` restrictions and addition of bucket policy granting `s3:GetObject` to `Principal: \"*\"` in prod/s3-bucket.yaml."
+      },
+      {
+        "criterion": "Identifies that prod/rds.yaml sets publiclyAccessible: true and deletionProtection: false on the production database",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission identifies both changes: `publiclyAccessible: false \u2192 true` and `deletionProtection: true \u2192 false` in prod/rds.yaml, though listed as separate issues."
+      },
+      {
+        "criterion": "Identifies that prod/app.yaml drops the container's resource requests/limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies removal of CPU/memory requests and limits from the container in prod/app.yaml."
+      },
+      {
+        "criterion": "Ranks the four issues by severity in an order consistent with: plaintext password and public bucket as the most severe, RDS exposure next, missing resource limits least severe",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Submission ranks the four issues in correct order (plaintext, S3, RDS, resources) but assigns RDS public access CRITICAL severity instead of HIGH, contradicting the reference's relative severity ranking."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this')",
+        "weight": 1.0,
+        "score": 0.5,
+        "justification": "Submission provides concrete fixes for S3 and RDS issues (set true/false values) but remediation for plaintext password (\"stack-native mechanism\") and resource limits (\"restore original specifications\") lack specific values or implementation details."
+      }
+    ]
+  }
+}

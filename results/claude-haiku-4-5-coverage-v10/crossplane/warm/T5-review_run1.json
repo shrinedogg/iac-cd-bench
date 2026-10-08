@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "crossplane",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "465d62d4b7855b0f",
+      "spec_sha256": "ca92e9b63f5275ee",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1191,
+    "output": 1658
+  },
+  "content": "# Crossplane Composition Diff Review\n\n## Critical Issues\n\n### 1. \u274c Bucket Versioning Removed \u2014 **Acceptance Criteria Violation**\n\n**Finding:** The diff removes versioning from the S3 bucket composition.\n\n**Impact:** This directly violates **Acceptance Criterion #1** (\"Bucket: versioning enabled\u2026\") and the scenario specification, which mandates:\n- Dev: \"versioned, encryption\"\n- Prod: \"versioned, encryption, cross-region replication\"\n\nVersioning is essential for:\n- Protecting against accidental/malicious deletion\n- Supporting compliance and audit trails\n- Enabling recovery in production environments\n\n**Recommendation:** Restore `versioningConfiguration: {Status: Enabled}` in the S3 bucket composition for **both dev and prod**.\n\n---\n\n### 2. \u26a0\ufe0f `deletionPolicy: Delete` Provider-Wide \u2014 **Data Loss Risk**\n\n**Finding:** Applying `deletionPolicy: Delete` at the provider level means all backing AWS resources are deleted when their Crossplane claims are deleted.\n\n**Conflict with Acceptance Criteria:**\n- **Criterion #2** requires \"deletion protection on\" for RDS \u2014 this is a database-level setting, but a Crossplane-level `Delete` policy will destroy the instance regardless.\n- **Criterion #1** requires bucket protection \u2014 `Delete` will purge the bucket and all versioned objects.\n\n**Risk Assessment:**\n| Resource | Risk | Mitigation Issue |\n|----------|------|------------------|\n| RDS instance | **HIGH** \u2014 production database destroyed on claim deletion | DB deletion protection alone is insufficient; Crossplane should use `Orphan` |\n| S3 bucket | **CRITICAL** \u2014 application assets and prod backups lost | Irreversible data destruction |\n| EKS cluster | **MEDIUM** \u2014 workload cluster termination on claim deletion | May be acceptable if clusters are ephemeral; prod needs explicit safeguards |\n\n**Recommendation:** \n- Change to `deletionPolicy: Orphan` for stateful resources (RDS, S3).\n- If `Delete` is intentional for dev (ephemeral testing), use **resource-specific policies** via Crossplane `resource.crossplane.io/deletionPolicy` annotations rather than provider-wide defaults.\n- Prod resources should explicitly orphan, requiring manual cloud cleanup to prevent accidents.\n\n---\n\n## Verification Required\n\n**Criterion #7 (Environment Isolation):** Confirm that dev and prod claims/compositions are deployed to:\n- Separate namespaces, **AND/OR**\n- Separate Crossplane provider configurations with distinct AWS credentials\n- Separate composition versions if risk tolerance differs by environment\n\n---\n\n## Recommendation Summary\n\n| Change | Action | Priority |\n|--------|--------|----------|\n| Bucket versioning | **Restore** `versioningConfiguration` for both dev & prod | **P0 \u2014 Blocker** |\n| `deletionPolicy: Delete` | **Change to `Orphan`** for S3 & RDS; document if Dev uses `Delete` with resource-level overrides | **P0 \u2014 Blocker** |\n| Environment config isolation | **Verify** separate provider configs or namespace strategies | **P1 \u2014 Pre-merge** |\n\nThis diff, as written, breaks two acceptance criteria and introduces production data-loss risk. Both issues must be resolved before merge.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3108,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3108,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.875,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies deletionPolicy: Delete as destructive risk",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission explicitly identifies deletionPolicy: Delete as destroying all managed resources when claims are deleted, with CRITICAL impact for S3 and HIGH for RDS."
+      },
+      {
+        "criterion": "Identifies dropped bucket versioning as data loss risk",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies bucket versioning removal as preventing recovery from deletions and violating acceptance criteria, with explicit data loss impact."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Both issues identified correctly and marked P0-Blocker, but presentation order (versioning first) reverses reference order (deletionPolicy first), suggesting suboptimal severity ranking where deletionPolicy should rank higher as it destroys entire resources."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides specific remediation steps: restore versioningConfiguration for both environments, change to deletionPolicy: Orphan for stateful resources, use resource-level annotations for dev overrides."
+      }
+    ]
+  }
+}

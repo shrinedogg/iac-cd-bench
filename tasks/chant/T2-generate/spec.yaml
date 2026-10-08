@@ -1,0 +1,20 @@
+stack: chant
+archetype: generate
+id: "T2-generate"
+title: "Add a new ACK-managed S3 bucket for application logs (dev + prod)"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - chant lint
+  static:
+    enabled: true
+    tools:
+      - chant build
+  semantic:
+    enabled: true
+    assertion_count: 6
+  e2e:
+    enabled: false

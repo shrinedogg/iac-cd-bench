@@ -17,11 +17,11 @@ export class S3BucketComponent extends pulumi.ComponentResource {
     const bucket = new aws.s3.Bucket(`${name}-bucket`, {
       versioning: args.versioning ? { enabled: true } : undefined,
       serverSideEncryptionConfiguration: args.encryption ? {
-        rules: [{
+        rule: {
           applyServerSideEncryptionByDefault: {
             sseAlgorithm: "AES256",
           },
-        }],
+        },
       } : undefined,
     });
 
@@ -36,17 +36,16 @@ export class S3BucketComponent extends pulumi.ComponentResource {
     }
 
     if (args.replicationTarget) {
-      new aws.s3.BucketReplicationConfiguration(`${name}-replication`, {
+      new aws.s3.BucketReplicationConfig(`${name}-replication`, {
         bucket: bucket.id,
-        replicationConfiguration: {
-          rules: [{
-            id: "replication",
-            status: "Enabled",
-            destination: {
-              bucket: `arn:aws:s3:::${args.replicationTarget}`,
-            },
-          }],
-        },
+        role: "arn:aws:iam::123456789012:role/s3-replication",
+        rules: [{
+          id: "replication",
+          status: "Enabled",
+          destination: {
+            bucket: `arn:aws:s3:::${args.replicationTarget}`,
+          },
+        }],
       }, { dependsOn: [bucket] });
     }
 

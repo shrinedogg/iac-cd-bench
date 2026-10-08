@@ -1,0 +1,44 @@
+# ACK rds-controller (rds.services.k8s.aws) - prod: db.t3.medium, multi-AZ,
+# encrypted, deletion protection on, 7-day backups, not publicly accessible.
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBSubnetGroup
+metadata:
+  name: myapp-prod-db-subnet
+  namespace: infra
+spec:
+  name: myapp-prod-db-subnet
+  description: Prod RDS subnet group
+  subnetIDs:
+    - subnet-prod-1
+    - subnet-prod-2
+    - subnet-prod-3
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: myapp-prod-db
+  namespace: infra
+spec:
+  dbInstanceIdentifier: myapp-prod-db
+  dbInstanceClass: db.t3.medium
+  engine: postgres
+  engineVersion: "16"
+  allocatedStorage: 100
+  dbName: appdb
+  masterUsername: app_user
+  masterUserPassword:
+    name: db-password-prod
+    namespace: infra
+    key: password
+  multiAZ: true
+  storageEncrypted: true
+  publiclyAccessible: false
+  deletionProtection: true
+  backupRetentionPeriod: 7
+  preferredBackupWindow: "03:00-04:00"
+  dbSubnetGroupName: myapp-prod-db-subnet
+  vpcSecurityGroupIDs:
+    - sg-example-prod
+  tags:
+    - key: Environment
+      value: prod

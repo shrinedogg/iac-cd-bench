@@ -1,0 +1,64 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 537
+  },
+  "content": "I need to see the actual PR diff to review it for security issues. The context you've provided describes what *would* be in the diff, but I don't see the actual diff content or a PR link.\n\nCan you provide one of the following?\n\n1. **Paste the diff directly** \u2014 the output of `git diff` or a GitHub diff view\n2. **Point me to a PR number** \u2014 I can fetch the diff from the repository\n3. **Reference a file** \u2014 if the diff is saved locally, give me the path\n\nOnce I have the actual changes, I'll review them against the acceptance criteria (especially the security controls around S3 access, secrets management, IAM least privilege, and RDS configuration) and provide a ranked severity assessment.",
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies plaintext password in deployment",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests the diff rather than reviewing it; makes no claim about plaintext passwords."
+      },
+      {
+        "criterion": "Identifies public S3 bucket access",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission requests the diff rather than reviewing it; makes no claim about S3 bucket access issues."
+      },
+      {
+        "criterion": "Identifies missing resource limits",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission requests the diff rather than reviewing it; makes no claim about resource limits."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission requests the diff rather than reviewing it; provides no severity ranking of issues."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission requests the diff rather than reviewing it; provides no remediation steps."
+      }
+    ]
+  }
+}

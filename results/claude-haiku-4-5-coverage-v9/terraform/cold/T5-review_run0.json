@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "terraform",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "65ba8f1338fa2db12539125d32183373e03dc439",
+      "dirty": false,
+      "branch": "bench/gates-pulumi"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "dd01970ce92a5964",
+      "spec_sha256": "f6545befc3558903",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1210,
+    "output": 759
+  },
+  "content": "# Review Incomplete: tfplan JSON Not Provided\n\nYou've described a review task but haven't included the actual Terraform plan JSON output. To perform the review you're requesting, I'll need the `terraform show -json tfplan` output (or the raw plan file in JSON format).\n\n## What I Would Examine\n\nOnce you provide the tfplan, I will scan for:\n\n### 1. **Hidden DB Recreate**\n- Look for the RDS instance (likely named something like `aws_db_instance.postgres`) with `change.actions` containing both `delete` and `create` rather than `update`\n- This is easily missed when scrolling through 40 changes\u2014recreates cause **data loss** and are typically unintended\n- Check the `before` and `after` blocks to identify what triggered the recreate (often a parameter like `engine_version`, `allocated_storage`, or `instance_class` that forces replacement)\n\n### 2. **0.0.0.0/0 Ingress Rule**\n- Examine `aws_security_group` or `aws_security_group_rule` resources\n- Flag any `cidr_blocks` or `ipv6_cidr_blocks` containing `[\"0.0.0.0/0\"]` or `::/0` in the `to_port` / `from_port` range\n- Check whether this violates your acceptance criteria (principle of least privilege, no public exposure on prod)\n\n## Next Steps\n\n**Please provide:**\n- The tfplan JSON output, or\n- The result of `terraform plan -out=tfplan && terraform show -json tfplan`\n\nAlternatively, paste the relevant excerpts from `terraform plan` in human-readable format, and I'll help parse the risk.",
+  "validity": {
+    "valid": false,
+    "reason": "short_stub",
+    "content_length": 1445,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1445,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies RDS destroy + create as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses the review task (requests plan input) and provides only conditional description of what it would check, not an actual identification of an RDS issue in any plan."
+      },
+      {
+        "criterion": "Identifies 0.0.0.0/0 ingress as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses the review task and describes only hypothetical checks; does not identify 0.0.0.0/0 ingress in any actual plan."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "No issues identified or ranked; submission asks for plan input rather than performing or submitting a review."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides no remediation steps for identified issues; only meta-instructions requesting the plan be provided."
+      }
+    ]
+  }
+}

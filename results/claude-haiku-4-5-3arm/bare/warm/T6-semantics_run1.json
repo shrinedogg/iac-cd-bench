@@ -1,0 +1,34 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "bare",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "./../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q6_namespace_applied_first PASSED [ 85%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q7_no_cross_directory_gating PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: q4 reason should mention immutability, got 'Selector requires tier: backend but template provides only app and env labels; validation fails'\n    assert 'immutable' in 'selector requires tier: backend but template provides only app and env labels; validation fails'\n     +  where 'selector requires tier: backend but template provides only app and env labels; validation fails' = _norm('Selector requires tier: backend but template provides only app and env labels; validation fails')\n     +    where 'Selector requires tier: backend but template provides only app and env labels; validation fails' = <built-in method get of dict object at 0x1074b8140>('reason', '')\n     +      where <built-in method get of dict object at 0x1074b8140> = {'succeeds': False, 'reason': 'Selector requires tier: backend but template provides only app and env labels; validation fails'}.get\n/Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py:91: AssertionError: q4 reason should mention immutability, got 'Selector requires tier: backend but template provides only app and env labels; validation fails'\n=========================== short test summary info ============================\nFAILED ../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q4_immutable_selector_rejected\n========================= 1 failed, 6 passed in 0.01s ==========================\n",
+      "passed_count": 6,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 2638
+  },
+  "content": "Looking at each question about plain `kubectl apply` behavior (client-side, no controllers beyond ACK, no Flux/Kustomize):\n\n**Q1:** Changing RDS `dbInstanceClass` triggers an in-place modification of the existing AWS instance. AWS RDS does not replace the instance on class changes\u2014it updates it with a reboot/brief downtime, keeping the same instance identity.\n\n**Q2:** Without `--prune`, `kubectl apply` does not delete resources when their files are removed. The CRs remain in the cluster. Only explicit `kubectl delete` or `--prune` removes them.\n\n**Q3:** The Bucket CRs stay in place (Q2), so ACK's s3-controller continues managing the AWS buckets. They persist.\n\n**Q4:** Kubernetes validates that a Deployment's selector can be satisfied by its template labels. Adding `tier: backend` to the selector while the template only has `{app: myapp, env: prod}` fails this validation\u2014new Pods from the template would never match.\n\n**Q5:** Plain `kubectl apply` (no `--server-side` flag) uses client-side apply with the `kubectl.kubernetes.io/last-applied-configuration` annotation.\n\n**Q6:** `kubectl apply -f dev/` processes files in alphabetical order. `00-namespaces.yaml` is applied first, creating the three Namespaces before any namespaced resources.\n\n**Q7:** Plain `kubectl apply` has no dependency tracking, health gates, or `dependsOn` semantics. `prod/` and `dev/` are independent; an apply to one is unaffected by the other's state.\n\n```json\n{\n  \"q1\": \"updated-in-place\",\n  \"q2\": {\"deleted\": false, \"reason\": \"kubectl apply without --prune does not delete resources when files are removed\"},\n  \"q3\": \"exists\",\n  \"q4\": {\"succeeds\": false, \"reason\": \"Selector requires tier: backend but template provides only app and env labels; validation fails\"},\n  \"q5\": \"client-side\",\n  \"q6\": {\"namespace_first\": true, \"reason\": \"Alphabetical file order; 00-namespaces.yaml is processed before all other manifests\"},\n  \"q7\": {\"blocked\": false, \"reason\": \"Plain kubectl apply has no cross-directory dependencies, health gates, or dependency tracking\"}\n}\n```",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-o4605da4/00-namespaces.yaml"
+  ]
+}

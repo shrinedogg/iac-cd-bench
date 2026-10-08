@@ -1,0 +1,35 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1816,
+    "output": 2914
+  },
+  "content": "# Delivery Behavior Analysis: knr-ops PR #42\n\n## 1. Reconciliation Order\n\nWhen PR #42 merges, Flux detects the Git change and initiates reconciliation following the dependency chain defined in `flux/kustomizations.yaml`.\n\n**Typical order:**\n\n1. **Source sync** \u2192 Git controller fetches the PR changes\n2. **Infrastructure kustomization** (base) reconciles:\n   - CAPI cluster config (if modified)\n   - ACK S3 bucket (new manifest added)\n   - ACK RDS instance (modified manifest)\n   - ACK IAM resources\n3. **Prod overlay kustomization** reconciles (if `dependsOn: [infra]`):\n   - Applies kustomize patch (replicas: 4)\n   - Reconciles prod app deployment\n4. **Dev overlay kustomization** reconciles independently:\n   - Unaffected by prod changes (separate kustomization)\n\n**Critical assumption:** Each environment has its own Kustomization CRD in `flux/kustomizations.yaml` with explicit `dependsOn` linking app kustomizations to infra. Without this, ordering is non-deterministic.\n\n---\n\n## 2. RDS Instance Recreation\n\n**No, the RDS instance is not recreated.**\n\n**Why:**\n\n- ACK's RDS controller reconciles the `DBInstance` CRD to AWS state via the `ModifyDBInstance` API\n- Instance class (`db.t3.micro` \u2192 `db.t3.medium`) is a **mutable parameter** in AWS RDS\n- The controller detects the spec difference and issues an AWS modify request, not a deletion + recreation\n- Since deletion protection is enabled (per acceptance criteria), the instance cannot be accidentally deleted anyway\n\n**What happens:**\n- The modification is applied with a brief maintenance window (scheduled if multi-AZ, immediate if single AZ)\n- The instance remains online; application connections may briefly pause during the modification\n- ACK reconciliation succeeds; the instance class in the cluster matches the running AWS instance\n\n---\n\n## 3. S3 Bucket After Manifest Deletion\n\n**The bucket's fate depends on its contents and ACK's finalizer policy:**\n\n**Most likely outcome (if finalizer is enabled):**\n- Deletion cascades to AWS\n- If the bucket is **empty**: the bucket is deleted in AWS; manifest and resource both gone\n- If the bucket **contains objects**: deletion fails; the S3 Bucket resource remains in the cluster with `DeletionTimestamp` set but status shows reconciliation failure (e.g., \"BucketNotEmpty\")\n\n**Why this happens:**\n- AWS API rejects deletion of non-empty buckets\n- ACK's finalizer cannot complete; the resource is stuck in terminating state\n- Manual intervention required: empty the bucket or remove the finalizer before cleanup\n\n**Best practice in knr-ops:** Pin deletion policy to `Retain` in the S3 bucket manifest to prevent unintended deletions, or add pre-deletion lifecycle rules to empty the bucket.\n\n---\n\n## 4. Flux's Handling of Prod-Only Replica Change\n\n**Isolation is enforced at the kustomization level:**\n\n1. **Separate kustomizations:**\n   - `overlays/dev/kustomization.yaml` \u2192 dev-app Flux Kustomization\n   - `overlays/prod/kustomization.yaml` \u2192 prod-app Flux Kustomization\n\n2. **Prod overlay patch is applied only to prod:**\n   - The prod kustomization includes the replica patch targeting app deployment\n   - kustomize merges the patch during kustomization build\n   - Reconciler applies the patched manifest (replicas: 4) to the **prod cluster only**\n\n3. **Dev is unaffected:**\n   - Dev kustomization does not include the prod patch\n   - Dev app deployment retains its original replica count\n   - Both environments reconcile independently; no cross-contamination\n\n**Result:** Two independent reconciliation runs occur:\n- `prod-app` kustomization \u2192 app deployment with replicas: 4\n- `dev-app` kustomization \u2192 app deployment with original replicas (e.g., replicas: 2)\n\n---\n\n## 5. Role of `dependsOn` in Kustomizations\n\n**`dependsOn` enforces reconciliation ordering and readiness gating:**\n\n```yaml\napiVersion: kustomize.toolkit.fluxcd.io/v1beta2\nkind: Kustomization\nmetadata:\n  name: app-prod\nspec:\n  path: ./overlays/prod\n  dependsOn:\n  - name: infra\n  - name: secrets\n```\n\n**Behavior:**\n\n- **Ordering:** Flux controller reconciles `infra` \u2192 `secrets` \u2192 `app-prod`\n- **Readiness check:** `app-prod` does not reconcile until `infra` reports `Ready` status\n- **Propagates failures:** If `infra` fails, `app-prod` is not attempted (no resource starvation)\n\n**In the PR #42 scenario:**\n\n1. **Prevents premature app deployment:** App kustomization waits for RDS and S3 to report \"Ready\" in AWS\n2. **Handles slow provisioning:** If the RDS modification takes 5 minutes, app doesn't deploy until it's complete\n3. **Isolates environments:** Prod and dev can have different `dependsOn` chains (e.g., prod waits for secrets store; dev doesn't)\n\n**Without explicit `dependsOn`:** All kustomizations reconcile in parallel, risking race conditions where app deployment references an RDS instance that hasn't finished provisioning yet.\n\n---\n\n## Summary\n\n| Question | Outcome |\n|---|---|\n| **Reconciliation order** | Infra (S3, RDS, IAM) \u2192 Prod app (via `dependsOn`) \u2713 Dev app independently |\n| **RDS recreation** | **No.** Modified in-place via AWS API. Instance class is mutable. |\n| **S3 bucket deletion** | **Fails if non-empty** (BucketNotEmpty error). Resource stuck in terminating state. |\n| **Prod replica change** | Applied only to prod overlay. Dev unaffected. Independent reconciliation. |\n| **`dependsOn` role** | Enforces infra-first ordering. Prevents app deployment until infrastructure is ready. |",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 5414
+  },
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-knr-ops-4ghy89xh/flux/kustomizations.yaml"
+  ]
+}

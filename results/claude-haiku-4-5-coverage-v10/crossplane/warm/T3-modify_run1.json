@@ -1,0 +1,140 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "crossplane",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "0da2744aed4507e7",
+      "spec_sha256": "3bfc827f1fd76b06",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[validate CRDs] kubeconform: exit=0\nSummary: 8 resources found in 5 files - Valid: 3, Invalid: 0, Errors: 0, Skipped: 5\n"
+    },
+    "static": {
+      "inapplicable": true,
+      "inapplicable_reason": "no_artifact",
+      "reason": "no composite resource, and no XRD to derive one from: 1 composition(s), 0 xrd(s)",
+      "logs": "no composite resource, and no XRD to derive one from: 1 composition(s), 0 xrd(s)",
+      "examined": 0
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "ret\\n  region: us-west-2\\n\\napiVersion: iam.aws.crossplane.io/v1beta1\\nkind: Role\\nmetadata:\\n  name: s3-replication-role\\nspec:\\n  assumeRolePolicyDocument: \"{\\\\n  \\\\\"Version\\\\\": \\\\\"2012-10-17\\\\\",\\\\n  \\\\\"Statement\\\\\": [{\\\\n\\\\\\n    \\\\    \\\\\"Effect\\\\\": \\\\\"Allow\\\\\",\\\\n    \\\\\"Principal\\\\\": {\\\\\"Service\\\\\": \\\\\"s3.amazonaws.com\\\\\"\\\\\\n    },\\\\n    \\\\\"Action\\\\\": \\\\\"sts:AssumeRole\\\\\"\\\\n  }]\\\\n}\\\\n\"\\n\\napiVersion: iam.aws.crossplane.io/v1beta1\\nkind: RolePolicyAttachment\\nmetadata:\\n  name: s3-replication-policy\\nspec:\\n  policyArn: arn:aws:iam::aws:policy/AmazonS3FullAccess\\n  roleName: s3-replication-role\\n\\napiVersion: example.com/v1alpha1\\nkind: WebApp\\nmetadata:\\n  name: my-app\\nspec:\\n  environment: prod\\n\\napiVersion: apiextensions.crossplane.io/v1\\nkind: Composition\\nmetadata:\\n  name: web-app-prod\\nspec:\\n  compositeTypeRef:\\n    apiVersion: example.com/v1alpha1\\n    kind: WebApp\\n\\napiVersion: apiextensions.crossplane.io/v1\\nkind: Composition\\nmetadata:\\n  name: web-app-dev\\nspec:\\n  compositeTypeRef:\\n    apiVersion: example.com/v1alpha1\\n    kind: WebApp\\n')\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py:109: AssertionError: expected a providerConfigRef/providerConfigName selecting the second region's provider config\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py::test_second_region_reaches_the_composition\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py::test_a_second_provider_config_is_referenced\n========================= 2 failed, 4 passed in 0.02s ==========================\n",
+      "passed_count": 4,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1184,
+    "output": 3535
+  },
+  "content": "# Add Second Region (us-west-2) to Crossplane Composition\n\nTo add us-west-2 without modifying existing claims, implement multi-region support at the **composition layer** using provider configs and resource expansion.\n\n## Implementation\n\n### 1. Define Provider Configurations\n\nCreate provider configs for both regions in your Crossplane namespace:\n\n```yaml\n---\n# us-east-1 (primary region)\napiVersion: aws.crossplane.io/v1beta1\nkind: ProviderConfig\nmetadata:\n  name: aws-useast1\nspec:\n  credentials:\n    source: Secret\n    secretRef:\n      namespace: crossplane-system\n      name: aws-credentials\n      key: creds\n  region: us-east-1\n\n---\n# us-west-2 (replication/secondary region)\napiVersion: aws.crossplane.io/v1beta1\nkind: ProviderConfig\nmetadata:\n  name: aws-uswest2\nspec:\n  credentials:\n    source: Secret\n    secretRef:\n      namespace: crossplane-system\n      name: aws-credentials\n      key: creds\n  region: us-west-2\n```\n\n### 2. Extend Composition to Provision Multi-Region Resources\n\nUpdate your `Composition` manifest to include us-west-2 resources. Keep the claim schema unchanged; the composition expands claims into region-specific managed resources.\n\n**Key resources that span regions:**\n\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: web-app-composition\nspec:\n  compositeTypeRef:\n    apiVersion: example.com/v1alpha1\n    kind: WebApp\n  resources:\n\n    # \u2500\u2500\u2500 PRIMARY REGION (us-east-1) \u2500\u2500\u2500\n\n    - name: s3-bucket-primary\n      base:\n        apiVersion: s3.aws.crossplane.io/v1beta1\n        kind: Bucket\n        metadata:\n          name: app-bucket-primary\n        spec:\n          providerConfigRef:\n            name: aws-useast1\n          versioningConfiguration:\n            status: Enabled\n          serverSideEncryptionConfiguration:\n            - ruleIndex: 0\n              applyServerSideEncryptionByDefault:\n                sseAlgorithm: AES256\n          replicationConfiguration:\n            role: !Sub \"arn:aws:iam::${AWS::AccountId}:role/s3-replication-role\"\n            rules:\n              - id: replicate-to-uswest2\n                status: Enabled\n                priority: 1\n                destination:\n                  bucket: arn:aws:s3:::app-bucket-replica\n                  replicationTime:\n                    status: Enabled\n                    time:\n                      minutes: 15\n                filter:\n                  prefix: \"\"\n\n    - name: rds-instance\n      base:\n        apiVersion: rds.aws.crossplane.io/v1alpha1\n        kind: DBInstance\n        spec:\n          providerConfigRef:\n            name: aws-useast1\n          dbInstanceIdentifier: app-db\n          allocatedStorage: \"20\"\n          engine: postgres\n          engineVersion: \"13.7\"\n          multiAZ: true  # Multi-AZ in primary region\n          storageType: gp2\n          deletionPolicy: Retain\n          backupRetentionPeriod: 7\n          publiclyAccessible: false\n          # encryption & other security settings...\n\n    - name: eks-cluster\n      base:\n        apiVersion: eks.aws.crossplane.io/v1beta1\n        kind: Cluster\n        spec:\n          providerConfigRef:\n            name: aws-useast1\n          region: us-east-1\n          name: app-cluster-useast1\n          # version, role ARN, VPC config...\n\n    # \u2500\u2500\u2500 SECONDARY REGION (us-west-2) \u2500\u2500\u2500\n\n    - name: s3-bucket-replica\n      base:\n        apiVersion: s3.aws.crossplane.io/v1beta1\n        kind: Bucket\n        metadata:\n          name: app-bucket-replica\n        spec:\n          providerConfigRef:\n            name: aws-uswest2\n          versioningConfiguration:\n            status: Enabled\n          serverSideEncryptionConfiguration:\n            - ruleIndex: 0\n              applyServerSideEncryptionByDefault:\n                sseAlgorithm: AES256\n\n    # Optional: Read-replica RDS in us-west-2 (if high availability needed)\n    # - name: rds-read-replica\n    #   base:\n    #     apiVersion: rds.aws.crossplane.io/v1alpha1\n    #     kind: DBInstance\n    #     spec:\n    #       providerConfigRef:\n    #         name: aws-uswest2\n    #       replicateSourceDBInstanceIdentifier: app-db\n    #       ...\n```\n\n### 3. Create IAM Role for S3 Replication\n\nAdd to your IaC (outside Crossplane or via Crossplane IAM resources):\n\n```yaml\napiVersion: iam.aws.crossplane.io/v1beta1\nkind: Role\nmetadata:\n  name: s3-replication-role\nspec:\n  assumeRolePolicyDocument: |\n    {\n      \"Version\": \"2012-10-17\",\n      \"Statement\": [{\n        \"Effect\": \"Allow\",\n        \"Principal\": {\"Service\": \"s3.amazonaws.com\"},\n        \"Action\": \"sts:AssumeRole\"\n      }]\n    }\n---\napiVersion: iam.aws.crossplane.io/v1beta1\nkind: RolePolicyAttachment\nmetadata:\n  name: s3-replication-policy\nspec:\n  roleName: s3-replication-role\n  policyArn: arn:aws:iam::aws:policy/AmazonS3FullAccess\n```\n\n### 4. Apply Without Changing Claims\n\nUsers continue to submit the same claim unchanged:\n\n```yaml\napiVersion: example.com/v1alpha1\nkind: WebApp\nmetadata:\n  name: my-app\nspec:\n  # Same spec as before\u2014no region selection needed in claim\n  environment: prod\n  # Composition automatically provisions resources in us-east-1 (primary) \n  # and us-west-2 (replication target)\n```\n\n## Verification\n\nAfter applying updated composition and provider configs:\n\n```bash\n# Check both provider configs are ready\nkubectl get providerconfig -n crossplane-system\n\n# Verify composition provisioned resources in both regions\nkubectl get s3.aws.crossplane.io\nkubectl get dbinstance.rds.aws.crossplane.io\n\n# Confirm replication is active (via AWS console or CLI)\naws s3api get-bucket-replication --bucket app-bucket-primary --region us-east-1\n```\n\n## Environment Separation (dev/prod)\n\nTo separate dev/prod environments idiomatically, use **separate Compositions** per environment with distinct provider config references:\n\n```yaml\n# prod-composition.yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: web-app-prod\nspec:\n  compositeTypeRef:\n    apiVersion: example.com/v1alpha1\n    kind: WebApp\n  # Uses aws-useast1 and aws-uswest2 provider configs (prod credentials)\n\n---\n# dev-composition.yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: web-app-dev\nspec:\n  compositeTypeRef:\n    apiVersion: example.com/v1alpha1\n    kind: WebApp\n  # Uses aws-useast1-dev and aws-uswest2-dev provider configs (dev credentials)\n```\n\nUsers select environment via `compositionRef` in the claim or `compositionSelector` labels\u2014claims remain unchanged structurally.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-iq_0f1ot/generated_0.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-iq_0f1ot/generated_1.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-iq_0f1ot/generated_2.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-iq_0f1ot/generated_3.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-iq_0f1ot/prod-composition.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 6466,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 6466,
+      "fenced_blocks": 6,
+      "extracted_files": 5,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

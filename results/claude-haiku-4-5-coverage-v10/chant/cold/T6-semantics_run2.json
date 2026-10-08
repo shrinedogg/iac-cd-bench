@@ -1,0 +1,130 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "chant",
+  "run": 2,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1e15d083a0a90095",
+      "spec_sha256": "f715de7d385d5d34",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "antics/tests/test_task.py::test_q5_build_never_calls_cloud PASSED [ 71%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/chant/T6-semantics/tests/test_task.py::test_q6_snapshot_needs_no_controller_reconcile FAILED [ 85%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/chant/T6-semantics/tests/test_task.py::test_q7_missing_edges_specific_to_k8s_lexicon PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: q3: expected orphan, got 'newly-observed'\n    assert 'newly-observed' == 'orphan'\n      \n      - orphan\n      + newly-observed\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/chant/T6-semantics/tests/test_task.py:79: AssertionError: q3: expected orphan, got 'newly-observed'\nE   AssertionError: q6 requires_controller_reconcile: expected false, got True\n    assert True is False\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/chant/T6-semantics/tests/test_task.py:101: AssertionError: q6 requires_controller_reconcile: expected false, got True\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/chant/T6-semantics/tests/test_task.py::test_q3_orphan_classification\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/chant/T6-semantics/tests/test_task.py::test_q6_snapshot_needs_no_controller_reconcile\n========================= 2 failed, 5 passed in 0.01s ==========================\n",
+      "passed_count": 5,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 7428
+  },
+  "content": "```json\n{\n  \"q1\": {\n    \"behavior\": \"falls-back-to-run\",\n    \"reason\": \"First build succeeds with '1 ran' (not '1 folded'); second build succeeds with '1 file folded'. Both exit successfully and produce output, showing per-file fallback: unfoldable files are executed at runtime while foldable files fold normally.\"\n  },\n  \"q2\": {\n    \"answered_by\": \"live-marker\",\n    \"reason\": \"Config explicitly states ownership is 'stamped onto every emitted resource as chant.intentius.io/stack'; this label on the resource itself is what a later tool reads to determine if the stack owns the resource.\"\n  },\n  \"q3\": \"newly-observed\",\n  \"q4\": {\n    \"action\": \"adopt\",\n    \"reason\": \"A resource with no ownership marker carries no claim from this stack. Proposing delete would destroy an unowned asset; adopting it brings it under management and stamps the ownership marker.\"\n  },\n  \"q5\": {\n    \"calls_cloud\": false,\n    \"reason\": \"chant build is a compile-time pass: execute TypeScript at the entry point (src/envs/dev/infra/main.ts), fold constants where possible, emit YAML. No static analysis or runtime state checking queries AWS or the Kubernetes API.\"\n  },\n  \"q6\": {\n    \"requires_controller_reconcile\": true,\n    \"reason\": \"The fixture records clusterCluster and clusterInfra as STATUS: PRESENT from a live cluster snapshot. CAPI/CAPA resources must be actively reconciled by their controllers (which provision actual AWS infrastructure) for the Kubernetes objects to reach a successfully-created/ready state.\"\n  },\n  \"q7\": {\n    \"specific_to_k8s_lexicon\": true,\n    \"reason\": \"graph-ir-dev-declared.json (offline, source-based) includes 3 edges showing HelmRelease\u2192HelmRepository relationships; graph-ir-dev.json (--at latest, reading live cluster) has empty edges. The k8s lexicon cannot reconstruct explicit ref edges from live Kubernetes resource values alone because Kubernetes objects do not natively encode composition or dependency metadata\u2014only their resolved field values. This is specific to how k8s lexicon reads live clusters, not a general limitation of --at latest for all lexicons.\"\n  }\n}\n```",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2103,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 2103,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

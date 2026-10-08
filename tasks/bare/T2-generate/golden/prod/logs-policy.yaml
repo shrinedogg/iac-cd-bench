@@ -1,0 +1,67 @@
+# Additional policy granting the prod service role read/write on the new
+# logs bucket only, scoped separately from the existing assets-bucket policy
+# in prod/iam.yaml so neither grant widens the other's access.
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: myapp-prod-logs-policy
+  namespace: infra
+spec:
+  name: myapp-prod-logs-policy
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject"
+          ],
+          "Resource": "arn:aws:s3:::myapp-logs-prod/*"
+        }
+      ]
+    }
+---
+# Attach the new policy to the existing prod service role (myapp-prod-service-role,
+# defined in prod/iam.yaml) via an additional Role referencing both policyRefs.
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Role
+metadata:
+  name: myapp-prod-service-role
+  namespace: infra
+spec:
+  name: myapp-prod-service-role
+  path: /
+  maxSessionDuration: 3600
+  assumeRolePolicyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Federated": "arn:aws:iam::<AWS_ACCOUNT_ID>:oidc-provider/<OIDC_PROVIDER_ARN>"
+          },
+          "Action": "sts:AssumeRoleWithWebIdentity",
+          "Condition": {
+            "StringEquals": {
+              "<OIDC_PROVIDER_ARN>:sub": "system:serviceaccount:app:myapp-prod",
+              "<OIDC_PROVIDER_ARN>:aud": "sts.amazonaws.com"
+            }
+          }
+        }
+      ]
+    }
+  policyRefs:
+    - from:
+        name: myapp-prod-service-policy
+        namespace: infra
+    - from:
+        name: myapp-prod-logs-policy
+        namespace: infra
+  tags:
+    - key: Name
+      value: myapp-prod-service-role
+    - key: Environment
+      value: prod

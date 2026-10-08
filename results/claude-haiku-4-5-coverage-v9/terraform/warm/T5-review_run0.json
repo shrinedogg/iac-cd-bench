@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "terraform",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "65ba8f1338fa2db12539125d32183373e03dc439",
+      "dirty": false,
+      "branch": "bench/gates-pulumi"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "dd01970ce92a5964",
+      "spec_sha256": "f6545befc3558903",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1210,
+    "output": 715
+  },
+  "content": "# Terraform Plan Review \u2014 Awaiting Input\n\nI'm ready to review your tfplan JSON for hidden destructive changes, but **the actual plan output hasn't been provided yet**. \n\nPlease share the tfplan JSON (or the relevant excerpt containing the 40 changes you mentioned), and I'll analyze it for:\n\n## Review Checklist\n\n1. **Database Destructive Actions** (hidden among no-ops)\n   - `destroy` + `create` operations on `aws_db_instance` resources\n   - Changes to RDS parameters that force replacement (e.g., engine version, allocated storage type mismatches)\n   - Deletion protection status flips\n\n2. **Security Posture Regressions**\n   - Ingress rules expanding to `0.0.0.0/0` on security groups\n   - Egress becoming overly permissive\n   - Encryption disabled on buckets or RDS\n   - Public access flags being set\n\n3. **Environment Isolation Violations**\n   - Changes to prod resources when targeting dev (workspace/var-file mismatch)\n   - Unintended cross-environment resource dependencies\n\n4. **Sneaky Deletions**\n   - IAM policies or roles being removed\n   - Backup retention being reduced below 7 days\n   - Deletion protection being disabled\n\n## How to Provide the Plan\n\nPaste the JSON output from:\n```bash\nterraform show -json tfplan > tfplan.json\n# or\nterraform plan -json > plan.json\n```\n\nOnce you share it, I'll scan for the hidden DB recreate, the 0.0.0.0/0 regression, and flag any other destructive/risky changes with line-by-line callouts and risk assessment.",
+  "validity": {
+    "valid": false,
+    "reason": "short_stub",
+    "content_length": 1463,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1463,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies RDS destroy + create as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission does not identify any RDS destroy+create issue; it only states readiness to look for it pending plan input."
+      },
+      {
+        "criterion": "Identifies 0.0.0.0/0 ingress as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission does not identify any 0.0.0.0/0 security risk; mentions it as a checklist item without performing actual analysis."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission provides no ranking of issues by severity; no issues are identified or prioritized in the actual review."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides no remediation steps; it only requests plan input and promises future analysis."
+      }
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "bare",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1714
+  },
+  "content": "I've found **4 critical security issues** in this diff. This PR should **not be merged** without addressing all of them.\n\n## Issues by Severity\n\n### \ud83d\udd34 **CRITICAL: Plaintext database password committed to Git**\n- **File:** `prod/db-secret.yaml`\n- **Problem:** The production database password (`\"Summer2026!Prod#db\"`) is now in plaintext in the Git repository. This violates acceptance criterion #3 and the spec's requirement for SOPS-encrypted or stack-native secret handling.\n- **Impact:** Anyone with repository access (now or in future) can read the prod DB password. Even if deleted, it persists in git history.\n- **Fix:** Remove the plaintext password. Use the stack's native secret encryption (SOPS, Sealed Secrets, or external secret management) and never commit actual credentials.\n\n---\n\n### \ud83d\udd34 **CRITICAL: S3 bucket made publicly readable**\n- **File:** `prod/s3-bucket.yaml`\n- **Problem:** Removed all public access blocks and added a bucket policy allowing anyone (`\"Principal\": \"*\"`) to read all objects. Violates acceptance criterion #1: \"no public access.\"\n- **Impact:** Application assets are now exposed to the entire internet. Could leak sensitive data or intellectual property.\n- **Fix:** Restore the `publicAccessBlock` configuration. If assets must be public, serve them through CloudFront (per the spec) with S3 as the origin, not via direct bucket access.\n\n---\n\n### \ud83d\udd34 **CRITICAL: RDS instance made publicly accessible**\n- **File:** `prod/rds.yaml` - `publiclyAccessible: false` \u2192 `true`\n- **Problem:** The production database is now reachable from the internet. Violates acceptance criterion #2: \"no publicly accessible.\"\n- **Impact:** Combined with the plaintext password in Git, this is a direct path to database compromise. Any attacker can attempt to connect with known credentials.\n- **Fix:** Set `publiclyAccessible: false`. Database should only be accessible from within the VPC/Kubernetes cluster.\n\n---\n\n### \ud83d\udd34 **CRITICAL: RDS deletion protection disabled**\n- **File:** `prod/rds.yaml` - `deletionProtection: true` \u2192 `false`\n- **Problem:** Removed the safeguard against accidental or malicious database deletion. Violates acceptance criterion #2: \"deletion protection on.\"\n- **Impact:** A mistaken `kubectl delete` or API call could destroy the production database and all its data.\n- **Fix:** Set `deletionProtection: true`.\n\n---\n\n### \ud83d\udfe1 **MEDIUM: Missing container resource requests/limits**\n- **File:** `prod/app.yaml`\n- **Problem:** Removed CPU/memory requests and limits. Kubernetes cannot make placement decisions, and a runaway container could consume all cluster resources.\n- **Impact:** Denial of service risk; scheduler instability.\n- **Fix:** Restore resource requests (cpu: 100m, memory: 128Mi) and limits (cpu: 500m, memory: 256Mi).\n\n---\n\n## Summary\n\n**Do not merge.** This PR introduces 4 critical security vulnerabilities:\n1. Production credentials exposed in plaintext\n2. Public S3 bucket\n3. Internet-accessible production database\n4. Loss of database deletion protection\n\nThe first three compound into a critical attack surface. Address all issues before submission.",
+  "judge": {
+    "idiom": 0.9375,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies the plaintext database password committed to prod/db-secret.yaml, replacing the documented out-of-band placeholder",
+        "weight": 3.0,
+        "score": 0.75,
+        "justification": "Plaintext password in prod/db-secret.yaml clearly identified with value shown; context that it replaced a documented placeholder not explicitly mentioned."
+      },
+      {
+        "criterion": "Identifies that prod/s3-bucket.yaml removes the public access block and adds a bucket policy granting s3:GetObject to Principal '*' (public read exposure)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Both removal of publicAccessBlock and bucket policy granting s3:GetObject to Principal '*' explicitly identified in prod/s3-bucket.yaml."
+      },
+      {
+        "criterion": "Identifies that prod/rds.yaml sets publiclyAccessible: true and deletionProtection: false on the production database",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Both publiclyAccessible: true and deletionProtection: false clearly identified in prod/rds.yaml (though presented as separate issues, both are present)."
+      },
+      {
+        "criterion": "Identifies that prod/app.yaml drops the container's resource requests/limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Removal of container resource requests and limits from prod/app.yaml clearly identified."
+      },
+      {
+        "criterion": "Ranks the four issues by severity in an order consistent with: plaintext password and public bucket as the most severe, RDS exposure next, missing resource limits least severe",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correct severity ordering: plaintext password and S3 bucket presented first (most severe), RDS issues next, resource limits last (least severe)."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this')",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Specific, concrete remediations provided for all issues: remove plaintext/use SOPS/Sealed Secrets, restore publicAccessBlock, set publiclyAccessible/deletionProtection, restore specific resource values."
+      }
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "chant",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1769
+  },
+  "content": "I'll analyze this diff for security issues against the canonical spec.\n\n## Issues Found\n\n### 1. **CRITICAL: Master password as literal string in code**\n- **Field:** `masterUserPassword: \"Prod2026!DbPass\"`\n- **Spec violation:** \"Secret: never stored in plaintext in Git; encrypted at rest via stack-native mechanism\"\n- **Impact:** Hardcoded password in repository history; permanent credential exposure\n- **Fix required:** Replace with a SecretRef pointing to an out-of-band Kubernetes Secret, matching the original design\n\n### 2. **CRITICAL: deletionProtection set to false**\n- **Field:** `deletionProtection: false`\n- **Spec violation:** \"RDS: deletion protection on, backup retention >= 7 days, no publicly accessible\"\n- **Impact:** Production database can be accidentally deleted\n- **Fix required:** Set to `true` (was enforced by the `PostgresInstance` composite)\n\n### 3. **CRITICAL: publiclyAccessible set to true**\n- **Field:** `publiclyAccessible: true`\n- **Spec violation:** \"RDS: deletion protection on, backup retention >= 7 days, no publicly accessible\"\n- **Impact:** Database exposed to the internet; contradicts the original composite's unconditional `false`\n- **Fix required:** Set to `false`\n\n### 4. **CRITICAL: Wildcard IAM action on production**\n- **Field:** `additionalActions: [\"s3:*\"]`\n- **Spec violation:** \"IAM: principle of least privilege; no wildcard actions on prod\"\n- **Impact:** Service account gains all S3 permissions, violating least-privilege requirement\n- **Fix required:** Replace with specific required actions (e.g., `[\"s3:GetObject\", \"s3:ListBucket\"]`)\n\n## Ranked by Severity\n\n1. **Master password in plaintext** \u2014 credential exposure, permanent in git history\n2. **publiclyAccessible: true** \u2014 internet-exposed production database\n3. **deletionProtection: false** \u2014 accidental production destruction\n4. **s3:* wildcard** \u2014 over-privileged service account\n\n---\n\n**Recommendation:** This PR should **not merge** in its current state. The comment notes this is a \"hotfix\" but introduces four critical security violations. The original `PostgresInstance` composite enforced safety guarantees that this raw `DBInstance` violates. If a composite change is blocking, fix the composite instead \u2014 or restore the credential to SecretRef, revert the database safety flags, and remove the wildcard permission before merging.",
+  "judge": {
+    "idiom": 0.875,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that the diff hardcodes a plaintext-looking database password directly into spec.masterUserPassword, bypassing secretRef()/SecretRef entirely -- the referenced-provenance discipline this golden depends on to keep material out of git",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Clearly identifies hardcoded plaintext password 'Prod2026!DbPass' in masterUserPassword field, permanent git exposure, and correct fix via SecretRef."
+      },
+      {
+        "criterion": "Identifies that abandoning PostgresInstance for a raw new DBInstance({...}) sets publiclyAccessible: true and deletionProtection: false, directly reversing SPEC acceptance criterion 2's non-negotiable posture (both are pinned, not props, inside the composite)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Identifies both deletionProtection: false and publiclyAccessible: true as CRITICAL violations, notes they were enforced by PostgresInstance composite, and ties them to SPEC criterion 2."
+      },
+      {
+        "criterion": "Identifies the additionalActions: [\"s3:*\"] wildcard added to the prod reader's ReaderIam call, violating SPEC acceptance criterion 4 (no wildcard actions) even though additionalActions is 'just' a string array with no type-level wildcard guard",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Explicitly identifies additionalActions: ['s3:*'] wildcard as CRITICAL IAM violation of least-privilege principle and SPEC criterion 4."
+      },
+      {
+        "criterion": "Notes that bypassing the PostgresInstance composite for a raw DBInstance construction is itself a red flag independent of the specific prop values it happens to set here -- it silently drops every other guarantee the composite enforces (backupRetentionDays >= 7, referenced-secret discipline) for any future edit to this call site",
+        "weight": 1.0,
+        "score": 0.5,
+        "justification": "Acknowledges composite enforces guarantees and restoration would fix issues, but does not identify composite bypass as independent red flag or note loss of future protections (e.g., backupRetentionDays >= 7)."
+      },
+      {
+        "criterion": "Ranks the issues by severity in a defensible order consistent with: the hardcoded password and the public/unprotected database as most severe (roughly tied), the wildcard IAM grant next, and the composite bypass as a practice least severe on its own",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Ranks password first (correct) but then separates database props with wildcard ranked last; rubric expects wildcard ranked third. Missing composite bypass as separate issue entirely breaks consistency with expected 4-issue ranking."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this') -- restore the PostgresInstance call with secretRef(), remove the wildcard action",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides concrete remediations for all identified issues: SecretRef for password, specific boolean values for database flags, named actions for IAM. Avoids generic 'fix this' language."
+      }
+    ]
+  }
+}

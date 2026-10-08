@@ -1,0 +1,67 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "chant",
+  "run": 2,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 4581
+  },
+  "content": "Looking at the fixtures and source files, I'll work through each question systematically.\n\n## Q1: Build roots \u2192 resources, and why Flux objects appear\n\n**Resource mapping from 18 total:**\n\n**infra/main.ts (9 resources):**\n- `assetsBucket` (SecureBucket)\n- `databaseInstance` (PostgresInstance)  \n- `readerPolicy`, `readerRole`, `readerUser` (ReaderIam)\n- `ackCharts` (HelmRepository)\n- `s3ControllerRelease`, `rdsControllerRelease`, `iamControllerRelease` (AckController \u00d73)\n\n**clusters/main.ts (6 resources):**\n- `clusterCluster`, `clusterControlPlane`, `clusterFluxAddon`, `clusterInfra`, `clusterNodePoolAwsPool`, `clusterNodePoolMachinePool` (RegionCluster composite)\n\n**delivery/main.ts (3 resources):**\n- `sourceGitRepository` (FluxGitSource)\n- `infraAppKustomization`, `clusterAppKustomization` (FluxAppFor \u00d72)\n\n**Why delivery's Flux objects appear:**\nThe delivery build root produces the bootstrap manifests applied directly to the management cluster\u2014not reconciled by any Kustomization (that would be circular). Its three outputs (`sourceGitRepository` and the two `Kustomization`s) are applied via `flux bootstrap` and therefore appear in the cluster snapshot, even though nothing else reconciles this path.\n\n## Q2: Environment differences\n\n**Only in dev (18):**\n- `readerUser` (K8s::Iam::User)\n\n**Only in prod (20):**\n- `assetsReplicaBucket` (K8s::S3::Bucket)\n- `assetsReplicaRole` (K8s::Iam::Role)  \n- `readerPodIdentity` (K8s::Eks::PodIdentityAssociation)\n\n**Responsible props:**\n\n| Resource | Composite | Prop | Value |\n|---|---|---|---|\n| `readerUser` | ReaderIam | `programmaticAccess` | dev: `true` \u2192 creates user; prod: `false` \u2192 omitted |\n| `assetsReplicaBucket`, `assetsReplicaRole` | SecureBucket | `replication` | dev: unset; prod: set on primary bucket + separate `SecureBucket(\"assetsReplica\")` call |\n| `readerPodIdentity` | ReaderIam | `podIdentity` | dev: unset; prod: set with cluster/SA config |\n\n## Q3: `myapp-dev-db-master` search and the \"declared only\" footer\n\n**How it appears:**\nThe string `myapp-dev-db-master` is hardcoded in `src/envs/dev/infra/main.ts` as the Secret name:\n\n```typescript\nconst masterPassword: SecretRef = {\n  name: \"myapp-dev-db-master\",  // \u2190 literal string here\n  namespace: INFRA_NAMESPACE,\n  key: \"password\",\n  ...\n};\n\nexport const database = PostgresInstance({\n  masterPassword,  // passed to composite\n  ...\n});\n```\n\nInside PostgresInstance (postgres-instance.ts:86), `secretRef(props.masterPassword)` projects this to `{ name, namespace, key }` in the DBInstance's `spec.masterUserPassword`. The string is searchable in the declared spec, so `databaseInstance` matches.\n\nNothing else references it because only the database's master password uses this Secret; it's not referenced in labels, tags, or elsewhere.\n\n**The \"declared only \u00b7 no observation \u00b7 physical ids unavailable\" footer means:**\n- `--at` (snapshot flag) was **not** provided, so this search ran over the **declared graph from source code only**\n- No live cluster observation backs it\n- Physical IDs (cloud AWS resource IDs) are unavailable\u2014we only have TypeScript identifiers\n\n**Why bucket/pod-identity searches differ:**\nThose used `--at latest --env <env>`, tying them to a snapshot, so their footer reads `\"\u2014 observed from snapshot <commit>\"` instead.\n\n## Q4: Asymmetries\u2014two different props on ReaderIam\n\n**`readerUser` in dev but not prod:**\n- **Prop:** `programmaticAccess: boolean` (default: `false`)\n- **SPEC-driven reason:** Dev uses programmatic access (IAM user + access key); prod uses Kubernetes-native IRSA\n- **Source:** dev's call sets `programmaticAccess: true`, prod's leaves it at default `false`\n\n**`readerPodIdentity` in prod but not dev:**\n- **Prop:** `podIdentity: { clusterName, serviceAccountNamespace, serviceAccountName }` (optional, default: unset)\n- **SPEC-driven reason:** Prod's least-privilege posture requires OIDC-based pod identity (no long-lived keys); dev can use a static user\n- **Source:** dev's call omits the prop; prod's provides cluster/namespace/account config\n\nThese are **two different identity mechanisms on the same composite**, not the same cause twice: one prop gates user creation, the other gates pod-identity creation. The choice reflects the architectural difference between dev (simpler, account-wide trust) and prod (tighter, OIDC-bound).\n\n## Q5: Graph edges\u2014declared vs. snapshot-backed\n\n**Why `graph-ir-dev.json` (snapshot-backed, `--at latest`) has zero edges:**\nThe k8s lexicon does not yet implement edge reconstruction from live cluster observations. Per the documented gap in `chant-query-commands.md`: \"the k8s lexicon does not yet implement the live/replay edge-reconstruction step the AWS lexicon has.\"\n\n**Where the edges appear:**\n**File:** `graph-ir-dev-declared.json` (the declared graph, run with no `--at`/`--live`)  \n**Edge count:** 3 edges\n- `iamControllerRelease` \u2192 `ackCharts` (via `spec`)\n- `rdsControllerRelease` \u2192 `ackCharts` (via `spec`)\n- `s3ControllerRelease` \u2192 `ackCharts` (via `spec`)\n\n**Why declared but not snapshot-backed:**\nEach `AckController` instance references `ackCharts` by name in `spec.chart.spec.sourceRef.name: repositoryName` (see AckController in composite-prop-surfaces.md). The declared graph statically resolves these name references into edges. The snapshot-backed graph observes the Kubernetes resources on the cluster but has no enrichment step to reconstruct which HelmRelease depends on which HelmRepository from observed state alone\u2014only the declared source graph captures that intent.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-chant-6hr0lrdw/src/envs/dev/infra/main.ts"
+  ],
+  "judge": {
+    "idiom": 0.95,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Maps every one of the 18 resources recorded in lifecycle-show-dev.txt to the correct one of the three dev build roots (infra/clusters/delivery) using the seeded src/envs/dev/{infra,clusters,delivery}/main.ts, and correctly explains why the delivery-root objects (sourceGitRepository, the two Kustomizations) still appear in the recorded dev snapshot even though no Kustomization reconciles the delivery path itself",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Perfect mapping of 18 resources to three build roots. Explanation of why delivery-root objects appear is correct (bootstrap/directly applied) but misses the reference's key mechanism: chant lifecycle snapshot observes entire source tree, and describeResources() reads all declared k8s objects via API."
+      },
+      {
+        "criterion": "Names every resource-count/resource-kind difference between the recorded dev and prod estates (readerUser only in dev; assetsReplicaBucket, assetsReplicaRole, and readerPodIdentity only in prod) using lifecycle-show-{dev,prod}.txt, search-buckets-{dev,prod}.txt, and search-prod-only-pod-identity-{dev,prod}.txt, and ties each difference to the specific composite call-site prop that causes it (programmaticAccess, replication, podIdentity)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "All four resource differences correctly identified (readerUser dev-only, assetsReplicaBucket/Role/readerPodIdentity prod-only) and tied to correct props (programmaticAccess, replication, podIdentity) with accurate composite call-site explanations."
+      },
+      {
+        "criterion": "Correctly explains search-db-secret-reference.txt's single match (databaseInstance) by tracing masterPassword through secretRef() into PostgresInstance's masterUserPassword field, and correctly explains the fixture's 'declared only \u00b7 no observation \u00b7 physical ids unavailable' footer as a source-graph (no --at/--live) query rather than a snapshot-backed one",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correctly traces masterPassword through secretRef() into DBInstance's masterUserPassword field. Accurately explains 'declared only' footer as result of no --at/--live flag (source graph, not snapshot). Correctly distinguishes from bucket/pod-identity searches using --at latest."
+      },
+      {
+        "criterion": "Correctly explains both the readerUser asymmetry (dev's programmaticAccess: true vs prod's false) and the PodIdentityAssociation asymmetry (only prod's ReaderIam call sets podIdentity), each grounded in the SPEC-driven IAM row rather than treated as unexplained noise",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Both asymmetries correctly grounded in SPEC-driven IAM architecture: readerUser via programmaticAccess (dev's IAM user vs prod's OIDC role), and readerPodIdentity via podIdentity prop (prod's pod identity binding). Correctly frames as two distinct mechanisms, not one cause twice."
+      },
+      {
+        "criterion": "Correctly explains why graph-ir-dev.json's edges array is empty despite the three AckController HelmReleases referencing ackCharts by name, identifies this as the k8s lexicon's --at/--live edge-reconstruction gap rather than a bug in this golden, and correctly points to graph-ir-dev-declared.json as where those same three edges do appear",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Correctly identifies k8s lexicon's edge-reconstruction gap (no --at/--live enrichment step) as documented limitation, not bug. Correctly locates 3 edges in graph-ir-dev-declared.json and accurately explains why declared graph resolves name references while snapshot-backed graph cannot."
+      }
+    ]
+  }
+}

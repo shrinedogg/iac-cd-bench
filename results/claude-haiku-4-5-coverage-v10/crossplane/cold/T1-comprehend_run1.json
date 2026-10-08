@@ -1,0 +1,167 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "crossplane",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "17327cd3984fe04f",
+      "spec_sha256": "6bb510121a5af8ac",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1264,
+    "output": 5192
+  },
+  "content": "# Crossplane Composition Reconciliation: `storageGB` Change Trace\n\n## 1. Data Flow: XRD \u2192 Composition \u2192 Managed Resources\n\nWhen you update a Claim's `storageGB` from 20 \u2192 50, the change propagates through three layers:\n\n**XRD** defines the claim interface:\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: CompositeResourceDefinition\nmetadata:\n  name: webapps.example.upbound.io\nspec:\n  names:\n    kind: WebApp\n  group: example.upbound.io\n  versions:\n  - name: v1alpha1\n    schema:\n      openAPIV3Schema:\n        properties:\n          spec:\n            properties:\n              storageGB:\n                type: integer\n                description: \"RDS allocated storage in GB\"\n```\n\n**Composition** instantiates managed resources and wires the parameter:\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: webapp-aws\nspec:\n  compositeTypeRef:\n    apiVersion: example.upbound.io/v1alpha1\n    kind: WebApp\n  resources:\n  - name: rds-instance\n    base:\n      apiVersion: database.aws.upbound.io/v1beta1\n      kind: Instance\n      spec:\n        forProvider:\n          dbInstanceClass: db.t3.medium\n          engine: postgres\n          allocatedStorage: 20  # default\n    patches:\n    - type: FromCompositeFieldPath\n      fromFieldPath: spec.storageGB\n      toFieldPath: spec.forProvider.allocatedStorage\n  - name: s3-bucket\n    base:\n      apiVersion: s3.aws.upbound.io/v1beta1\n      kind: Bucket\n      spec:\n        forProvider:\n          versioning:\n            enabled: true\n          serverSideEncryptionConfiguration:\n            rules:\n            - applyServerSideEncryptionByDefault:\n                sseAlgorithm: AES256\n```\n\n**Reconciliation sequence:**\n\n1. **Claim Controller** (runs ~every 1s): Detects `spec.storageGB: 50` change in Claim \u2192 syncs to CompositeResource (XR)\n2. **Composition Controller** (runs ~every 1s): Reads updated XR \u2192 re-evaluates all patches \u2192 applies `storageGB: 50` to the RDS MR's `spec.forProvider.allocatedStorage` field\n3. **AWS Provider Controller**: Observes RDS MR spec changed from 20 \u2192 50 \u2192 calls AWS `ModifyDBInstance` API\n\n---\n\n## 2. RDS Instance: Updated In-Place (No Recreation)\n\n**Answer: Updated in-place via `ModifyDBInstance`.**\n\nThe AWS RDS `AllocatedStorage` field is **non-destructive** for increases. Crossplane's AWS provider recognizes this and:\n- Does **not** recreate the DB instance\n- Calls `ModifyDBInstance(DBInstanceIdentifier=..., AllocatedStorage=50, ApplyImmediately=false)` (or with `ApplyImmediately=true` depending on the Crossplane resource config)\n- The database experiences a brief maintenance window (typically seconds to minutes for single-AZ, or a failover for multi-AZ), but the instance ID, endpoint, and data persist\n\n**What changes in the MR status:**\n```yaml\nstatus:\n  atProvider:\n    dbInstanceStatus: modifying  # \u2192 available (after ~60-300s)\n    allocatedStorage: 50\n    engine: postgres\n    endpoint: my-db.xxxxx.us-east-1.rds.amazonaws.com\n```\n\nThe **ownership chain is preserved**: Claim \u2192 XR \u2192 RDS MR \u2192 actual AWS DB instance (same instance throughout).\n\n---\n\n## 3. S3 Bucket: No Changes\n\n**Answer: S3 bucket is unaffected.**\n\nBecause the Composition defines the S3 bucket resource with **no patches** that reference `storageGB`, the bucket's spec never changes:\n\n```yaml\n# No patches applied to S3 bucket MR\n- name: s3-bucket\n  base:\n    spec:\n      forProvider:\n        versioning:\n          enabled: true\n        # ^ static configuration, unrelated to storageGB\n```\n\nWhen the Composition Controller reconciles:\n- Computes S3 MR spec (no patches fire) \u2192 spec remains identical\n- Compares to actual S3 MR spec \u2192 no drift detected\n- AWS provider takes no action\n- Bucket remains unchanged\n\n---\n\n## 4. ReadinessChecks: Gating and Progress Observation\n\n`ReadinessChecks` (defined per resource in the Composition) determine when a Composite Resource is \"Ready\". They **do not block updates**; they **report state**.\n\n**Example configuration:**\n```yaml\nresources:\n- name: rds-instance\n  base: { ... }\n  readinessChecks:\n  - type: MatchString\n    fieldPath: status.atProvider.dbInstanceStatus\n    matchString: \"available\"\n- name: s3-bucket\n  base: { ... }\n  readinessChecks:\n  - type: MatchString\n    fieldPath: status.atProvider.status\n    matchString: \"active\"\n```\n\n**Timeline during storageGB change:**\n\n| Time | RDS Status | S3 Status | ReadinessCheck Result | XR.Ready |\n|------|---|---|---|---|\n| T+0s | `available` | `active` | All pass | `True` |\n| T+5s (update detected) | `modifying` | `active` | RDS fails, S3 passes | `False` |\n| T+60-300s (AWS modifying) | `modifying` | `active` | RDS fails, S3 passes | `False` |\n| T+400s (done) | `available` | `active` | All pass | `True` |\n\n**Role:**\n- **Health observation**: Operators see via `kubectl get claim` / `status.conditions` when dependencies are ready\n- **Gating for dependent claims**: If you had another Claim that `dependsOn` this XR, its Composition wouldn't instantiate resources until `Ready: True`\n- **No blocking**: The RDS MR itself is created and updated immediately; ReadinessChecks don't delay the API calls\n\n---\n\n## 5. Reconciliation Loop: Level-Triggered, Continuous Convergence\n\nCrossplane uses **level-triggered reconciliation** (not edge-triggered), meaning each controller continuously re-checks and re-applies:\n\n### Three-Tier Reconciliation Loop\n\n**Tier 1: Claim Controller**\n```\nloop every ~1s:\n  for each Claim in cluster:\n    if no corresponding XR exists:\n      create XR (owner reference set to Claim)\n    else:\n      sync Claim.spec \u2192 XR.spec\n      sync XR.status \u2192 Claim.status\n```\n\n**Tier 2: Composition Controller**\n```\nloop every ~1s:\n  for each XR in cluster:\n    find Composition via xr.spec.compositionRef\n    for each resource in Composition.spec.resources:\n      evaluate patches (FromCompositeFieldPath, etc.)\n      computed_spec = base + patches applied\n      \n      if MR with that name doesn't exist:\n        create MR with computed_spec\n      else if MR.spec != computed_spec:\n        update MR.spec (replace/merge strategy)\n      else:\n        no action\n      \n    evaluate readinessChecks:\n      for each MR:\n        read MR.status.atProvider\n        if readinessCheck matches:\n          readiness_pass[resource]++\n      if all pass:\n        XR.status.conditions[Ready] = True\n      else:\n        XR.status.conditions[Ready] = False\n```\n\n**Tier 3: AWS Provider Controller** (runs per resource kind: Instance, Bucket, etc.)\n```\nloop every ~1s:\n  for each RDS Instance MR in cluster:\n    observed_state = AWS API call (DescribeDBInstances)\n    \n    if MR.spec.forProvider != what we'd generate from observed_state:\n      # Drift detected (e.g., storageGB spec changed)\n      call ModifyDBInstance(...) with new desired state\n      update MR.status.atProvider with observed state\n    else:\n      # No drift, in sync\n      update MR.status.atProvider with observed state\n```\n\n### Concrete Flow for storageGB: 20 \u2192 50\n\n| Time | Event | Controller | Action |\n|------|-------|-----------|--------|\n| T+0s | User patches Claim `spec.storageGB: 50` | User CLI | Apply |\n| T+1s | Claim Controller | Claim \u2192 XR: sync `spec.storageGB: 50` to XR |\n| T+2s | Composition Controller | Evaluate patch: RDS `allocatedStorage = spec.storageGB` (50) |\n| T+2s | Composition Controller | RDS MR spec `allocatedStorage` was 20, now 50 \u2192 **update MR** |\n| T+3s | AWS RDS Provider Controller | Observe MR spec diff \u2192 call AWS `ModifyDBInstance(AllocatedStorage=50)` |\n| T+4-300s | AWS RDS Provider Controller | Poll AWS, see status `modifying` \u2192 update MR.status.atProvider |\n| T+300s | AWS RDS Provider Controller | Poll AWS, see status `available` \u2192 update MR.status.atProvider |\n| T+301s | Composition Controller | Evaluate readinessCheck: `status.atProvider.dbInstanceStatus == \"available\"` \u2713 \u2192 **XR.Ready = True** |\n| T+302s | Claim Controller | Sync XR.status.conditions to Claim \u2192 **Claim.Ready = True** |\n\n**Key properties:**\n\n- **Idempotent**: If the controller crashes and restarts, it re-enters the loop and converges (no missed actions)\n- **Continuous**: Even if nothing changes, each loop re-verifies and re-applies (ensures drift correction)\n- **Observable**: Status fields accumulate condition messages; you can see why Ready is False\n- **Ordered within a tier**: Composition Controller updates MRs before checking readiness, ensuring fresh status\n\n---\n\n## Summary Table\n\n| Question | Answer |\n|----------|--------|\n| **XRD \u2192 Composition \u2192 MRs** | Claim parameter syncs to XR; Composition Controller applies patches to MR specs; AWS provider calls APIs |\n| **RDS recreation?** | **No**, updated in-place via `ModifyDBInstance` (storage is non-destructive) |\n| **S3 bucket?** | **Unchanged** (no patches reference `storageGB`) |\n| **ReadinessChecks** | **Gate XR.Ready state only**; observe readiness by matching MR status fields; do not block creation/updates |\n| **Reconciliation loop** | **Level-triggered, 3-tier**: Claim \u2194 XR \u2194 MRs \u2194 AWS. Each controller loops ~every 1s, continuously converges toward declared state |",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-a_fgm44n/generated_0.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-a_fgm44n/generated_1.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 9044,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 9044,
+      "fenced_blocks": 8,
+      "extracted_files": 2,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.9375,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Correctly traces XRD \u2192 Composition \u2192 managed resource path",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly traces XRD\u2192Composition\u2192managed resources with concrete YAML examples showing patches applying storageGB to RDS allocatedStorage, then AWS API calls."
+      },
+      {
+        "criterion": "Identifies that storageGB change triggers patch \u2192 RDS update",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission explicitly shows FromCompositeFieldPath patch wiring storageGB to RDS allocatedStorage, describes Composition Controller applying patch, and AWS provider calling ModifyDBInstance."
+      },
+      {
+        "criterion": "States that RDS instanceClass change is in-place update",
+        "weight": 1.0,
+        "score": 0.5,
+        "justification": "Submission correctly describes in-place RDS updates via ModifyDBInstance for allocatedStorage (storageGB), but does not specifically address instanceClass changes as named in criterion."
+      },
+      {
+        "criterion": "Explains ReadinessChecks gate the reconciliation",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission clearly explains ReadinessChecks gate dependent claims while not blocking main reconciliation; provides table showing readiness state transitions and explicit role description."
+      },
+      {
+        "criterion": "Describes Crossplane's continuous reconciliation loop",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission thoroughly explains level-triggered continuous reconciliation loop across three controller tiers (Claim, Composition, Provider) with pseudo-code and concrete timeline table."
+      }
+    ]
+  }
+}

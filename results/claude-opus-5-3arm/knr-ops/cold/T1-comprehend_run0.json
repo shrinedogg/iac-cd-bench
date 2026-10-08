@@ -1,0 +1,64 @@
+{
+  "model": "claude-opus-5",
+  "task": "T1-comprehend",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 2,
+    "output": 420
+  },
+  "content": "I'll look at the actual repo slice before answering \u2014 the `dependsOn` wiring and prune settings determine most of this.\n\n`\u2605 Insight \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`\nMost of these questions hinge on two things that are *declared in the repo*, not inferable from the stack name: whether Flux `Kustomization`s have `prune: true`, and whether ACK resources carry a deletion policy annotation. I'll read those rather than assume.\n`\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`\n\n\n<invoke name=\"Bash\">\n<parameter name=\"command\">find . -path ./.git -prune -o -type d -name 'knr-ops' -print 2>/dev/null | head -20</parameter>\n<parameter name=\"description\">Locate knr-ops stack dir</parameter>\n</invoke>\n<invoke name=\"Bash\">\n<parameter name=\"command\">ls</parameter>\n<parameter name=\"description\">List root</parameter>\n</invoke>\n\n\n./golden-base/knr-ops",
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that Flux reconciles kustomizations on Git merge",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission does not state whether/how Flux reconciles kustomizations on Git merge; only explores repo structure."
+      },
+      {
+        "criterion": "Correctly predicts reconciliation order (dev before prod due to dependsOn)",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not predict reconciliation order or mention dependsOn; exploration phase only."
+      },
+      {
+        "criterion": "Identifies that RDS instanceClass change is in-place update, not recreate",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not identify RDS instanceClass behavior (in-place vs recreate); no answer provided."
+      },
+      {
+        "criterion": "States that ACK operator deletes S3 bucket when manifest is removed (pruning)",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not state what happens to S3 bucket on manifest deletion; incomplete submission."
+      },
+      {
+        "criterion": "Explains that prod overlay patches are scoped to prod kustomization only",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission does not explain prod overlay patch scoping; only exploration commands, no conclusions."
+      }
+    ]
+  }
+}

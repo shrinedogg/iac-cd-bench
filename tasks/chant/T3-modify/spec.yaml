@@ -1,0 +1,20 @@
+stack: chant
+archetype: modify
+id: "T3-modify"
+title: "Add a spot-capacity node pool to the prod cluster"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - chant lint
+  static:
+    enabled: true
+    tools:
+      - chant build
+  semantic:
+    enabled: true
+    assertion_count: 5
+  e2e:
+    enabled: false

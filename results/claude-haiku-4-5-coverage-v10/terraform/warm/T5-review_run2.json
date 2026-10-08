@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "terraform",
+  "run": 2,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "dd01970ce92a5964",
+      "spec_sha256": "f6545befc3558903",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1210,
+    "output": 692
+  },
+  "content": "# Terraform Plan Review: Missing Input\n\nI'm ready to review the Terraform plan, but **the tfplan JSON output has not been provided** in your message. To proceed, I need you to share:\n\n1. The complete `terraform plan -json` output (or `terraform show -json plan.tfplan` if you have a saved plan file)\n2. Ideally, the target environment (`dev` or `prod`), so I can validate against the canonical sizing/config\n\n## What I Will Check\n\nGiven the canonical scenario and your stated concerns, here's my review strategy:\n\n### \ud83d\udd34 Critical (Destructive/Security)\n- **RDS destroy**: Look for `aws_db_instance` with `change.actions = [\"destroy\", \"create\"]` or sequential destroy-then-create. This is a full data loss risk unless a snapshot is explicitly taken.\n- **Security group ingress**: Scan `aws_security_group_rule` or `aws_security_group.ingress` blocks for `cidr_blocks = [\"0.0.0.0/0\"]` on port 5432 (RDS), 22 (SSH), or 443 (if unintended). Flag as overpermissive.\n\n### \u26a0\ufe0f High-Risk (Operational)\n- EKS node group recreate (forces pod eviction, brief downtime)\n- S3 bucket recreation (data loss if not versioned/backed up)\n- RDS multi-AZ toggle on prod (brief failover)\n\n### \u2705 Safe (No-op or Benign)\n- Tag-only changes\n- Security group rule additions (if restricted CIDR)\n- Policy statement updates\n\n---\n\n**Please paste the `terraform plan -json` output** (or the relevant section if it's very large, at minimum 50\u201360 lines around the RDS and security group resources). I'll identify the hidden destructive changes and flag them by line.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1532,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1532,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.6666666666666666,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies RDS destroy + create as data loss risk",
+        "weight": 3.0,
+        "score": 0.75,
+        "justification": "Correctly states RDS destroy+create is 'a full data loss risk' but does not apply this to an actual plan analysis."
+      },
+      {
+        "criterion": "Identifies 0.0.0.0/0 ingress as security risk",
+        "weight": 3.0,
+        "score": 0.75,
+        "justification": "Correctly identifies 0.0.0.0/0 as overpermissive security risk but does not apply to a specific plan review."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Ranks RDS and security group issues as highest severity, correctly above EKS/S3 changes, but does not differentiate RDS (P0) from 0.0.0.0/0 (P1) as reference requires."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides no specific remediation steps, only a prospective analysis framework without fixes for identified issues."
+      }
+    ]
+  }
+}

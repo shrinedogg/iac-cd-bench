@@ -4,8 +4,8 @@ config:
   app:instanceClass: db.t3.medium
   app:instanceCount: "2"
   app:dbPassword:
-    value: dev-db-password
-    secure: true
+    secure: v1:oCs7k2pjogolFrFp:qf6dZzeFmjwiUIyjl7VsLp0K6KGleFL0bXQ6xlUyKA==
   app:dbUser: app-user
   app:dbName: appdb
   app:bucketName: myapp-assets-dev
+encryptionsalt: v1:grp1KZapRe8=:v1:W8EGFy6pMGnfygRa:M5TIErHXc3RhORtZz9MnB3ioX8JOOA==

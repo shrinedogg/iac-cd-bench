@@ -1,0 +1,31 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "bare",
+  "run": 2,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q1_rds_class_change_in_place PASSED [ 14%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q2_no_prune_by_default PASSED [ 28%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q3_aws_bucket_persists PASSED [ 42%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q4_immutable_selector_rejected FAILED [ 57%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q5_client_side_apply_default PASSED [ 71%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q6_namespace_applied_first PASSED [ 85%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q7_no_cross_directory_gating PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: q4 succeeds: expected false, got True\n    assert True is False\n/Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py:90: AssertionError: q4 succeeds: expected false, got True\n=========================== short test summary info ============================\nFAILED ../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T6-semantics/tests/test_task.py::test_q4_immutable_selector_rejected\n========================= 1 failed, 6 passed in 0.01s ==========================\n",
+      "passed_count": 6,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1432
+  },
+  "content": "```json\n{\n  \"q1\": \"updated-in-place\",\n  \"q2\": {\"deleted\": false, \"reason\": \"kubectl apply without --prune only applies files present; deleted manifests are not removed from the cluster\"},\n  \"q3\": \"exists\",\n  \"q4\": {\"succeeds\": true, \"reason\": \"kubectl apply doesn't validate selector/template label matching at apply time; it succeeds but leaves Deployment in broken state\"},\n  \"q5\": \"client-side\",\n  \"q6\": {\"namespace_first\": true, \"reason\": \"kubectl processes files in alphabetical order; 00-namespaces.yaml applies before all namespaced resources\"},\n  \"q7\": {\"blocked\": false, \"reason\": \"plain kubectl apply has no cross-environment dependencies, health gates, or reconciliation logic; dev and prod are independently deployable\"}\n}\n```"
+}

@@ -1,0 +1,153 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "terraform",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "b76b975a67413e26",
+      "spec_sha256": "3ffcac1cce48fcc3",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[init] terraform: exit=1\n\u001b[0m\u001b[1mInitializing modules...\u001b[0m\n- environment in\n\nERR: \u001b[31m\u2577\u001b[0m\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[1m\u001b[31mError: \u001b[0m\u001b[0m\u001b[1mUnreadable module directory\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[0mUnable to evaluate directory symlink: lstat modules: no such file or\n\u001b[31m\u2502\u001b[0m \u001b[0mdirectory\n\u001b[31m\u2575\u001b[0m\u001b[0m\n\u001b[31m\u2577\u001b[0m\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[1m\u001b[31mError: \u001b[0m\u001b[0m\u001b[1mUnreadable module directory\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[0mThe directory  could not be read for module \"environment\" at\n\u001b[31m\u2502\u001b[0m \u001b[0mgenerated_1.tf:9.\n\u001b[31m\u2575\u001b[0m\u001b[0m\n\u001b[31m\u2577\u001b[0m\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[\n[validate] terraform: exit=1\nERR: \u001b[31m\u2577\u001b[0m\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[1m\u001b[31mError: \u001b[0m\u001b[0m\u001b[1mUnsupported argument\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[0m  on generated_6.tf line 1:\n\u001b[31m\u2502\u001b[0m \u001b[0m   1: \u001b[4mvpc_subnet_ids\u001b[0m = {\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0mAn argument named \"vpc_subnet_ids\" is not expected here.\n\u001b[31m\u2575\u001b[0m\u001b[0m\n\u001b[31m\u2577\u001b[0m\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[1m\u001b[31mError: \u001b[0m\u001b[0m\u001b[1mUnsupported argument\u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\n\u001b[31m\u2502\u001b[0m \u001b[0m\u001b[0m  on generated_6.tf line 6:\n\u001b[31m\u2502\u001b[0m \u001b[0m   6: \u001b[4mdb_password\u001b[0m = {\u001b[0m\n\u001b[31"
+    },
+    "static": {
+      "passed": false,
+      "logs": "terraform init -backend=false -input=false -no-color: exit=1 examined=11\n\nError: Unreadable module directory\n\nUnable to evaluate directory symlink: lstat modules: no such file or\ndirectory\n\nError: Unreadable module directory\n\nThe directory  could not be read for module \"environment\" at\ngenerated_1.tf:9.\n\nError: Unsupported argument\n\n  on generated_6.tf line 1:\n   1: vpc_subnet_ids = {\n\nAn argument named \"vpc_subnet_ids\" is not expected here.\n\nError: Unsupported argument\n\n  on generated_6.tf line 6:\n   6: db_password = {\n\nAn argument named \"db_password\" is not expecte",
+      "examined": 11,
+      "tools": [
+        {
+          "tool": "terraform",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+          "exit": 1,
+          "examined": 11
+        }
+      ]
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/terraform/T3-modify/tests/test_task.py::test_environments_are_data_not_duplicated_blocks FAILED [ 80%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/terraform/T3-modify/tests/test_task.py::test_state_move_is_declared PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: these resource types are still declared once per environment: {'aws_eks_cluster': {'dev', 'prod'}, 'aws_eks_node_group': {'dev', 'prod'}, 'aws_s3_bucket': {'dev', 'prod'}, 'aws_s3_bucket_versioning': {'dev', 'prod'}, 'aws_s3_bucket_server_side_encryption_configuration': {'dev', 'prod'}, 'aws_db_instance': {'dev', 'prod'}} \u2014 that is the duplication the refactor removes\n    assert not {'aws_eks_cluster': {'dev', 'prod'}, 'aws_eks_node_group': {'dev', 'prod'}, 'aws_s3_bucket': {'dev', 'prod'}, 'aws_s3_bucket_versioning': {'dev', 'prod'}, ...}\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/terraform/T3-modify/tests/test_task.py:107: AssertionError: these resource types are still declared once per environment: {'aws_eks_cluster': {'dev', 'prod'}, 'aws_eks_node_group': {'dev', 'prod'}, 'aws_s3_bucket': {'dev', 'prod'}, 'aws_s3_bucket_versioning': {'dev', 'prod'}, 'aws_s3_bucket_server_side_encryption_configuration': {'dev', 'prod'}, 'aws_db_instance': {'dev', 'prod'}} \u2014 that is the duplication the refactor removes\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/terraform/T3-modify/tests/test_task.py::test_environments_are_data_not_duplicated_blocks\n========================= 1 failed, 4 passed in 0.01s ==========================\n",
+      "passed_count": 4,
+      "total_count": 5,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1190,
+    "output": 7483
+  },
+  "content": "# Terraform Dev/Prod Refactoring to for_each Module\n\n## Strategy\n\nThe safest path to zero-diff state migration is:\n1. Create a reusable module parametrized by environment\n2. Use `moved` blocks to alias old resource addresses to new ones\n3. Apply in a single run\u2014Terraform updates state references without touching infrastructure\n4. Remove `moved` blocks after verification\n\n---\n\n## Before: Duplicated Blocks\n\n```hcl\n# main.tf (simplified, but illustrative)\n\nresource \"aws_eks_cluster\" \"dev\" {\n  name            = \"app-dev\"\n  version         = \"1.28\"\n  role_arn        = aws_iam_role.eks_dev.arn\n  vpc_config {\n    subnet_ids = var.vpc_subnet_ids_dev\n  }\n  tags = { Environment = \"dev\" }\n}\n\nresource \"aws_eks_node_group\" \"dev\" {\n  cluster_name    = aws_eks_cluster.dev.name\n  node_group_name = \"app-dev-nodes\"\n  node_role_arn   = aws_iam_role.node_dev.arn\n  subnet_ids      = var.vpc_subnet_ids_dev\n  desired_size    = 2\n  min_size        = 2\n  max_size        = 4\n  instance_types  = [\"t3.medium\"]\n}\n\nresource \"aws_s3_bucket\" \"dev\" {\n  bucket = \"app-assets-dev-${data.aws_caller_identity.current.account_id}\"\n}\n\nresource \"aws_s3_bucket_versioning\" \"dev\" {\n  bucket = aws_s3_bucket.dev.id\n  versioning_configuration { status = \"Enabled\" }\n}\n\nresource \"aws_s3_bucket_server_side_encryption_configuration\" \"dev\" {\n  bucket = aws_s3_bucket.dev.id\n  rule {\n    apply_server_side_encryption_by_default { sse_algorithm = \"AES256\" }\n  }\n}\n\nresource \"aws_db_instance\" \"dev\" {\n  identifier          = \"app-db-dev\"\n  engine              = \"postgres\"\n  engine_version      = \"15.4\"\n  instance_class      = \"db.t3.micro\"\n  allocated_storage   = 20\n  storage_type        = \"gp3\"\n  username            = \"postgres\"\n  password            = random_password.db_dev.result\n  multi_az            = false\n  backup_retention_period = 7\n  deletion_protection = true\n  publicly_accessible = false\n}\n\n# ... (identical structure for prod, just with prod suffix and different values)\n\nresource \"aws_eks_cluster\" \"prod\" {\n  name            = \"app-prod\"\n  version         = \"1.28\"\n  role_arn        = aws_iam_role.eks_prod.arn\n  vpc_config {\n    subnet_ids = var.vpc_subnet_ids_prod\n  }\n  tags = { Environment = \"prod\" }\n}\n\nresource \"aws_eks_node_group\" \"prod\" {\n  cluster_name    = aws_eks_cluster.prod.name\n  node_group_name = \"app-prod-nodes\"\n  node_role_arn   = aws_iam_role.node_prod.arn\n  subnet_ids      = var.vpc_subnet_ids_prod\n  desired_size    = 4\n  min_size        = 4\n  max_size        = 8\n  instance_types  = [\"t3.large\"]\n}\n\nresource \"aws_s3_bucket\" \"prod\" {\n  bucket = \"app-assets-prod-${data.aws_caller_identity.current.account_id}\"\n}\n\nresource \"aws_s3_bucket_versioning\" \"prod\" {\n  bucket = aws_s3_bucket.prod.id\n  versioning_configuration { status = \"Enabled\" }\n}\n\nresource \"aws_s3_bucket_server_side_encryption_configuration\" \"prod\" {\n  bucket = aws_s3_bucket.prod.id\n  rule {\n    apply_server_side_encryption_by_default { sse_algorithm = \"AES256\" }\n  }\n}\n\nresource \"aws_s3_bucket_replication_configuration\" \"prod\" {\n  bucket = aws_s3_bucket.prod.id\n  # ... cross-region replication to us-west-2\n}\n\nresource \"aws_db_instance\" \"prod\" {\n  identifier          = \"app-db-prod\"\n  engine              = \"postgres\"\n  engine_version      = \"15.4\"\n  instance_class      = \"db.t3.medium\"\n  allocated_storage   = 100\n  storage_type        = \"gp3\"\n  username            = \"postgres\"\n  password            = random_password.db_prod.result\n  multi_az            = true\n  backup_retention_period = 30\n  deletion_protection = true\n  storage_encrypted   = true\n  publicly_accessible = false\n}\n```\n\n---\n\n## After: Module-Based with for_each\n\n### 1. Module Directory Structure\n\n```\n\u251c\u2500\u2500 main.tf                    # Root module: defines for_each instantiation\n\u251c\u2500\u2500 modules/\n\u2502   \u2514\u2500\u2500 environment/\n\u2502       \u251c\u2500\u2500 main.tf            # EKS, S3, RDS resources\n\u2502       \u251c\u2500\u2500 variables.tf        # env-specific inputs\n\u2502       \u251c\u2500\u2500 outputs.tf          # resource references for root\n\u2502       \u2514\u2500\u2500 locals.tf           # computed values (e.g., naming)\n\u251c\u2500\u2500 prod.tfvars                # prod variable overrides\n\u2514\u2500\u2500 dev.tfvars                 # dev variable overrides\n```\n\n### 2. Root Module: main.tf\n\n```hcl\n# main.tf - root\n\nterraform {\n  required_version = \">= 1.3\"\n}\n\ndata \"aws_caller_identity\" \"current\" {}\n\nmodule \"environment\" {\n  for_each = toset([\"dev\", \"prod\"])\n\n  source = \"./modules/environment\"\n\n  environment              = each.key\n  eks_desired_size         = each.key == \"dev\" ? 2 : 4\n  eks_min_size             = each.key == \"dev\" ? 2 : 4\n  eks_max_size             = each.key == \"dev\" ? 4 : 8\n  eks_instance_type        = each.key == \"dev\" ? [\"t3.medium\"] : [\"t3.large\"]\n  rds_instance_class       = each.key == \"dev\" ? \"db.t3.micro\" : \"db.t3.medium\"\n  rds_allocated_storage    = each.key == \"dev\" ? 20 : 100\n  rds_multi_az             = each.key == \"dev\" ? false : true\n  rds_backup_retention     = each.key == \"dev\" ? 7 : 30\n  rds_storage_encrypted    = each.key == \"dev\" ? false : true\n  s3_enable_replication    = each.key == \"dev\" ? false : true\n  s3_replication_region    = \"us-west-2\"\n  vpc_subnet_ids           = var.vpc_subnet_ids[each.key]\n  db_password              = var.db_password[each.key]\n  aws_account_id           = data.aws_caller_identity.current.account_id\n}\n\n# ============================================================================\n# MIGRATION: moved blocks (keep until state migration confirmed, then remove)\n# ============================================================================\n\nmoved {\n  from = aws_eks_cluster.dev\n  to   = module.environment[\"dev\"].aws_eks_cluster.this\n}\n\nmoved {\n  from = aws_eks_node_group.dev\n  to   = module.environment[\"dev\"].aws_eks_node_group.this\n}\n\nmoved {\n  from = aws_s3_bucket.dev\n  to   = module.environment[\"dev\"].aws_s3_bucket.this\n}\n\nmoved {\n  from = aws_s3_bucket_versioning.dev\n  to   = module.environment[\"dev\"].aws_s3_bucket_versioning.this\n}\n\nmoved {\n  from = aws_s3_bucket_server_side_encryption_configuration.dev\n  to   = module.environment[\"dev\"].aws_s3_bucket_server_side_encryption_configuration.this\n}\n\nmoved {\n  from = aws_db_instance.dev\n  to   = module.environment[\"dev\"].aws_db_instance.this\n}\n\nmoved {\n  from = aws_eks_cluster.prod\n  to   = module.environment[\"prod\"].aws_eks_cluster.this\n}\n\nmoved {\n  from = aws_eks_node_group.prod\n  to   = module.environment[\"prod\"].aws_eks_node_group.this\n}\n\nmoved {\n  from = aws_s3_bucket.prod\n  to   = module.environment[\"prod\"].aws_s3_bucket.this\n}\n\nmoved {\n  from = aws_s3_bucket_versioning.prod\n  to   = module.environment[\"prod\"].aws_s3_bucket_versioning.this\n}\n\nmoved {\n  from = aws_s3_bucket_server_side_encryption_configuration.prod\n  to   = module.environment[\"prod\"].aws_s3_bucket_server_side_encryption_configuration.this\n}\n\nmoved {\n  from = aws_s3_bucket_replication_configuration.prod\n  to   = module.environment[\"prod\"].aws_s3_bucket_replication_configuration.this\n}\n\nmoved {\n  from = aws_db_instance.prod\n  to   = module.environment[\"prod\"].aws_db_instance.this\n}\n```\n\n### 3. Module: modules/environment/variables.tf\n\n```hcl\nvariable \"environment\" {\n  type        = string\n  description = \"Environment name: dev or prod\"\n  validation {\n    condition     = contains([\"dev\", \"prod\"], var.environment)\n    error_message = \"environment must be dev or prod\"\n  }\n}\n\nvariable \"eks_desired_size\" {\n  type    = number\n  default = 2\n}\n\nvariable \"eks_min_size\" {\n  type    = number\n  default = 2\n}\n\nvariable \"eks_max_size\" {\n  type    = number\n  default = 4\n}\n\nvariable \"eks_instance_type\" {\n  type    = list(string)\n  default = [\"t3.medium\"]\n}\n\nvariable \"rds_instance_class\" {\n  type    = string\n  default = \"db.t3.micro\"\n}\n\nvariable \"rds_allocated_storage\" {\n  type    = number\n  default = 20\n}\n\nvariable \"rds_multi_az\" {\n  type    = bool\n  default = false\n}\n\nvariable \"rds_backup_retention\" {\n  type    = number\n  default = 7\n}\n\nvariable \"rds_storage_encrypted\" {\n  type    = bool\n  default = false\n}\n\nvariable \"s3_enable_replication\" {\n  type    = bool\n  default = false\n}\n\nvariable \"s3_replication_region\" {\n  type    = string\n  default = \"us-west-2\"\n}\n\nvariable \"vpc_subnet_ids\" {\n  type    = list(string)\n  description = \"VPC subnet IDs for this environment\"\n}\n\nvariable \"db_password\" {\n  type      = string\n  sensitive = true\n  description = \"RDS master password (should come from AWS Secrets Manager in production)\"\n}\n\nvariable \"aws_account_id\" {\n  type    = string\n  description = \"AWS account ID for resource naming\"\n}\n```\n\n### 4. Module: modules/environment/locals.tf\n\n```hcl\nlocals {\n  common_tags = {\n    Environment = var.environment\n    ManagedBy   = \"Terraform\"\n    Module      = \"environment\"\n  }\n\n  s3_bucket_name = \"app-assets-${var.environment}-${var.aws_account_id}\"\n  db_identifier  = \"app-db-${var.environment}\"\n  eks_name       = \"app-${var.environment}\"\n}\n```\n\n### 5. Module: modules/environment/main.tf\n\n```hcl\n# ============================================================================\n# IAM Roles (simplified; expand as needed for OIDC, etc.)\n# ============================================================================\n\nresource \"aws_iam_role\" \"eks\" {\n  name = \"eks-cluster-${var.environment}\"\n\n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = {\n          Service = \"eks.amazonaws.com\"\n        }\n        Action = \"sts:AssumeRole\"\n      }\n    ]\n  })\n\n  tags = local.common_tags\n}\n\nresource \"aws_iam_role_policy_attachment\" \"eks\" {\n  role       = aws_iam_role.eks.name\n  policy_arn = \"arn:aws:iam::aws:policy/AmazonEKSClusterPolicy\"\n}\n\nresource \"aws_iam_role\" \"node\" {\n  name = \"eks-node-${var.environment}\"\n\n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = {\n          Service = \"ec2.amazonaws.com\"\n        }\n        Action = \"sts:AssumeRole\"\n      }\n    ]\n  })\n\n  tags = local.common_tags\n}\n\nresource \"aws_iam_role_policy_attachment\" \"node_cni\" {\n  role       = aws_iam_role.node.name\n  policy_arn = \"arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy\"\n}\n\nresource \"aws_iam_role_policy_attachment\" \"node_worker\" {\n  role       = aws_iam_role.node.name\n  policy_arn = \"arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy\"\n}\n\nresource \"aws_iam_role_policy_attachment\" \"node_ecr\" {\n  role       = aws_iam_role.node.name\n  policy_arn = \"arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly\"\n}\n\n# ============================================================================\n# EKS Cluster\n# ============================================================================\n\nresource \"aws_eks_cluster\" \"this\" {\n  name     = local.eks_name\n  version  = \"1.28\"\n  role_arn = aws_iam_role.eks.arn\n\n  vpc_config {\n    subnet_ids = var.vpc_subnet_ids\n  }\n\n  tags = local.common_tags\n\n  depends_on = [aws_iam_role_policy_attachment.eks]\n}\n\n# ============================================================================\n# EKS Node Group\n# ============================================================================\n\nresource \"aws_eks_node_group\" \"this\" {\n  cluster_name    = aws_eks_cluster.this.name\n  node_group_name = \"${local.eks_name}-nodes\"\n  node_role_arn   = aws_iam_role.node.arn\n  subnet_ids      = var.vpc_subnet_ids\n\n  desired_size   = var.eks_desired_size\n  min_size       = var.eks_min_size\n  max_size       = var.eks_max_size\n  instance_types = var.eks_instance_type\n\n  tags = local.common_tags\n\n  depends_on = [\n    aws_iam_role_policy_attachment.node_cni,\n    aws_iam_role_policy_attachment.node_worker,\n  ]\n}\n\n# ============================================================================\n# S3 Bucket (Application Assets)\n# ============================================================================\n\nresource \"aws_s3_bucket\" \"this\" {\n  bucket = local.s3_bucket_name\n\n  tags = local.common_tags\n}\n\nresource \"aws_s3_bucket_versioning\" \"this\" {\n  bucket = aws_s3_bucket.this.id\n\n  versioning_configuration {\n    status = \"Enabled\"\n  }\n}\n\nresource \"aws_s3_bucket_server_side_encryption_configuration\" \"this\" {\n  bucket = aws_s3_bucket.this.id\n\n  rule {\n    apply_server_side_encryption_by_default {\n      sse_algorithm = \"AES256\"\n    }\n  }\n}\n\nresource \"aws_s3_bucket_public_access_block\" \"this\" {\n  bucket = aws_s3_bucket.this.id\n\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}\n\n# Cross-region replication (prod only)\nresource \"aws_s3_bucket_replication_configuration\" \"this\" {\n  count = var.s3_enable_replication ? 1 : 0\n\n  bucket = aws_s3_bucket.this.id\n\n  role = aws_iam_role.s3_replication[0].arn\n\n  rule {\n    id     = \"replicate-all\"\n    status = \"Enabled\"\n\n    destination {\n      bucket       = aws_s3_bucket.replica[0].arn\n      storage_class = \"STANDARD\"\n    }\n  }\n\n  depends_on = [aws_s3_bucket_versioning.this]\n}\n\nresource \"aws_s3_bucket\" \"replica\" {\n  count    = var.s3_enable_replication ? 1 : 0\n  bucket   = \"${local.s3_bucket_name}-replica-${var.s3_replication_region}\"\n  provider = aws.replica\n\n  tags = merge(local.common_tags, { Role = \"replica\" })\n}\n\nresource \"aws_s3_bucket_versioning\" \"replica\" {\n  count    = var.s3_enable_replication ? 1 : 0\n  bucket   = aws_s3_bucket.replica[0].id\n  provider = aws.replica\n\n  versioning_configuration {\n    status = \"Enabled\"\n  }\n}\n\nresource \"aws_iam_role\" \"s3_replication\" {\n  count = var.s3_enable_replication ? 1 : 0\n  name  = \"s3-replication-${var.environment}\"\n\n  assume_role_policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Principal = {\n          Service = \"s3.amazonaws.com\"\n        }\n        Action = \"sts:AssumeRole\"\n      }\n    ]\n  })\n}\n\nresource \"aws_iam_role_policy\" \"s3_replication\" {\n  count  = var.s3_enable_replication ? 1 : 0\n  name   = \"s3-replication-policy-${var.environment}\"\n  role   = aws_iam_role.s3_replication[0].id\n  policy = jsonencode({\n    Version = \"2012-10-17\"\n    Statement = [\n      {\n        Effect = \"Allow\"\n        Action = [\n          \"s3:GetReplicationConfiguration\",\n          \"s3:ListBucket\",\n        ]\n        Resource = aws_s3_bucket.this.arn\n      },\n      {\n        Effect = \"Allow\"\n        Action = [\n          \"s3:GetObjectVersionForReplication\",\n          \"s3:GetObjectVersionAcl\",\n        ]\n        Resource = \"${aws_s3_bucket.this.arn}/*\"\n      },\n      {\n        Effect = \"Allow\"\n        Action = [\n          \"s3:ReplicateObject\",\n          \"s3:ReplicateDelete\",\n        ]\n        Resource = \"${aws_s3_bucket.replica[0].arn}/*\"\n      }\n    ]\n  })\n}\n\n# ============================================================================\n# RDS PostgreSQL Instance\n# ============================================================================\n\nresource \"aws_db_instance\" \"this\" {\n  identifier          = local.db_identifier\n  engine              = \"postgres\"\n  engine_version      = \"15.4\"\n  instance_class      = var.rds_instance_class\n  allocated_storage   = var.rds_allocated_storage\n  storage_type        = \"gp3\"\n  username            = \"postgres\"\n  password            = var.db_password\n  multi_az            = var.rds_multi_az\n  storage_encrypted   = var.rds_storage_encrypted\n  backup_retention_period = var.rds_backup_retention\n  deletion_protection = true\n  publicly_accessible = false\n  skip_final_snapshot = var.environment == \"dev\" ? true : false\n\n  tags = local.common_tags\n}\n```\n\n### 6. Module: modules/environment/outputs.tf\n\n```hcl\noutput \"eks_cluster_name\" {\n  value       = aws_eks_cluster.this.name\n  description = \"EKS cluster name\"\n}\n\noutput \"eks_cluster_arn\" {\n  value       = aws_eks_cluster.this.arn\n  description = \"EKS cluster ARN\"\n}\n\noutput \"s3_bucket_name\" {\n  value       = aws_s3_bucket.this.id\n  description = \"S3 bucket name for application assets\"\n}\n\noutput \"rds_endpoint\" {\n  value       = aws_db_instance.this.endpoint\n  description = \"RDS database endpoint\"\n}\n\noutput \"rds_address\" {\n  value       = aws_db_instance.this.address\n  description = \"RDS database address (hostname only)\"\n}\n```\n\n---\n\n## Variable Files\n\n### dev.tfvars\n\n```hcl\nvpc_subnet_ids = {\n  dev  = [\"subnet-dev-1\", \"subnet-dev-2\"]\n  prod = [\"subnet-prod-1\", \"subnet-prod-2\"]\n}\n\ndb_password = {\n  dev  = \"dev-password-from-secrets\"   # Use AWS Secrets Manager or env var\n  prod = \"prod-password-from-secrets\"\n}\n```\n\n### prod.tfvars (if overriding specific values)\n\n```hcl\n# Most values come from root main.tf for_each logic; this file is optional\n# unless you need further prod-only config\n```\n\n---\n\n## Migration Steps (Zero-Diff)\n\n1. **Backup state**:\n   ```bash\n   terraform state pull > terraform.tfstate.backup\n   ```\n\n2. **Replace root `main.tf`** with the refactored version (including `moved` blocks).\n\n3. **Review the plan** (should show only state updates, no resource changes):\n   ```bash\n   terraform plan -var-file dev.tfvars\n   terraform plan -var-file prod.tfvars\n   ```\n   \u2705 **Expected output**: \"No changes. Infrastructure is up-to-date.\"  \n   (or state migration messages, but NO resource destroy/create)\n\n4. **Apply**:\n   ```bash\n   terraform apply -var-file dev.tfvars\n   terraform apply -var-file prod.tfvars\n   ```\n\n5. **Verify state**:\n   ```bash\n   terraform state list\n   ```\n   You should see:\n   ```\n   module.environment[\"dev\"].aws_eks_cluster.this\n   module.environment[\"dev\"].aws_eks_node_group.this\n   module.environment[\"dev\"].aws_s3_bucket.this\n   ...\n   module.environment[\"prod\"].aws_eks_cluster.this\n   ...\n   ```\n\n6. **Remove `moved` blocks** from `main.tf` (they're one-time use):\n   ```hcl\n   # Delete the entire \"MIGRATION\" section\n   ```\n\n7. **Final apply** to confirm no diffs:\n   ```bash\n   terraform apply -var-file dev.tfvars\n   ```\n\n---\n\n## Key Advantages\n\n| Aspect | Benefit |\n|--------|---------|\n| **DRY** | Single source of truth; reduce copy-paste bugs |\n| **Scalability** | Adding a third environment (`staging`) requires one line in root `main.tf` |\n| **Maintainability** | Bug fix in module is applied to all environments automatically |\n| **Zero-diff migration** | `moved` blocks prevent destruction/recreation; audit trail intact |\n| **Independent deployments** | Each env can have separate tfvars and state file; changes to prod don't affect dev |\n\n---\n\n## Notes on Secrets\n\nIn production, **never hardcode passwords** in `.tfvars`. Use:\n- **AWS Secrets Manager**: Fetch via `data.aws_secretsmanager_secret_version`\n- **Environment variables**: `var.db_password = sensitive(var.db_password)`\n- **SOPS**: Encrypt `.tfvars` with SOPS, decrypt at CI/CD time\n- **Terraform Cloud/Enterprise**: Use workspace variables or sensitive remote state\n\nFor the canonical spec's SOPS integration:\n```hcl\n# In a shared module or root:\nlocals {\n  secrets = yamldecode(\n    file(\"${path.root}/secrets.${var.environment}.yaml\")\n  )\n}\n# secrets.dev.yaml and secrets.prod.yaml are SOPS-encrypted\n```\n\n---\n\nThis refactoring is **idiomatically Terraform**, uses `for_each` for flexibility, and ensures zero-diff state migration through `moved` blocks.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_0.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_1.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_2.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_3.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_4.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_5.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_6.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_7.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/main.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_9.tf",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-terraform-5rbh4fve/generated_10.tf"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 18934,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 18934,
+      "fenced_blocks": 17,
+      "extracted_files": 12,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# ACK s3-controller Bucket (s3.services.k8s.aws) - versioning, SSE, and the
+# public-access block are all fields on the single Bucket CR; there's no
+# separate BucketPublicAccessBlock kind in this controller.
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  name: myapp-assets-dev
+  namespace: infra
+spec:
+  name: myapp-assets-dev
+  versioning:
+    status: Enabled
+  encryption:
+    rules:
+      - applyServerSideEncryptionByDefault:
+          sseAlgorithm: AES256
+  publicAccessBlock:
+    blockPublicACLs: true
+    blockPublicPolicy: true
+    ignorePublicACLs: true
+    restrictPublicBuckets: true

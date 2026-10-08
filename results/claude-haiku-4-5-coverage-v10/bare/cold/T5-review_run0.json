@@ -1,0 +1,169 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "bare",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "2b3940fbd51e98f3",
+      "spec_sha256": "debfcea6b8aad5d9",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1807,
+    "output": 2483
+  },
+  "content": "# Security Review: PR Diff Analysis\n\n## Issues Found\n\n### 1. **CRITICAL: Plaintext Production Password Committed to Git**\n- **File/Field**: `prod/db-secret.yaml` \u2192 `stringData.password`\n- **The Issue**: A real production database password (`\"Summer2026!Prod#db\"`) is being directly committed to version control in plaintext. Git history is permanent; any past or current repo access reveals production credentials. The placeholder text suggests this was never intended to be committed.\n- **What to Change**: Remove the plaintext value entirely. Use an out-of-band secret injection mechanism:\n  - Remove the `stringData.password` field entirely, or\n  - Replace with a reference to an external secret store (SOPS, ExternalSecrets operator, Sealed Secrets, AWS Secrets Manager via External Secrets, etc.)\n  - The placeholder `\"REPLACE_OUT_OF_BAND_NEVER_COMMIT_REAL_VALUE\"` should have been left as-is, with the secret injected at deployment time\n  - **Acceptance Criteria Violated**: *\"Secret: never stored in plaintext in Git\"*\n\n---\n\n### 2. **CRITICAL: Production RDS Instance Made Publicly Accessible**\n- **File/Field**: `prod/rds.yaml` \u2192 `spec.publiclyAccessible`\n- **The Issue**: Changing from `false` \u2192 `true` exposes a production PostgreSQL database directly to the internet. Any attacker with network access can attempt brute-force authentication.\n- **What to Change**: Revert to `publiclyAccessible: false`. Database access should be restricted to the VPC or via private endpoint.\n- **Acceptance Criteria Violated**: *\"RDS: no publicly accessible\"*\n\n---\n\n### 3. **HIGH: RDS Deletion Protection Disabled**\n- **File/Field**: `prod/rds.yaml` \u2192 `spec.deletionProtection`\n- **The Issue**: Changing from `true` \u2192 `false` removes a critical safety guardrail. A misconfigured `kubectl delete` or Helm uninstall could permanently destroy the production database.\n- **What to Change**: Revert to `deletionProtection: true`.\n- **Acceptance Criteria Violated**: *\"RDS: deletion protection on\"*\n\n---\n\n### 4. **HIGH: S3 Bucket Made Publicly Readable**\n- **File/Field**: `prod/s3-bucket.yaml` \u2192 `spec.policy` (new wildcard policy)\n- **The Issue**: Removing `publicAccessBlock` and adding an S3 bucket policy that grants `s3:GetObject` to `Principal: \"*\"` makes all application assets publicly readable. The policy replaces a deny-all stance with allow-all for GetObject.\n- **What to Change**: \n  - Remove the wildcard policy, OR\n  - Restore the `publicAccessBlock` configuration (which was correct), OR\n  - If public asset delivery is truly required, use CloudFront (mentioned in canonical scenario) as the public interface, with the bucket remaining private\n- **Acceptance Criteria Violated**: *\"Bucket: no public access\"*\n\n---\n\n### 5. **MEDIUM: Resource Requests and Limits Removed**\n- **File/Field**: `prod/app.yaml` \u2192 `spec.containers[0].resources`\n- **The Issue**: Removing `requests` and `limits` means the pod has no guaranteed CPU/memory allocation and can consume unbounded resources. This degrades cluster stability and can trigger node pressure evictions.\n- **What to Change**: Restore resource requests and limits. Tune values for the larger prod instance type (t3.large has more capacity than dev's t3.medium); suggested starting point: `requests: {cpu: 200m, memory: 256Mi}`, `limits: {cpu: 1000m, memory: 512Mi}` (scale as needed).\n\n---\n\n## **Ranked by Severity (Worst First)**\n\n| Rank | Severity | Issue | File | Action |\n|------|----------|-------|------|--------|\n| 1 | **CRITICAL** | Plaintext DB password in Git | `prod/db-secret.yaml` | Remove plaintext value; use external secret injection |\n| 2 | **CRITICAL** | RDS publicly accessible | `prod/rds.yaml` | Revert `publiclyAccessible: false` |\n| 3 | **HIGH** | RDS deletion protection off | `prod/rds.yaml` | Revert `deletionProtection: true` |\n| 4 | **HIGH** | S3 bucket publicly readable | `prod/s3-bucket.yaml` | Remove wildcard policy; restore `publicAccessBlock` |\n| 5 | **MEDIUM** | No resource limits | `prod/app.yaml` | Restore/define `resources.requests` and `resources.limits` |\n\n---\n\n## **Recommendation**\n\n**Do not merge.** This PR introduces multiple critical security violations that violate the acceptance criteria and expose production infrastructure to data breach, data loss, and denial of service. All five issues must be resolved before approval.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4328,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 4328,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.9166666666666666,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies the plaintext database password committed to prod/db-secret.yaml, replacing the documented out-of-band placeholder",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Correctly identifies plaintext password 'Summer2026!Prod#db' in prod/db-secret.yaml replacing the documented REPLACE_OUT_OF_BAND placeholder; explains Git history permanence and recommends out-of-band injection."
+      },
+      {
+        "criterion": "Identifies that prod/s3-bucket.yaml removes the public access block and adds a bucket policy granting s3:GetObject to Principal '*' (public read exposure)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Correctly identifies both removal of publicAccessBlock and addition of bucket policy granting s3:GetObject to Principal '*' in prod/s3-bucket.yaml; explains public read exposure clearly."
+      },
+      {
+        "criterion": "Identifies that prod/rds.yaml sets publiclyAccessible: true and deletionProtection: false on the production database",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correctly identifies both publiclyAccessible: true and deletionProtection: false changes in prod/rds.yaml with accurate impact assessment for each."
+      },
+      {
+        "criterion": "Identifies that prod/app.yaml drops the container's resource requests/limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Correctly identifies removal of resource requests/limits from prod/app.yaml container spec and explains unbounded resource consumption risk."
+      },
+      {
+        "criterion": "Ranks the four issues by severity in an order consistent with: plaintext password and public bucket as the most severe, RDS exposure next, missing resource limits least severe",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Ranking order is inconsistent with criterion: S3 bucket ranked 4th but should be in top tier with plaintext password as CRITICAL; RDS issues ranked above S3 bucket contrary to specified hierarchy."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this')",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides specific concrete fixes: external secret stores with names (SOPS, ExternalSecrets, Sealed Secrets), explicit config reversions, and concrete resource values (cpu: 200m, memory: 256Mi, limits: 1000m/512Mi)."
+      }
+    ]
+  }
+}

@@ -4,557 +4,430 @@ metadata:
   name: aws-web-service-composition
   labels:
     provider: aws
-    environment: "*"
+    environment: '*'
 spec:
-  type: XAWSWebService
   mode: Pipeline
   compositeTypeRef:
     apiVersion: composite.example.com/v1
     kind: XAWSWebService
   pipeline:
-    # ──────────────────────────────────────────────────────
-    # Step 1: Patch and Transform — creates and configures resources
-    # ──────────────────────────────────────────────────────
-    - function: xpkg.upbound.io/crossplane/function-patch-and-transform:v0.2.0
-      input:
-        apiVersion: ptFunctions.crossplane.io/v1beta1
-        kind: Resources
-        resources:
-          # ──────────────────────────────────────────────────────
-          # 1. KMS Key — for bucket and secret encryption
-          # ──────────────────────────────────────────────────────
-          - name: kms-key
-            base:
-              apiVersion: kms.aws.upbound.io/v1beta1
-              kind: Key
-              metadata:
-                labels:
-                  purpose: web-service-encryption
-              spec:
-                forProvider:
-                  description: KMS key for web service encryption
-                  enableKeyRotation: true
-                  keyPolicy: |
-                    {
-                      "Version": "2012-10-17",
-                      "Statement": [
-                        {
-                          "Sid": "EnableRootAccess",
-                          "Effect": "Allow",
-                          "Principal": {"AWS": "*"},
-                          "Action": "kms:*",
-                          "Resource": "*"
-                        }
-                      ]
-                    }
-                  tags:
-                    managed-by: crossplane
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.environment
-                toFieldPath: metadata.labels.environment
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - type: ToFieldPath
-                fromFieldPath: spec.environment
-                toFieldPath: spec.forProvider.description
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "KMS key for web service — %s environment"
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 2. S3 Bucket — application assets (versioned, encrypted)
-          # ──────────────────────────────────────────────────────
-          - name: s3-bucket
-            base:
-              apiVersion: s3.aws.upbound.io/v1beta1
-              kind: Bucket
-              metadata:
-                labels:
-                  purpose: web-assets
-              spec:
-                forProvider:
-                  tags:
-                    managed-by: crossplane
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.environment
-                toFieldPath: metadata.labels.environment
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.bucket
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 3. S3 Bucket Versioning
-          # ──────────────────────────────────────────────────────
-          - name: s3-bucket-versioning
-            base:
-              apiVersion: s3.aws.upbound.io/v1beta1
-              kind: BucketVersioning
-              metadata: {}
-              spec:
-                forProvider:
-                  status: Enabled
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.bucketName
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-            dependsOn:
-              - name: s3-bucket
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 4. S3 Public Access Block (no public access)
-          # ──────────────────────────────────────────────────────
-          - name: s3-public-access-block
-            base:
-              apiVersion: s3.aws.upbound.io/v1beta1
-              kind: BucketPublicAccessBlock
-              metadata: {}
-              spec:
-                forProvider:
-                  blockPublicAcls: true
-                  blockPublicPolicy: true
-                  ignorePublicAcls: true
-                  restrictPublicBuckets: true
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.bucket
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-            dependsOn:
-              - name: s3-bucket
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 5. S3 Bucket Encryption Configuration
-          # ──────────────────────────────────────────────────────
-          - name: s3-bucket-encryption
-            base:
-              apiVersion: s3.aws.upbound.io/v1beta1
-              kind: BucketEncryption
-              metadata: {}
-              spec:
-                forProvider:
-                  serverSideEncryptionConfiguration:
-                    - sseAlgorithm: AES256
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.bucket
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-            dependsOn:
-              - name: s3-bucket
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 6. DB Subnet Group — for RDS placement
-          # ──────────────────────────────────────────────────────
-          - name: db-subnet-group
-            base:
-              apiVersion: rds.aws.upbound.io/v1beta1
-              kind: DBSubnetGroup
-              metadata:
-                labels:
-                  purpose: web-service
-              spec:
-                forProvider:
-                  description: DB subnet group for web service
-                  subnetIds: []
-                  tags:
-                    managed-by: crossplane
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.environment
-                toFieldPath: metadata.labels.environment
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.vpc.subnetIds
-                toFieldPath: spec.forProvider.subnetIds
-              - type: ToFieldPath
-                fromFieldPath: spec.environment
-                toFieldPath: spec.forProvider.name
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "web-service-%s"
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 7. RDS PostgreSQL Instance
-          # ──────────────────────────────────────────────────────
-          - name: rds-instance
-            base:
-              apiVersion: rds.aws.upbound.io/v1beta1
-              kind: Database
-              metadata:
-                labels:
-                  purpose: web-service
-              spec:
-                forProvider:
-                  allocatedStorage: 20
-                  engine: postgres
-                  engineVersion: "16"
-                  instanceClass: db.t3.micro
-                  deletionProtection: true
-                  publiclyAccessible: false
-                  backupRetentionPeriod: 7
-                  backupWindow: "04:00-05:00"
-                  maintenanceWindow: "Mon:05:00-Mon:06:00"
-                  multiAZ: false
-                  storageEncrypted: false
-                  tags:
-                    managed-by: crossplane
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.environment
-                toFieldPath: metadata.labels.environment
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.database.instanceClass
-                toFieldPath: spec.forProvider.instanceClass
-              - fromFieldPath: spec.database.allocatedStorage
-                toFieldPath: spec.forProvider.allocatedStorage
-              - fromFieldPath: spec.database.multiAZ
-                toFieldPath: spec.forProvider.multiAZ
-              - fromFieldPath: spec.database.backupRetentionDays
-                toFieldPath: spec.forProvider.backupRetentionPeriod
-              - fromFieldPath: spec.database.deletionProtection
-                toFieldPath: spec.forProvider.deletionProtection
-              - fromFieldPath: spec.database.engineVersion
-                toFieldPath: spec.forProvider.engineVersion
-              - type: ToFieldPath
-                fromFieldPath: spec.environment
-                toFieldPath: spec.forProvider.dbInstanceIdentifier
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "web-service-%s"
-              - type: ToFieldPath
-                fromFieldPath: spec.environment
-                toFieldPath: spec.forProvider.dbSubnetGroupName
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "web-service-%s"
-              # Enable storage encryption for prod
-              - fromFieldPath: spec.environment
-                toFieldPath: spec.forProvider.storageEncrypted
-                transforms:
-                  - type: string
-                    string:
-                      str: "prod"
-                      result: "true"
-                      elseResult: "false"
-            dependsOn:
-              - name: db-subnet-group
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 8. IAM Role — service account
-          # ──────────────────────────────────────────────────────
-          - name: iam-role
-            base:
-              apiVersion: iam.aws.upbound.io/v1beta1
-              kind: Role
-              metadata:
-                labels:
-                  purpose: web-service
-              spec:
-                forProvider:
-                  assumeRolePolicy: |
-                    {
-                      "Version": "2012-10-17",
-                      "Statement": [
-                        {
-                          "Effect": "Allow",
-                          "Principal": {"AWS": "*"},
-                          "Action": "sts:AssumeRole"
-                        }
-                      ]
-                    }
-                  tags:
-                    managed-by: crossplane
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.environment
-                toFieldPath: metadata.labels.environment
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.iam.roleName
-                toFieldPath: spec.forProvider.roleName
-              - fromFieldPath: spec.iam.oidcProviderArn
-                toFieldPath: spec.forProvider.assumeRolePolicy
-                transforms:
-                  - type: string
-                    string:
-                      fmt: |
-                        {
-                          "Version": "2012-10-17",
-                          "Statement": [
-                            {
-                              "Effect": "Allow",
-                              "Principal": {"Federated": "%s"},
-                              "Action": "sts:AssumeRoleWithWebIdentity",
-                              "Condition": {"StringEquals": {"%s:sub": "system:serviceaccount:*:*"}}
-                            }
-                          ]
-                        }
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 9. IAM Policy — least privilege (scoped resources)
-          # ──────────────────────────────────────────────────────
-          - name: iam-policy
-            base:
-              apiVersion: iam.aws.upbound.io/v1beta1
-              kind: Policy
-              metadata:
-                labels:
-                  purpose: web-service
-              spec:
-                forProvider:
-                  tags:
-                    managed-by: crossplane
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.environment
-                toFieldPath: metadata.labels.environment
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.iam.roleName
-                toFieldPath: spec.forProvider.policyName
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-permissions"
-              - type: FromFieldPath
-                fromFieldPath: spec.iam.roleName
-                toFieldPath: spec.forProvider.policy
-                transforms:
-                  - type: string
-                    string:
-                      fmt: |
-                        {
-                          "Version": "2012-10-17",
-                          "Statement": [
-                            {
-                              "Sid": "S3Access",
-                              "Effect": "Allow",
-                              "Action": ["s3:GetObject", "s3:PutObject", "s3:ListBucket"],
-                              "Resource": ["arn:aws:s3:::web-assets-%s", "arn:aws:s3:::web-assets-%s/*"]
-                            },
-                            {
-                              "Sid": "RDSAccess",
-                              "Effect": "Allow",
-                              "Action": ["rds:DescribeDBInstances"],
-                              "Resource": "arn:aws:rds:*:*:db:web-service-%s"
-                            },
-                            {
-                              "Sid": "KMSAccess",
-                              "Effect": "Allow",
-                              "Action": ["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"],
-                              "Resource": "*"
-                            }
-                          ]
-                        }
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 10. IAM Role Policy Attachment
-          # ──────────────────────────────────────────────────────
-          - name: iam-role-policy-attachment
-            base:
-              apiVersion: iam.aws.upbound.io/v1beta1
-              kind: RolePolicyAttachment
-              metadata: {}
-              spec:
-                forProvider: {}
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.iam.roleName
-                toFieldPath: spec.forProvider.roleName
-              - fromFieldPath: spec.iam.roleName
-                toFieldPath: spec.forProvider.policyArn
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-permissions"
-            dependsOn:
-              - name: iam-policy
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 11. S3 Replication Destination Bucket (prod only)
-          # ──────────────────────────────────────────────────────
-          - name: s3-replication-destination
-            base:
-              apiVersion: s3.aws.upbound.io/v1beta1
-              kind: Bucket
-              metadata:
-                labels:
-                  purpose: replication-destination
-              spec:
-                forProvider:
-                  tags:
-                    managed-by: crossplane
-                    replication-destination: "true"
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.secondaryProviderConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.bucket
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s-replica"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-              - fromFieldPath: spec.environment
-                toFieldPath: metadata.labels.environment
-            options:
-              skip:
-                policy: Never
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 12. S3 Replication Destination Versioning
-          # ──────────────────────────────────────────────────────
-          - name: s3-replication-destination-versioning
-            base:
-              apiVersion: s3.aws.upbound.io/v1beta1
-              kind: BucketVersioning
-              metadata: {}
-              spec:
-                forProvider:
-                  status: Enabled
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.secondaryProviderConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.bucketName
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s-replica"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-            dependsOn:
-              - name: s3-replication-destination
-            options:
-              skip:
-                policy: Never
-            readyCondition: True
-
-          # ──────────────────────────────────────────────────────
-          # 13. S3 Replication Configuration (prod only)
-          # ──────────────────────────────────────────────────────
-          - name: s3-replication-config
-            base:
-              apiVersion: s3.aws.upbound.io/v1beta1
-              kind: BucketReplicationConfiguration
-              metadata: {}
-              spec:
-                forProvider:
-                  replicationRules:
-                    - status: Enabled
-                      destination:
-                        storageClass: STANDARD
-                managementPolicy: Observe
-            patches:
-              - fromFieldPath: metadata.annotations
-                toFieldPath: metadata.annotations
-              - fromFieldPath: spec.providerConfigName
-                toFieldPath: spec.providerConfigReference.name
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.bucket
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-              - fromFieldPath: spec.bucket.name
-                toFieldPath: spec.forProvider.replicationRules.0.destination.bucket
-                transforms:
-                  - type: string
-                    string:
-                      fmt: "%s-%s-replica"
-                      inputs:
-                        - fromFieldPath: spec.bucket.name
-                        - fromFieldPath: spec.environment
-            dependsOn:
-              - name: s3-bucket
-              - name: s3-replication-destination
-              - name: s3-replication-destination-versioning
-            options:
-              skip:
-                policy: Never
-            readyCondition: True
+  - step: patch-and-transform
+    functionRef:
+      name: function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - name: kms-key
+        base:
+          apiVersion: kms.aws.upbound.io/v1beta1
+          kind: Key
+          metadata:
+            labels:
+              purpose: web-service-encryption
+          spec:
+            forProvider:
+              description: KMS key for web service encryption
+              enableKeyRotation: true
+              keyPolicy: "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\"\
+                : \"EnableRootAccess\",\n      \"Effect\": \"Allow\",\n      \"Principal\": {\"AWS\":\
+                \ \"*\"},\n      \"Action\": \"kms:*\",\n      \"Resource\": \"*\"\n    }\n  ]\n}\n"
+              tags:
+                managed-by: crossplane
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.environment
+          toFieldPath: metadata.labels.environment
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.environment
+          toFieldPath: spec.forProvider.description
+          transforms:
+          - type: string
+            string:
+              fmt: "KMS key for web service \u2014 %s environment"
+              type: Format
+      - name: s3-bucket
+        base:
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: Bucket
+          metadata:
+            labels:
+              purpose: web-assets
+          spec:
+            forProvider:
+              tags:
+                managed-by: crossplane
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.environment
+          toFieldPath: metadata.labels.environment
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s'
+          toFieldPath: spec.forProvider.bucket
+      - name: s3-bucket-versioning
+        base:
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: BucketVersioning
+          metadata: {}
+          spec:
+            forProvider:
+              status: Enabled
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s'
+          toFieldPath: spec.forProvider.bucketName
+      - name: s3-public-access-block
+        base:
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: BucketPublicAccessBlock
+          metadata: {}
+          spec:
+            forProvider:
+              blockPublicAcls: true
+              blockPublicPolicy: true
+              ignorePublicAcls: true
+              restrictPublicBuckets: true
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s'
+          toFieldPath: spec.forProvider.bucket
+      - name: s3-bucket-encryption
+        base:
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: BucketEncryption
+          metadata: {}
+          spec:
+            forProvider:
+              serverSideEncryptionConfiguration:
+              - sseAlgorithm: AES256
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s'
+          toFieldPath: spec.forProvider.bucket
+      - name: db-subnet-group
+        base:
+          apiVersion: rds.aws.upbound.io/v1beta1
+          kind: DBSubnetGroup
+          metadata:
+            labels:
+              purpose: web-service
+          spec:
+            forProvider:
+              description: DB subnet group for web service
+              subnetIds: []
+              tags:
+                managed-by: crossplane
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.environment
+          toFieldPath: metadata.labels.environment
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - fromFieldPath: spec.vpc.subnetIds
+          toFieldPath: spec.forProvider.subnetIds
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.environment
+          toFieldPath: spec.forProvider.name
+          transforms:
+          - type: string
+            string:
+              fmt: web-service-%s
+              type: Format
+      - name: rds-instance
+        base:
+          apiVersion: rds.aws.upbound.io/v1beta1
+          kind: Database
+          metadata:
+            labels:
+              purpose: web-service
+          spec:
+            forProvider:
+              allocatedStorage: 20
+              engine: postgres
+              engineVersion: '16'
+              instanceClass: db.t3.micro
+              deletionProtection: true
+              publiclyAccessible: false
+              backupRetentionPeriod: 7
+              backupWindow: 04:00-05:00
+              maintenanceWindow: Mon:05:00-Mon:06:00
+              multiAZ: false
+              storageEncrypted: false
+              tags:
+                managed-by: crossplane
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.environment
+          toFieldPath: metadata.labels.environment
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - fromFieldPath: spec.database.instanceClass
+          toFieldPath: spec.forProvider.instanceClass
+        - fromFieldPath: spec.database.allocatedStorage
+          toFieldPath: spec.forProvider.allocatedStorage
+        - fromFieldPath: spec.database.multiAZ
+          toFieldPath: spec.forProvider.multiAZ
+        - fromFieldPath: spec.database.backupRetentionDays
+          toFieldPath: spec.forProvider.backupRetentionPeriod
+        - fromFieldPath: spec.database.deletionProtection
+          toFieldPath: spec.forProvider.deletionProtection
+        - fromFieldPath: spec.database.engineVersion
+          toFieldPath: spec.forProvider.engineVersion
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.environment
+          toFieldPath: spec.forProvider.dbInstanceIdentifier
+          transforms:
+          - type: string
+            string:
+              fmt: web-service-%s
+              type: Format
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.environment
+          toFieldPath: spec.forProvider.dbSubnetGroupName
+          transforms:
+          - type: string
+            string:
+              fmt: web-service-%s
+              type: Format
+        - fromFieldPath: spec.environment
+          toFieldPath: spec.forProvider.storageEncrypted
+          transforms:
+          - type: map
+            map:
+              prod: 'true'
+              dev: 'false'
+      - name: iam-role
+        base:
+          apiVersion: iam.aws.upbound.io/v1beta1
+          kind: Role
+          metadata:
+            labels:
+              purpose: web-service
+          spec:
+            forProvider:
+              assumeRolePolicy: "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"\
+                Effect\": \"Allow\",\n      \"Principal\": {\"AWS\": \"*\"},\n      \"Action\": \"sts:AssumeRole\"\
+                \n    }\n  ]\n}\n"
+              tags:
+                managed-by: crossplane
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.environment
+          toFieldPath: metadata.labels.environment
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - fromFieldPath: spec.iam.roleName
+          toFieldPath: spec.forProvider.roleName
+        - fromFieldPath: spec.iam.oidcProviderArn
+          toFieldPath: spec.forProvider.assumeRolePolicy
+          transforms:
+          - type: string
+            string:
+              fmt: "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"\
+                Allow\",\n      \"Principal\": {\"Federated\": \"%s\"},\n      \"Action\": \"sts:AssumeRoleWithWebIdentity\"\
+                ,\n      \"Condition\": {\"StringEquals\": {\"%s:sub\": \"system:serviceaccount:*:*\"\
+                }}\n    }\n  ]\n}\n"
+              type: Format
+      - name: iam-policy
+        base:
+          apiVersion: iam.aws.upbound.io/v1beta1
+          kind: Policy
+          metadata:
+            labels:
+              purpose: web-service
+          spec:
+            forProvider:
+              tags:
+                managed-by: crossplane
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.environment
+          toFieldPath: metadata.labels.environment
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - fromFieldPath: spec.iam.roleName
+          toFieldPath: spec.forProvider.policyName
+          transforms:
+          - type: string
+            string:
+              fmt: '%s-permissions'
+              type: Format
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.iam.roleName
+          toFieldPath: spec.forProvider.policy
+          transforms:
+          - type: string
+            string:
+              fmt: "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"S3Access\"\
+                ,\n      \"Effect\": \"Allow\",\n      \"Action\": [\"s3:GetObject\", \"s3:PutObject\"\
+                , \"s3:ListBucket\"],\n      \"Resource\": [\"arn:aws:s3:::web-assets-%s\", \"arn:aws:s3:::web-assets-%s/*\"\
+                ]\n    },\n    {\n      \"Sid\": \"RDSAccess\",\n      \"Effect\": \"Allow\",\n      \"\
+                Action\": [\"rds:DescribeDBInstances\"],\n      \"Resource\": \"arn:aws:rds:*:*:db:web-service-%s\"\
+                \n    },\n    {\n      \"Sid\": \"KMSAccess\",\n      \"Effect\": \"Allow\",\n      \"\
+                Action\": [\"kms:Decrypt\", \"kms:GenerateDataKey\", \"kms:DescribeKey\"],\n      \"Resource\"\
+                : \"*\"\n    }\n  ]\n}\n"
+              type: Format
+      - name: iam-role-policy-attachment
+        base:
+          apiVersion: iam.aws.upbound.io/v1beta1
+          kind: RolePolicyAttachment
+          metadata: {}
+          spec:
+            forProvider: {}
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - fromFieldPath: spec.iam.roleName
+          toFieldPath: spec.forProvider.roleName
+        - fromFieldPath: spec.iam.roleName
+          toFieldPath: spec.forProvider.policyArn
+          transforms:
+          - type: string
+            string:
+              fmt: '%s-permissions'
+              type: Format
+      - name: s3-replication-destination
+        base:
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: Bucket
+          metadata:
+            labels:
+              purpose: replication-destination
+          spec:
+            forProvider:
+              tags:
+                managed-by: crossplane
+                replication-destination: 'true'
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.secondaryProviderConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s-replica'
+          toFieldPath: spec.forProvider.bucket
+        - fromFieldPath: spec.environment
+          toFieldPath: metadata.labels.environment
+      - name: s3-replication-destination-versioning
+        base:
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: BucketVersioning
+          metadata: {}
+          spec:
+            forProvider:
+              status: Enabled
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.secondaryProviderConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s-replica'
+          toFieldPath: spec.forProvider.bucketName
+      - name: s3-replication-config
+        base:
+          apiVersion: s3.aws.upbound.io/v1beta1
+          kind: BucketReplicationConfiguration
+          metadata: {}
+          spec:
+            forProvider:
+              replicationRules:
+              - status: Enabled
+                destination:
+                  storageClass: STANDARD
+            managementPolicy: Observe
+        patches:
+        - fromFieldPath: metadata.annotations
+          toFieldPath: metadata.annotations
+        - fromFieldPath: spec.providerConfigName
+          toFieldPath: spec.providerConfigReference.name
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s'
+          toFieldPath: spec.forProvider.bucket
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: spec.bucket.name
+            - fromFieldPath: spec.environment
+            strategy: string
+            string:
+              fmt: '%s-%s-replica'
+          toFieldPath: spec.forProvider.replicationRules[0].destination.bucket

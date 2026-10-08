@@ -17,6 +17,6 @@ stages:
       - terraform plan
   semantic:
     enabled: true
-    assertion_count: 3
+    assertion_count: 5
   e2e:
     enabled: false

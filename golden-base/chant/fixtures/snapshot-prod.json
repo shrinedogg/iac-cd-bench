@@ -1,0 +1,558 @@
+{
+  "commit": "25a34bf77e7f1f4f587c08138b175f1e68975e9e",
+  "digest": {
+    "dependencies": {
+      "ackCharts": [],
+      "assetsBucket": [],
+      "assetsReplicaBucket": [],
+      "assetsReplicaRole": [],
+      "clusterAppKustomization": [],
+      "clusterCluster": [],
+      "clusterControlPlane": [],
+      "clusterFluxAddon": [],
+      "clusterInfra": [],
+      "clusterNodePoolAwsPool": [],
+      "clusterNodePoolMachinePool": [],
+      "databaseInstance": [],
+      "iamControllerRelease": [],
+      "infraAppKustomization": [],
+      "rdsControllerRelease": [],
+      "readerPodIdentity": [],
+      "readerPolicy": [],
+      "readerRole": [],
+      "s3ControllerRelease": [],
+      "sourceGitRepository": []
+    },
+    "deployOrder": [
+      "k8s"
+    ],
+    "lexiconVersions": {},
+    "outputs": {},
+    "resources": {
+      "ackCharts": {
+        "lexicon": "k8s",
+        "propsHash": "9fbc25c24b88cf661d39f88aecb2adfffd1dc8902b0ea04259bbfc51d1183c3a",
+        "type": "K8s::Flux::HelmRepository"
+      },
+      "assetsBucket": {
+        "lexicon": "k8s",
+        "propsHash": "167b090b983aa62425ec6c7a8a95cb3d17bfc519d23a1636110cef4e3eb0f518",
+        "type": "K8s::S3::Bucket"
+      },
+      "assetsReplicaBucket": {
+        "lexicon": "k8s",
+        "propsHash": "2f6e9ed136ba285d99ee625068fca5ede1319c54cb55134ee87dcfb3fe85d377",
+        "type": "K8s::S3::Bucket"
+      },
+      "assetsReplicaRole": {
+        "lexicon": "k8s",
+        "propsHash": "25be25f7c665479430a754d9b5c9f97026c73dadd16be5b27d02525ffb82d026",
+        "type": "K8s::Iam::Role"
+      },
+      "clusterAppKustomization": {
+        "lexicon": "k8s",
+        "propsHash": "c5d19285301ce737eb79186441f2a29b919c06db72ca0cb6afea480cfc67f5fd",
+        "type": "K8s::Flux::Kustomization"
+      },
+      "clusterCluster": {
+        "lexicon": "k8s",
+        "propsHash": "e14c50a6518884efad68dc1322bdc054e527e00a980784561bebf633063ffe32",
+        "type": "K8s::CAPI::Cluster"
+      },
+      "clusterControlPlane": {
+        "lexicon": "k8s",
+        "propsHash": "fd23edbd4dd42cf5b6102d4489693dd3930c1dab2df41a67f2d9f2a4cf39655d",
+        "type": "K8s::Controlplane::AWSManagedControlPlane"
+      },
+      "clusterFluxAddon": {
+        "lexicon": "k8s",
+        "propsHash": "9a444fa21ba84f96048467624a0bb3fd7895e21bd4cbd2058aa6b76c00582a7f",
+        "type": "K8s::Addons::HelmChartProxy"
+      },
+      "clusterInfra": {
+        "lexicon": "k8s",
+        "propsHash": "05282addf017c8a1ae1c9dd2b94eaebb9b87cc67c1d4f351ea7f9cfc1fb934bb",
+        "type": "K8s::Infrastructure::AWSManagedCluster"
+      },
+      "clusterNodePoolAwsPool": {
+        "lexicon": "k8s",
+        "propsHash": "b65cb1029391b8f935f2cbc1b22aa6922a125d876f46259f4a14b63616d80c4b",
+        "type": "K8s::Infrastructure::AWSManagedMachinePool"
+      },
+      "clusterNodePoolMachinePool": {
+        "lexicon": "k8s",
+        "propsHash": "bbf15ba81f59782c44d3e08456d142edeebdb217e25ad8aea4e97f70fd0a062e",
+        "type": "K8s::CAPI::MachinePool"
+      },
+      "databaseInstance": {
+        "lexicon": "k8s",
+        "propsHash": "4556752ed5b6afa4637645b9af8e0afed0b70a185266799f63c63c0506f7449d",
+        "type": "K8s::Rds::DBInstance"
+      },
+      "iamControllerRelease": {
+        "lexicon": "k8s",
+        "propsHash": "aa351c310ceb516f26e6e55016b70bb6d5abe3659b971bfcfe106af4ecc36883",
+        "type": "K8s::Flux::HelmRelease"
+      },
+      "infraAppKustomization": {
+        "lexicon": "k8s",
+        "propsHash": "533f0de652339d83956055efe5fbf6d18ac780a0736483931960672335d30a30",
+        "type": "K8s::Flux::Kustomization"
+      },
+      "rdsControllerRelease": {
+        "lexicon": "k8s",
+        "propsHash": "773a26b1c29ce141305d9726cb0f1e17632c2ee9a7c79477cf223bb25da64a69",
+        "type": "K8s::Flux::HelmRelease"
+      },
+      "readerPodIdentity": {
+        "lexicon": "k8s",
+        "propsHash": "e154c768ea4dd723ed55e4ef9d31b94bef135925c207dcbcbd4ec57df35b8396",
+        "type": "K8s::Eks::PodIdentityAssociation"
+      },
+      "readerPolicy": {
+        "lexicon": "k8s",
+        "propsHash": "8c2b750f4c118b86e2d1c6b7417085551cda55f67968c961b4303cbf70dac971",
+        "type": "K8s::Iam::Policy"
+      },
+      "readerRole": {
+        "lexicon": "k8s",
+        "propsHash": "e68fa9069a8e2ccc5c194d6e2bcb5129ad40a218aae198a9df55d8ff7fb698d0",
+        "type": "K8s::Iam::Role"
+      },
+      "s3ControllerRelease": {
+        "lexicon": "k8s",
+        "propsHash": "a0d3309f9ea41632f4153d45ea5696a4a0d3312c203026f124e7c123ef9d6e9f",
+        "type": "K8s::Flux::HelmRelease"
+      },
+      "sourceGitRepository": {
+        "lexicon": "k8s",
+        "propsHash": "f758813cf789717505f40d500403ed37d98b52e117ff19155fa8967e8b67af5b",
+        "type": "K8s::Flux::GitRepository"
+      }
+    }
+  },
+  "environment": "prod",
+  "lexicon": "k8s",
+  "resources": {
+    "ackCharts": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "ack",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "flux-system",
+        "resourceVersion": "596",
+        "type": "oci"
+      },
+      "lastUpdated": "2026-08-25T15:25:05Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "8e53ea09-afa3-45c4-b4ed-a26be409073e",
+      "status": "PRESENT",
+      "type": "K8s::Flux::HelmRepository"
+    },
+    "assetsBucket": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "assets",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "infra",
+        "resourceVersion": "597"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "124dde88-e3e9-4317-81b7-fe8b0d9fe948",
+      "status": "PRESENT",
+      "type": "K8s::S3::Bucket"
+    },
+    "assetsReplicaBucket": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "assets-replica",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "infra",
+        "resourceVersion": "599"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "aae3f1ba-12fb-40dd-b428-94d029a0a0d8",
+      "status": "PRESENT",
+      "type": "K8s::S3::Bucket"
+    },
+    "assetsReplicaRole": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "assets",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "infra",
+        "resourceVersion": "598"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "883834fb-f68b-40c6-96b1-07725d238100",
+      "status": "PRESENT",
+      "type": "K8s::Iam::Role"
+    },
+    "clusterAppKustomization": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/name": "myapp-prod-clusters",
+          "chant.intentius.io/stack": "iac-cd-bench"
+        },
+        "namespace": "flux-system",
+        "resourceVersion": "594"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "54243c2b-6707-415f-9c6e-46444cda0a36",
+      "status": "PRESENT",
+      "type": "K8s::Flux::Kustomization"
+    },
+    "clusterCluster": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "cluster.x-k8s.io/cluster-name": "myapp-prod",
+          "iac-cd-bench.dev/env": "prod",
+          "iac-cd-bench.dev/region": "us-east-1"
+        },
+        "namespace": "clusters",
+        "resourceVersion": "608"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "28587d53-bb3e-4196-8ff1-f77c02fb5d41",
+      "status": "PRESENT",
+      "type": "K8s::CAPI::Cluster"
+    },
+    "clusterControlPlane": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "cluster.x-k8s.io/cluster-name": "myapp-prod",
+          "iac-cd-bench.dev/env": "prod",
+          "iac-cd-bench.dev/region": "us-east-1"
+        },
+        "namespace": "clusters",
+        "resourceVersion": "610"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "40913731-2b63-4292-8544-3bb0ea556287",
+      "status": "PRESENT",
+      "type": "K8s::Controlplane::AWSManagedControlPlane"
+    },
+    "clusterFluxAddon": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "cluster.x-k8s.io/cluster-name": "myapp-prod",
+          "iac-cd-bench.dev/env": "prod",
+          "iac-cd-bench.dev/region": "us-east-1"
+        },
+        "namespace": "clusters",
+        "resourceVersion": "613"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "18d1f0ad-c4c6-4420-83ba-05585ac9de8b",
+      "status": "PRESENT",
+      "type": "K8s::Addons::HelmChartProxy"
+    },
+    "clusterInfra": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "cluster.x-k8s.io/cluster-name": "myapp-prod",
+          "iac-cd-bench.dev/env": "prod",
+          "iac-cd-bench.dev/region": "us-east-1"
+        },
+        "namespace": "clusters",
+        "resourceVersion": "609"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "3e3dbc2a-9366-4ce9-b415-a39153dcec43",
+      "status": "PRESENT",
+      "type": "K8s::Infrastructure::AWSManagedCluster"
+    },
+    "clusterNodePoolAwsPool": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "cluster.x-k8s.io/cluster-name": "myapp-prod",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "clusters",
+        "resourceVersion": "611"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "11b1e0a4-e5b8-4b22-8118-d63fa6948c9a",
+      "status": "PRESENT",
+      "type": "K8s::Infrastructure::AWSManagedMachinePool"
+    },
+    "clusterNodePoolMachinePool": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "cluster.x-k8s.io/cluster-name": "myapp-prod",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "clusters",
+        "resourceVersion": "612"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "46e1dae6-a9e4-42cb-97f7-0a1b96f6f4eb",
+      "status": "PRESENT",
+      "type": "K8s::CAPI::MachinePool"
+    },
+    "databaseInstance": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "database",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "infra",
+        "resourceVersion": "601"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "e260c51b-4922-44d1-968f-8affbc3102b8",
+      "status": "PRESENT",
+      "type": "K8s::Rds::DBInstance"
+    },
+    "iamControllerRelease": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "ack",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "flux-system",
+        "resourceVersion": "602"
+      },
+      "lastUpdated": "2026-08-25T15:25:05Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "574e250f-08e5-4d7c-a64e-1e5b54a8bd2c",
+      "status": "PRESENT",
+      "type": "K8s::Flux::HelmRelease"
+    },
+    "infraAppKustomization": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/name": "myapp-prod-infra",
+          "chant.intentius.io/stack": "iac-cd-bench"
+        },
+        "namespace": "flux-system",
+        "resourceVersion": "595"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "113edbc7-2266-4c6a-b5ca-5b4753fb0192",
+      "status": "PRESENT",
+      "type": "K8s::Flux::Kustomization"
+    },
+    "rdsControllerRelease": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "ack",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "flux-system",
+        "resourceVersion": "603"
+      },
+      "lastUpdated": "2026-08-25T15:25:05Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "e9a2faea-803f-4ffa-a1f3-6045c3e1b2d4",
+      "status": "PRESENT",
+      "type": "K8s::Flux::HelmRelease"
+    },
+    "readerPodIdentity": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "identity",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "infra",
+        "resourceVersion": "606"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "5f96a224-af6b-489e-b7d5-ed6d19cca19f",
+      "status": "PRESENT",
+      "type": "K8s::Eks::PodIdentityAssociation"
+    },
+    "readerPolicy": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "identity",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "infra",
+        "resourceVersion": "604"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "d3dcfc95-9da9-43ed-af40-7acb6733f6f0",
+      "status": "PRESENT",
+      "type": "K8s::Iam::Policy"
+    },
+    "readerRole": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "identity",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "infra",
+        "resourceVersion": "605"
+      },
+      "lastUpdated": "2026-08-25T15:25:09Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "afa2d040-cf6a-4fb3-8d19-af8c041826e2",
+      "status": "PRESENT",
+      "type": "K8s::Iam::Role"
+    },
+    "s3ControllerRelease": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/component": "ack",
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/part-of": "iac-cd-bench",
+          "chant.intentius.io/stack": "iac-cd-bench",
+          "iac-cd-bench.dev/env": "prod"
+        },
+        "namespace": "flux-system",
+        "resourceVersion": "607"
+      },
+      "lastUpdated": "2026-08-25T15:25:05Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "c2582689-4a0b-48bf-9c7a-46bdf99fbc1c",
+      "status": "PRESENT",
+      "type": "K8s::Flux::HelmRelease"
+    },
+    "sourceGitRepository": {
+      "attributes": {
+        "labels": {
+          "app.kubernetes.io/managed-by": "chant",
+          "app.kubernetes.io/name": "myapp-infra",
+          "chant.intentius.io/stack": "iac-cd-bench"
+        },
+        "namespace": "flux-system",
+        "resourceVersion": "574"
+      },
+      "lastUpdated": "2026-08-25T15:25:05Z",
+      "marker": {
+        "stack": "iac-cd-bench"
+      },
+      "ownership": "owned",
+      "physicalId": "c5818c4f-2254-4614-b979-681e62d4f1c7",
+      "status": "PRESENT",
+      "type": "K8s::Flux::GitRepository"
+    }
+  },
+  "timestamp": "2026-08-25T15:25:11.089Z"
+}

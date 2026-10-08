@@ -1,0 +1,67 @@
+# ACK s3-controller Bucket (s3.services.k8s.aws) - prod adds cross-region
+# replication to us-west-2 on top of dev's versioning/encryption/public-block
+# baseline. The replica bucket is a second Bucket CR in this same file: SPEC
+# only describes the source side, but a replication target has to exist
+# somewhere for the config below to mean anything.
+#
+# The replica's region comes from createBucketConfiguration.locationConstraint
+# rather than a per-resource `region` field: unlike the Upbound/Terraform-style
+# provider knr-ops uses (each resource carries its own `region`), a single ACK
+# s3-controller install targets one AWS region via its own controller config,
+# so a genuinely separate-region bucket needs either this S3-API-level
+# location constraint or a second controller install pinned to us-west-2.
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  name: myapp-assets-prod
+  namespace: infra
+spec:
+  name: myapp-assets-prod
+  versioning:
+    status: Enabled
+  encryption:
+    rules:
+      - applyServerSideEncryptionByDefault:
+          sseAlgorithm: AES256
+  publicAccessBlock:
+    blockPublicACLs: true
+    blockPublicPolicy: true
+    ignorePublicACLs: true
+    restrictPublicBuckets: true
+  replication:
+    roleRef:
+      from:
+        name: myapp-prod-s3-replication-role
+        namespace: infra
+    rules:
+      - id: replicate-to-us-west-2
+        status: Enabled
+        priority: 1
+        filter:
+          prefix: ""
+        deleteMarkerReplication:
+          status: Disabled
+        destination:
+          bucket: arn:aws:s3:::myapp-assets-prod-replica
+          storageClass: STANDARD
+---
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  name: myapp-assets-prod-replica
+  namespace: infra
+spec:
+  name: myapp-assets-prod-replica
+  createBucketConfiguration:
+    locationConstraint: us-west-2
+  versioning:
+    status: Enabled
+  encryption:
+    rules:
+      - applyServerSideEncryptionByDefault:
+          sseAlgorithm: AES256
+  publicAccessBlock:
+    blockPublicACLs: true
+    blockPublicPolicy: true
+    ignorePublicACLs: true
+    restrictPublicBuckets: true

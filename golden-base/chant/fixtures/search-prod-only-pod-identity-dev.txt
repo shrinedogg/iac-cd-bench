@@ -1,0 +1,11 @@
+(no matches)
+— 0 of 18 nodes matched  (query: kind:PodIdentityAssociation)
+  · excluded ackCharts — fails kind:PodIdentityAssociation
+  · excluded assetsBucket — fails kind:PodIdentityAssociation
+  · excluded clusterAppKustomization — fails kind:PodIdentityAssociation
+  · excluded clusterCluster — fails kind:PodIdentityAssociation
+  · excluded clusterControlPlane — fails kind:PodIdentityAssociation
+  · excluded clusterFluxAddon — fails kind:PodIdentityAssociation
+  · excluded clusterInfra — fails kind:PodIdentityAssociation
+  · excluded clusterNodePoolAwsPool — fails kind:PodIdentityAssociation
+  · …and 10 more excluded

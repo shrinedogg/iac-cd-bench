@@ -1,0 +1,22 @@
+
+[1mdev/k8s[0m — 18 resources — identity only — 2026-08-25T15:25:08.351Z
+RESOURCE            TYPE                        PHYSICAL ID                                 STATUS
+----------------------------------------------------------------------------------------------------
+ackCharts           K8s::Flux::HelmRepository   8e53ea09-afa3-45c4-b4ed-a26be409073e        PRESENT
+assetsBucket        K8s::S3::Bucket             9314aa9e-90c8-4b14-9d7a-c4a42a1ee9b6        PRESENT
+clusterAppKustomizationK8s::Flux::Kustomization    02412b1a-1d42-48ef-89ff-43086164e5a9        PRESENT
+clusterCluster      K8s::CAPI::Cluster          3b73913a-106f-4d99-97f2-550dc5ecd518        PRESENT
+clusterControlPlane K8s::Controlplane::AWSManagedControlPlane8ffa395a-9fd1-43ec-834b-95ae33f4fc45        PRESENT
+clusterFluxAddon    K8s::Addons::HelmChartProxy 22338366-d932-4d11-8133-3f8f8526f451        PRESENT
+clusterInfra        K8s::Infrastructure::AWSManagedClustera7943240-1729-435f-b5ea-eec7ca2ddf64        PRESENT
+clusterNodePoolAwsPoolK8s::Infrastructure::AWSManagedMachinePool0dc94c29-569d-4c02-863a-7a65dfa52c95        PRESENT
+clusterNodePoolMachinePoolK8s::CAPI::MachinePool      936a20c0-31ab-4e70-8b17-930333ff42b4        PRESENT
+databaseInstance    K8s::Rds::DBInstance        8042a74e-8872-4068-a78f-1f68240730ed        PRESENT
+iamControllerReleaseK8s::Flux::HelmRelease      574e250f-08e5-4d7c-a64e-1e5b54a8bd2c        PRESENT
+infraAppKustomizationK8s::Flux::Kustomization    62e9f212-f180-42d2-976a-1c1672c37677        PRESENT
+rdsControllerReleaseK8s::Flux::HelmRelease      e9a2faea-803f-4ffa-a1f3-6045c3e1b2d4        PRESENT
+readerPolicy        K8s::Iam::Policy            052eafa4-844d-4aea-b51b-7f75eb556135        PRESENT
+readerRole          K8s::Iam::Role              7f99181b-a2d7-46a9-924a-b75b72f2e8e3        PRESENT
+readerUser          K8s::Iam::User              2410870f-8e31-47e1-b1fb-e528aba26f28        PRESENT
+s3ControllerRelease K8s::Flux::HelmRelease      c2582689-4a0b-48bf-9c7a-46bdf99fbc1c        PRESENT
+sourceGitRepository K8s::Flux::GitRepository    c5818c4f-2254-4614-b979-681e62d4f1c7        PRESENT

@@ -1,0 +1,59 @@
+# Application workload, same shape as golden-base/knr-ops/infra/app/deployment.yaml.
+# Named myapp-dev (not myapp): knr-ops gets dev/prod name separation for free
+# from kustomize's namePrefix; bare has no such mechanism, so every resource
+# that shares a namespace across envs (app, infra, clusters here) needs its
+# own env-qualified name by hand, or a dev apply and a prod apply to the same
+# cluster would collide.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: myapp-dev
+  namespace: app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-dev
+  namespace: app
+  labels:
+    app: myapp
+    env: dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+      env: dev
+  template:
+    metadata:
+      labels:
+        app: myapp
+        env: dev
+    spec:
+      serviceAccountName: myapp-dev
+      containers:
+        - name: myapp
+          image: docker.io/myapp/myapp:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-dev
+  namespace: app
+spec:
+  selector:
+    app: myapp
+    env: dev
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP

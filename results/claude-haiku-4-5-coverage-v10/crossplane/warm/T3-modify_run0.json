@@ -1,0 +1,140 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "crossplane",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "0da2744aed4507e7",
+      "spec_sha256": "3bfc827f1fd76b06",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[validate CRDs] kubeconform: exit=0\nSummary: 6 resources found in 5 files - Valid: 1, Invalid: 0, Errors: 0, Skipped: 5\n"
+    },
+    "static": {
+      "inapplicable": true,
+      "inapplicable_reason": "no_artifact",
+      "reason": "no composite resource, and no XRD to derive one from: 1 composition(s), 0 xrd(s)",
+      "logs": "no composite resource, and no XRD to derive one from: 1 composition(s), 0 xrd(s)",
+      "examined": 0
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "nch/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py::test_second_region_is_declared PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py::test_second_region_reaches_the_composition FAILED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py::test_a_second_provider_config_is_referenced PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py::test_existing_claims_are_not_modified PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: us-west-2 appears in the workspace but not inside any Composition. A ProviderConfig nothing references does not add a region to the composition\n    assert False\n     +  where False = any(<generator object test_second_region_reaches_the_composition.<locals>.<genexpr> at 0x10abd1540>)\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py:97: AssertionError: us-west-2 appears in the workspace but not inside any Composition. A ProviderConfig nothing references does not add a region to the composition\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T3-modify/tests/test_task.py::test_second_region_reaches_the_composition\n========================= 1 failed, 5 passed in 0.02s ==========================\n",
+      "passed_count": 5,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1184,
+    "output": 1772
+  },
+  "content": "# Adding a Second AWS Region to Crossplane Composition\n\nTo add us-west-2 support via provider config without changing existing claims, implement the following pattern:\n\n## 1. Create a Second ProviderConfig\n\nAdd a new `ProviderConfig` for us-west-2 alongside your existing one:\n\n```yaml\napiVersion: aws.crossplane.io/v1beta1\nkind: ProviderConfig\nmetadata:\n  name: aws-uswest2\nspec:\n  credentials:\n    source: Secret\n    secretRef:\n      namespace: crossplane-system\n      name: aws-creds\n      key: creds\n  region: us-west-2\n```\n\nKeep your existing ProviderConfig (e.g., `aws-useast1` or `default`) unchanged. Both can coexist.\n\n## 2. Extend the Composition to Support Region Selection\n\nModify your existing `Composition` to include patches that allow resources to target either provider:\n\n```yaml\napiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata:\n  name: web-app-multi-region\nspec:\n  compositeTypeRef:\n    apiVersion: example.com/v1alpha1\n    kind: WebApplication\n  resources:\n    # Primary region resources (existing)\n    - name: eks-primary\n      base:\n        apiVersion: eks.aws.upbound.io/v1beta1\n        kind: Cluster\n        spec:\n          providerConfigRef:\n            name: aws-useast1  # or your existing region\n      patches:\n        - type: FromCompositeFieldPath\n          fromFieldPath: spec.clusterName\n          toFieldPath: metadata.name\n\n    # Secondary region resources (new)\n    - name: s3-replica\n      base:\n        apiVersion: s3.aws.upbound.io/v1beta1\n        kind: Bucket\n        spec:\n          providerConfigRef:\n            name: aws-uswest2  # New region\n          replicationConfiguration:\n            role: arn:aws:iam::ACCOUNT:role/replication\n          serverSideEncryptionConfiguration:\n            - sseAlgorithm: AES256\n      patches:\n        - type: FromCompositeFieldPath\n          fromFieldPath: spec.bucketName\n          toFieldPath: metadata.name\n          transforms:\n            - type: string\n              string:\n                fmt: \"%s-uswest2\"\n```\n\n## 3. Keep Claims Unchanged\n\nYour existing `XRD` (CompositeResourceDefinition) and Claims work as-is:\n\n```yaml\n# Existing claim \u2014 no changes needed\napiVersion: example.com/v1alpha1\nkind: WebApplication\nmetadata:\n  name: app-prod\nspec:\n  clusterName: eks-prod\n  bucketName: assets-prod\n  # region selection happens via Composition logic, not claim parameters\n```\n\n## 4. Environment Separation via Composition Selectors\n\nRoute dev/prod to different compositions or provider configs using labels:\n\n```yaml\n---\napiVersion: apiextensions.crossplane.io/v1\nkind: CompositionSelector\nmetadata:\n  name: web-app-prod\nspec:\n  compositeTypeRef:\n    apiVersion: example.com/v1alpha1\n    kind: WebApplication\n  selector:\n    matchLabels:\n      env: prod\n  compositionRef:\n    name: web-app-multi-region  # Targets both regions\n---\napiVersion: apiextensions.crossplane.io/v1\nkind: CompositionSelector\nmetadata:\n  name: web-app-dev\nspec:\n  compositeTypeRef:\n    apiVersion: example.com/v1alpha1\n    kind: WebApplication\n  selector:\n    matchLabels:\n      env: dev\n  compositionRef:\n    name: web-app-single-region  # Dev may use only primary region\n```\n\nClaims specify environment via label:\n\n```yaml\napiVersion: example.com/v1alpha1\nkind: WebApplication\nmetadata:\n  name: app-prod\n  labels:\n    env: prod  # Routes to multi-region composition\nspec:\n  clusterName: eks-prod\n  bucketName: assets-prod\n```\n\n## Key Principles Applied\n\n- **No claim changes**: Existing claims continue to work; they don't know about regions.\n- **Provider config separation**: Each region has its own `ProviderConfig`, isolating credentials and region settings.\n- **Composition-driven routing**: The `Composition` defines which resources target which regions and providers.\n- **Idiomatic Crossplane**: Uses native `providerConfigRef` patches and selectors, consistent with composition as the environment-separation idiom.\n\nThis approach allows S3 cross-region replication (prod) and RDS multi-region read replicas to be defined declaratively within a single Composition, with dev/prod environment differences controlled by composition selectors on claims, not claim mutation.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-6wtfqkbf/generated_0.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-6wtfqkbf/generated_1.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-6wtfqkbf/generated_2.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-6wtfqkbf/generated_3.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-crossplane-6wtfqkbf/generated_4.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4158,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 4158,
+      "fenced_blocks": 5,
+      "extracted_files": 5,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

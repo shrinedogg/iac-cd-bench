@@ -1,0 +1,163 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "bare",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "2c52b32d82e96f26",
+      "spec_sha256": "d200ea0b988b1f75",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 3454
+  },
+  "content": "# Analysis: `kubectl apply -f prod/` Behavior\n\n## 1. File Processing Order and Why It Matters\n\n`kubectl apply -f prod/` processes files in **lexical (alphabetical) order**:\n1. `00-namespaces.yaml`\n2. `app.yaml`\n3. `s3-bucket.yaml`\n4. `workers.yaml`\n\n**Why the order doesn't matter for this PR:**\nThe order matters conceptually (namespaces must exist first so other resources can target them), but for this specific change set, it is **not consequential**. Each change is to an already-existing object, and there are no real ordering dependencies between the updates to the Deployment, MachineDeployment, and bucket. The order would only matter if, for example, one file's apply had to succeed before another could even be attempted\u2014which is not the case here.\n\n---\n\n## 2. Workers Replica Change (4 \u2192 6)\n\n**Yes, this succeeds.** The `MachineDeployment.spec.replicas` field is **not immutable**\u2014it can be freely modified after object creation. \n\n**What happens to the cluster:**\n- The CAPI controller detects the replica count change from 4 to 6\n- It scales up the worker node group, provisioning 2 additional t3.large EC2 instances\n- The cluster gains 2 new nodes, which go through the kubelet bootstrap and join the cluster\n\n---\n\n## 3. App.yaml Selector Change: Immutable Field Rejection\n\n**This update fails.** The `Deployment.spec.selector` field is **immutable after object creation**. The API server rejects any attempt to change it.\n\n**What `kubectl apply` does:**\n- Reads the current Deployment from the cluster\n- Computes the three-way merge, noting the selector change from `{app: myapp, env: prod}` to `{app: myapp, env: prod, version: v2}`\n- Sends the update to the API server\n- The API server checks the immutable field constraint and **rejects the apply with an error**\n- kubectl reports the failure for the Deployment and **does not abort the batch**\n\n**Consequences across all four files:**\n- **ServiceAccount** in `app.yaml`: already exists, no changes in the PR, remains untouched (no-op apply)\n- **Service** in `app.yaml`: already exists, no changes in the PR, remains untouched (no-op apply)\n- **Deployment** in `app.yaml`: rejected; stays at its original selector and pod configuration\n- **All objects in `s3-bucket.yaml`**: still processed normally after the failure\n- **All objects in `workers.yaml`**: still processed normally after the failure\n\nThe existing Deployment continues running with its original selector and pod template labels `{app: myapp, env: prod}`. The Service's selector `{app: myapp, env: prod}` continues to match and route traffic to those pods correctly.\n\n---\n\n## 4. The `myapp-assets-prod-replica` Bucket: Removal from File vs. Cluster Deletion\n\n**The Bucket still exists in the cluster and in AWS.**\n\n`kubectl apply -f prod/` has a critical property: **no pruning by default**. Deleting a resource from the file does not automatically delete it from the cluster. The documentation is explicit:\n\n> Removing a file from the directory, or deleting a resource block from a file, does not remove the corresponding object from the cluster.\n\n**What actually happens:**\n- The `myapp-assets-prod-replica` Bucket CR is removed from `s3-bucket.yaml`\n- But `kubectl apply -f prod/` never deletes objects on its own\n- The Bucket CR remains in the `infra` namespace, still managed by the ACK s3-controller\n- The AWS S3 bucket that ACK provisioned continues to exist\n- The replication rule in `myapp-assets-prod` still targets it (that bucket's replication config is unchanged in this PR)\n\n**To actually delete it**, you would need to:\n- Explicitly `kubectl delete bucket myapp-assets-prod-replica -n infra`, or\n- Use `kubectl apply -f prod/ --prune -l <selector>` (if all managed buckets are labeled), or\n- In a future PR, explicitly delete the CR with a manifest that applies `kubectl delete -f <old-file>`\n\nThe orphaned CR and its backing AWS bucket persist until manually deleted.\n\n---\n\n## 5. Impact on `dev/`\n\n**No impact, direct or indirect.**\n\nThe `kubectl apply -f prod/` command:\n- Only reads from the `prod/` directory\n- Only processes `prod/` files\n- Only touches objects managed by those files\n- Never reads, writes, or modifies anything under `dev/`\n\n`dev/` and `prod/` are completely independent, hand-duplicated directory trees. Changing prod does not affect dev's deployments, infrastructure, or state in any way.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4360,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 4360,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 1.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that kubectl apply -f prod/ processes files in lexical filename order (00-namespaces.yaml first because of its numeric prefix), not a dependency graph",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Correctly identifies lexical filename order (lists all files in correct sequence), explicitly notes 00- numeric prefix for sorting first, and conveys no dependency graph concept via 'no real ordering dependencies.'"
+      },
+      {
+        "criterion": "Correctly states the workers.yaml replica change (4 to 6) applies successfully in place, since replicas is a mutable field",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Clearly states workers.yaml replica change (4\u21926) succeeds, identifies spec.replicas as mutable field, and explains in-place update and CAPI controller reconciliation."
+      },
+      {
+        "criterion": "Correctly states the app.yaml selector change is rejected by the API server because spec.selector is immutable on an existing Deployment, and that the other three files in the same kubectl apply -f prod/ invocation still apply independently",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Correctly states app.yaml selector change is rejected, identifies immutability as reason, specifies API server rejection, and explicitly confirms other three files (s3-bucket.yaml, workers.yaml, 00-namespaces.yaml) apply independently without batch abort."
+      },
+      {
+        "criterion": "States that kubectl apply has no prune step by default, so the myapp-assets-prod-replica Bucket object and the AWS S3 bucket it manages are NOT deleted merely because the manifest was removed from Git",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correctly states Bucket CR and AWS S3 bucket both persist, identifies no pruning by default, and explains manifest removal does not trigger cluster deletion."
+      },
+      {
+        "criterion": "Recognizes dev/ and prod/ are fully independent, duplicated directories with no shared base, so nothing in this PR can affect dev/",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Correctly recognizes dev/ and prod/ as fully independent hand-duplicated directories with no shared base, and states kubectl apply only touches files given to it, never affecting dev/."
+      }
+    ]
+  }
+}

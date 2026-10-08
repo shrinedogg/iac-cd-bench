@@ -1,0 +1,70 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "bare",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1438
+  },
+  "content": "I've identified **5 security issues** in this diff, spanning critical to medium severity. Here's the analysis:\n\n---\n\n## Issues by Severity\n\n### \ud83d\udd34 CRITICAL\n\n**1. Hardcoded plaintext database password**\n- **File**: `prod/db-secret.yaml`\n- **Issue**: Password `\"Summer2026!Prod#db\"` committed directly to Git in plaintext\n- **Why**: Violates canonical spec (\"Secret: never stored in plaintext in Git; encrypted at rest via stack-native mechanism\"). Git history is searchable and recoverable; this credential is now permanently compromised and will appear in all clones, backups, and logs.\n- **Fix**: Revert to placeholder; use SOPS encryption or stack-native secret management (sealed-secrets, external secret operators, etc.) before any commit.\n\n**2. S3 bucket publicly accessible**\n- **File**: `prod/s3-bucket.yaml`\n- **Issue**: Removed `publicAccessBlock` and added a bucket policy granting `s3:GetObject` to `\"Principal\": \"*\"` (anyone on the internet)\n- **Why**: Violates canonical spec (\"Bucket: ... no public access\"). Exposes application assets, potentially sensitive data, to the entire internet.\n- **Fix**: Restore `publicAccessBlock` (all blocks: true). If public access is intentional, use CloudFront with Origin Access Identity (OAI) instead of direct S3 access.\n\n**3. RDS made publicly accessible**\n- **File**: `prod/rds.yaml`\n- **Issue**: Changed `publiclyAccessible: false` \u2192 `true`\n- **Why**: Violates canonical spec (\"RDS: ... no publicly accessible\"). Database is now reachable from the internet; attackers can attempt brute-force attacks, exploit vulnerabilities, or exfiltrate data.\n- **Fix**: Revert to `false`. Access RDS only via in-cluster service discovery or through a bastion host.\n\n---\n\n### \ud83d\udfe0 HIGH\n\n**4. RDS deletion protection disabled**\n- **File**: `prod/rds.yaml`\n- **Issue**: Changed `deletionProtection: true` \u2192 `false`\n- **Why**: Violates canonical spec (\"RDS: deletion protection on\"). Database can now be accidentally or maliciously deleted, causing total data loss and application outage.\n- **Fix**: Restore to `true`.\n\n---\n\n### \ud83d\udfe1 MEDIUM\n\n**5. Container resource limits removed**\n- **File**: `prod/app.yaml`\n- **Issue**: Removed `resources.requests` and `resources.limits` (CPU 500m / 256Mi memory)\n- **Why**: Without limits, a buggy or compromised container can consume all node resources, triggering cascading pod evictions, DoS, and resource exhaustion attacks. This is both a reliability and resource-based security control.\n- **Fix**: Restore or refine resource limits based on observed app behavior.\n\n---\n\n## Summary Table\n\n| Severity | Count | Issues |\n|----------|-------|--------|\n| CRITICAL | 3 | Plaintext password, public S3, public RDS |\n| HIGH | 1 | RDS deletion protection disabled |\n| MEDIUM | 1 | Missing container resource limits |\n\n**Recommendation**: **Do not merge.** All three CRITICAL issues must be resolved before any production deployment. The HIGH and MEDIUM issues should also be corrected to comply with the acceptance criteria.",
+  "judge": {
+    "idiom": 0.9166666666666666,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies the plaintext database password committed to prod/db-secret.yaml, replacing the documented out-of-band placeholder",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies plaintext password 'Summer2026!Prod#db' in prod/db-secret.yaml replacing the documented placeholder, with correct explanation of Git history exposure."
+      },
+      {
+        "criterion": "Identifies that prod/s3-bucket.yaml removes the public access block and adds a bucket policy granting s3:GetObject to Principal '*' (public read exposure)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission identifies removal of publicAccessBlock and addition of bucket policy granting s3:GetObject to Principal '*' in prod/s3-bucket.yaml, matching reference requirements exactly."
+      },
+      {
+        "criterion": "Identifies that prod/rds.yaml sets publiclyAccessible: true and deletionProtection: false on the production database",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Submission identifies both publiclyAccessible: false\u2192true and deletionProtection: true\u2192false in prod/rds.yaml, though presented as separate issues rather than combined."
+      },
+      {
+        "criterion": "Identifies that prod/app.yaml drops the container's resource requests/limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies removal of resources.requests and resources.limits (CPU 500m / 256Mi memory) from prod/app.yaml container."
+      },
+      {
+        "criterion": "Ranks the four issues by severity in an order consistent with: plaintext password and public bucket as the most severe, RDS exposure next, missing resource limits least severe",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Submission ranks plaintext and bucket as CRITICAL (\u2713) and resource limits as MEDIUM (\u2713), but ranks RDS publiclyAccessible as CRITICAL when reference ranks all RDS issues together at HIGH severity."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this')",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission provides specific remediation for each identified issue: revert/use SOPS for password, restore publicAccessBlock/use CloudFront for S3, revert RDS settings, restore resource limits\u2014all concrete steps."
+      }
+    ]
+  }
+}

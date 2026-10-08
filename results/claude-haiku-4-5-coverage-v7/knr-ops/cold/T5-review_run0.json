@@ -1,0 +1,163 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "94e5c139053e7db4",
+      "spec_sha256": "43b4e0a5a87c63d9",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1330,
+    "output": 1611
+  },
+  "content": "# Security Review: knr-ops PR Diff\n\n## \u26a0\ufe0f Note on Scope\n\nThe PR diff content itself is not included in the provided context\u2014only a preview description of the changes. My analysis below is based on the described changes and the canonical specification. Please ensure the actual diff is reviewed against these findings.\n\n---\n\n## Security Issues Identified\n\n### \ud83d\udd34 **CRITICAL: Public S3 Bucket Policy**\n\n**Issue:** S3 bucket policy grants public read access\n\n**Why:** Violates Acceptance Criteria #1 (\"no public access\"). Application assets and data stored in S3 become accessible to anyone on the internet.\n\n**Specific Risk:**\n- Exposure of sensitive application files, configuration, or data\n- Compliance violations (SOC 2, HIPAA, PCI-DSS depending on data classification)\n- Potential information disclosure leading to further attacks\n\n**Required Fix:** Remove public read permissions. Replace with:\n- Restricted IAM role (service account) with least-privilege access\n- CloudFront origin access identity (OAI) if public delivery is needed\n- Bucket policy must explicitly deny all public access\n\n---\n\n### \ud83d\udd34 **CRITICAL: Plaintext Password in Deployment Env Vars**\n\n**Issue:** App deployment contains plaintext password in environment variables\n\n**Why:** Violates Acceptance Criteria #3 (\"never stored in plaintext in Git\"). Credentials are:\n- Visible in Git history (permanent record)\n- Exposed in Pod specs (visible to anyone with cluster access or `kubectl` permissions)\n- Exposed in cluster logs and debugging tools\n\n**Specific Risk:**\n- Credential compromise; attackers can impersonate the application\n- Violation of secret management best practices\n\n**Required Fix:** Use knr-ops stack-native secret mechanism:\n- SOPS-encrypted secrets committed to Git (encrypted at rest, decrypted by Flux at deploy time)\n- Reference via `secretKeyRef` in deployment env vars\n- Never pass credentials directly in env vars\n\nExample approach:\n```yaml\n# kustomization.yaml\nsecretGenerator:\n  - name: db-credentials\n    envs:\n      - secrets.env  # SOPS-encrypted file\n```\n\n---\n\n### \ud83d\udfe1 **WARNING: Missing Container Resource Limits**\n\n**Issue:** App deployment lacks CPU/memory requests and limits\n\n**Why:** While not a direct security violation, it impacts:\n- **Resource exhaustion attacks** (noisy neighbor; one Pod starves others)\n- **Denial of service** (Pod can consume all node resources)\n- Violates Kubernetes security best practices (PodSecurityPolicy/Pod Security Standards)\n\n**Required Fix:** Add resource constraints:\n```yaml\nresources:\n  requests:\n    memory: \"256Mi\"\n    cpu: \"250m\"\n  limits:\n    memory: \"512Mi\"\n    cpu: \"500m\"\n```\n\n---\n\n### \ud83d\udfe2 **INFO: RDS Instance Class Change**\n\n**Status:** No issue identified (per preview). Verify:\n- \u2705 Prod RDS remains at least `db.t3.medium` (per spec)\n- \u2705 Dev remains `db.t3.micro`\n- \u2705 Deletion protection enabled (Acceptance Criteria #2)\n- \u2705 Backup retention \u2265 7 days\n- \u2705 Multi-AZ in prod, single-AZ in dev\n- \u2705 Not publicly accessible\n\n---\n\n## Merge Blockers (Must Fix Before Approval)\n\n| Issue | Severity | Fix |\n|-------|----------|-----|\n| Public S3 policy | \ud83d\udd34 CRITICAL | Remove public access; use IAM + CloudFront OAI |\n| Plaintext password in env vars | \ud83d\udd34 CRITICAL | Encrypt with SOPS; use `secretKeyRef` |\n| Missing resource limits | \ud83d\udfe1 WARNING | Add requests/limits per Kubernetes best practices |\n\n---\n\n## Recommended Review Checklist\n\nBefore merge, verify:\n- [ ] S3 bucket policy removed or restricted to service account IAM role\n- [ ] Secrets are SOPS-encrypted in Git; deployment references `secretKeyRef`\n- [ ] All containers have `resources.requests` and `resources.limits`\n- [ ] Environment separation (dev vs prod) is maintained in overlays\n- [ ] RDS configurations match spec (AZ, encryption, deletion protection)\n- [ ] No other credentials, keys, or tokens appear in manifests",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3827,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3827,
+      "fenced_blocks": 2,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.75,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies plaintext password in deployment",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Submission clearly identifies plaintext password in deployment as CRITICAL, explaining risks (exposed in Git history, Pod specs, cluster logs) and recommending SOPS encryption\u2014directly matching the reference answer's core finding."
+      },
+      {
+        "criterion": "Identifies public S3 bucket access",
+        "weight": 3.0,
+        "score": 0.5,
+        "justification": "Submission identifies public S3 bucket access as CRITICAL, but the reference answer identifies bucket versioning disabled as the S3 issue. Submission addresses S3 domain correctly but identifies the wrong specific vulnerability present in the actual PR diff."
+      },
+      {
+        "criterion": "Identifies missing resource limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission identifies missing container resource limits as WARNING, explaining resource exhaustion and DoS risks, and provides specific remediation YAML. Criterion directly asks for this identification, which is clearly stated and detailed."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Submission ranks plaintext as CRITICAL (correct per reference), but overall rankings diverge: assigns two CRITICALs (public S3, plaintext) instead of one CRITICAL and one HIGH; fails to identify RDS deletion protection as HIGH or bucket versioning as MEDIUM per reference hierarchy."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Submission provides specific remediation for each identified issue: SOPS-encrypted secrets with secretKeyRef example, IAM + CloudFront OAI for S3, resource limits YAML block, and RDS verification checklist\u2014all actionable and concrete."
+      }
+    ]
+  }
+}

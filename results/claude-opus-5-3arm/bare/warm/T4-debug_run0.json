@@ -1,0 +1,34 @@
+{
+  "model": "claude-opus-5",
+  "task": "T4-debug",
+  "stack": "bare",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[parse all YAML] yq: exit=0\n# SEED REPO: bare prod/app.yaml with a seeded defect.\n#\n# Application workload, same shape as golden-base/knr-ops/infra/app/deployment.yaml.\n# Named myapp-prod (not myapp) for the same reason as dev/app.yaml: no\n# namePrefix mechanism here, so env-qualified names are hand-written.\n#\n# eks.amazonaws.com/role-arn below is left as a documented placeholder: IRSA\n# needs the *runtime* ARN of the Role in iam.yaml, which ACK only knows once\n# it has actually created that Role (status.ackResourceMetadat\n[validate CRDs] kubeconform: exit=0\nSummary: 6 resources found in 2 files - Valid: 6, Invalid: 0, Errors: 0, Skipped: 0\n"
+    },
+    "static": {
+      "passed": false,
+      "logs": "kubectl apply --dry-run=client -f app.yaml: exit=1\nERR: error: error validating \"/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-f1z_4_0j/prod/app.yaml\": error validating data: failed to download openapi: Get \"http://localhost:8080/openapi/v2?timeout=32s\": dial tcp [::1]:8080: connect: connection refused; if you choose to ignore these errors, turn validation off with --validate=false\n\nkubectl apply --dry-run=client -f app.yaml: exit=1\nERR: error: error validating \"/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-f1z_4_0j/dev/app.yaml\": error validating data: failed to download openapi: Get \"http://localhost:8080/openapi/v2?timeout=32s\": dial tcp [::1]:8080: connect: connection refused; if you choose to ignore these errors, turn validation off with --validate=false\n"
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 2 items\n\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T4-debug/tests/test_task.py::test_selector_matches_template_labels FAILED [ 50%]\n../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T4-debug/tests/test_task.py::test_service_still_selects_pods PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: Deployment selector requires labels not present on the pod template: {'version': 'v2'} -- kubectl apply would still be rejected\n    assert not {'version': 'v2'}\n/Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T4-debug/tests/test_task.py:42: AssertionError: Deployment selector requires labels not present on the pod template: {'version': 'v2'} -- kubectl apply would still be rejected\n=========================== short test summary info ============================\nFAILED ../../../../../../../Users/alex/Documents/checkouts/iac-cd-bench/.claude/worktrees/agent-a6d49e5abb7ab7b38/tasks/bare/T4-debug/tests/test_task.py::test_selector_matches_template_labels\n========================= 1 failed, 1 passed in 0.02s ==========================\n",
+      "passed_count": 1,
+      "total_count": 2,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2,
+    "output": 1173
+  },
+  "content": "The selector requires `version: v2`, which the pod template's labels don't provide. The template has only `app: myapp` / `env: prod`.\n\nFix: drop `version: v2` from `spec.selector.matchLabels` so it matches the template (and `dev/app.yaml`'s shape). Adding it to the template instead would also validate, but selector labels are immutable after creation \u2014 keeping the selector minimal and identical to dev is the safer choice, and it keeps the Service's selector (`app`, `env`) a subset of the template labels either way.\n\n`prod/app.yaml`\n```yaml\n# SEED REPO: bare prod/app.yaml with a seeded defect.\n#\n# Application workload, same shape as golden-base/knr-ops/infra/app/deployment.yaml.\n# Named myapp-prod (not myapp) for the same reason as dev/app.yaml: no\n# namePrefix mechanism here, so env-qualified names are hand-written.\n#\n# eks.amazonaws.com/role-arn below is left as a documented placeholder: IRSA\n# needs the *runtime* ARN of the Role in iam.yaml, which ACK only knows once\n# it has actually created that Role (status.ackResourceMetadata.arn) - it\n# can't be known at manifest-authoring time. A rendering pipeline (or a\n# two-phase apply: create the Role, read its status, patch the ServiceAccount)\n# would close this gap; bare's plain kubectl apply has no such step, so this\n# ServiceAccount's role-arn has to be patched in by hand after the Role\n# exists. See golden-base/bare/README.md.\napiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: myapp-prod\n  namespace: app\n  annotations:\n    eks.amazonaws.com/role-arn: \"<REPLACE_WITH_myapp-prod-service-role_ARN_AFTER_CREATE>\"\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: myapp-prod\n  namespace: app\n  labels:\n    app: myapp\n    env: prod\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: myapp\n      env: prod\n  template:\n    metadata:\n      labels:\n        app: myapp\n        env: prod\n    spec:\n      serviceAccountName: myapp-prod\n      containers:\n        - name: myapp\n          image: docker.io/myapp/myapp:latest\n          ports:\n            - containerPort: 8080\n          resources:\n            requests:\n              cpu: 100m\n              memory: 128Mi\n            limits:\n              cpu: 500m\n              memory: 256Mi\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: myapp-prod\n  namespace: app\nspec:\n  selector:\n    app: myapp\n    env: prod\n  ports:\n    - port: 80\n      targetPort: 8080\n  type: ClusterIP\n```\n\nOne note: if `myapp-prod` already exists in the cluster with the three-label selector, `kubectl apply` will reject the narrowed selector as an immutable-field change \u2014 in that case delete the Deployment first (`kubectl delete deploy myapp-prod -n app`) and re-apply. On a fresh cluster it applies cleanly.\n\n`dev/app.yaml` is unchanged.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-f1z_4_0j/dev/app.yaml"
+  ]
+}

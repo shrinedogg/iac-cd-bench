@@ -1,0 +1,27 @@
+stack: bare
+archetype: comprehend
+id: "T1-comprehend"
+title: "Predict kubectl apply behavior from a repo slice"
+answer_format: rubric
+
+stages:
+  lint:
+    enabled: false
+  static:
+    enabled: false
+  semantic:
+    enabled: false
+  e2e:
+    enabled: false
+
+rubric:
+  - criterion: "Identifies that kubectl apply -f prod/ processes files in lexical filename order (00-namespaces.yaml first because of its numeric prefix), not a dependency graph"
+    weight: 1
+  - criterion: "Correctly states the workers.yaml replica change (4 to 6) applies successfully in place, since replicas is a mutable field"
+    weight: 2
+  - criterion: "Correctly states the app.yaml selector change is rejected by the API server because spec.selector is immutable on an existing Deployment, and that the other three files in the same kubectl apply -f prod/ invocation still apply independently"
+    weight: 3
+  - criterion: "States that kubectl apply has no prune step by default, so the myapp-assets-prod-replica Bucket object and the AWS S3 bucket it manages are NOT deleted merely because the manifest was removed from Git"
+    weight: 2
+  - criterion: "Recognizes dev/ and prod/ are fully independent, duplicated directories with no shared base, so nothing in this PR can affect dev/"
+    weight: 1

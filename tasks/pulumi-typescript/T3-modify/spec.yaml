@@ -16,6 +16,6 @@ stages:
       - pulumi preview
   semantic:
     enabled: true
-    assertion_count: 3
+    assertion_count: 6
   e2e:
     enabled: false

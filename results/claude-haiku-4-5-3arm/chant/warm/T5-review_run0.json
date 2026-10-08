@@ -1,0 +1,70 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "chant",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 1420
+  },
+  "content": "I found **4 critical security issues** in this diff. Each violates the canonical spec acceptance criteria for prod infrastructure.\n\n## Issues Found (Ranked by Severity)\n\n### \ud83d\udd34 CRITICAL (1): Master Password in Plaintext Git\n- **Location**: `masterUserPassword: \"Prod2026!DbPass\"` (line 24)\n- **Issue**: The production database master password is hardcoded as a literal string in TypeScript source, which will be committed to Git. The previous code used `SecretRef` \u2014 a pointer to a Kubernetes Secret managed out of band.\n- **Spec violation**: \"Secret: never stored in plaintext in Git; encrypted at rest via stack-native mechanism\"\n- **Fix**: Replace with a `SecretRef` pointing to a cluster-managed Secret, as the original code did.\n\n### \ud83d\udd34 CRITICAL (2): Publicly Accessible Database\n- **Location**: `publiclyAccessible: true` (line 23)\n- **Issue**: Production database is exposed to the internet. The `PostgresInstance` composite previously hardcoded this to `false`.\n- **Spec violation**: \"RDS: \u2026no publicly accessible\"\n- **Fix**: Change to `publiclyAccessible: false` (remove the line entirely if it defaults to false).\n\n### \ud83d\udd34 CRITICAL (3): Deletion Protection Disabled\n- **Location**: `deletionProtection: false` (line 22)\n- **Issue**: Production database can be accidentally deleted. The `PostgresInstance` composite previously hardcoded this to `true`.\n- **Spec violation**: \"RDS: deletion protection on\"\n- **Fix**: Change to `deletionProtection: true`.\n\n### \ud83d\udd34 CRITICAL (4): Wildcard IAM Actions on Prod\n- **Location**: `additionalActions: [\"s3:*\"]` (line 56)\n- **Issue**: Grants all S3 actions to the service account. This violates least-privilege principle by granting overly broad permissions.\n- **Spec violation**: \"IAM: principle of least privilege; \u2026no wildcard actions on prod\"\n- **Fix**: Replace with specific S3 actions required by the application (e.g., `[\"s3:GetObject\", \"s3:PutObject\"]`).\n\n---\n\n**Recommendation**: Do not merge until all four issues are resolved. The shift from `PostgresInstance` composite to raw `DBInstance` removed safety guardrails that enforced secure defaults \u2014 each of these issues represents a security property the composite was protecting.",
+  "judge": {
+    "idiom": 0.8125,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that the diff hardcodes a plaintext-looking database password directly into spec.masterUserPassword, bypassing secretRef()/SecretRef entirely -- the referenced-provenance discipline this golden depends on to keep material out of git",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Explicitly identifies hardcoded plaintext password in masterUserPassword and notes previous code used SecretRef, clearly showing the bypass of referenced-provenance discipline."
+      },
+      {
+        "criterion": "Identifies that abandoning PostgresInstance for a raw new DBInstance({...}) sets publiclyAccessible: true and deletionProtection: false, directly reversing SPEC acceptance criterion 2's non-negotiable posture (both are pinned, not props, inside the composite)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Identifies both publiclyAccessible: true and deletionProtection: false as separate issues, correctly noting PostgresInstance composite previously hardcoded them to false/true respectively."
+      },
+      {
+        "criterion": "Identifies the additionalActions: [\"s3:*\"] wildcard added to the prod reader's ReaderIam call, violating SPEC acceptance criterion 4 (no wildcard actions) even though additionalActions is 'just' a string array with no type-level wildcard guard",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Identifies the s3:* wildcard in additionalActions and cites spec violation, but omits the key detail that additionalActions is a string array with no type-level guard preventing wildcards."
+      },
+      {
+        "criterion": "Notes that bypassing the PostgresInstance composite for a raw DBInstance construction is itself a red flag independent of the specific prop values it happens to set here -- it silently drops every other guarantee the composite enforces (backupRetentionDays >= 7, referenced-secret discipline) for any future edit to this call site",
+        "weight": 1.0,
+        "score": 0.25,
+        "justification": "Mentions composite bypass removing safety guardrails only in conclusion; does not treat it as a distinct, separately-ranked security issue independent of the specific values."
+      },
+      {
+        "criterion": "Ranks the issues by severity in a defensible order consistent with: the hardcoded password and the public/unprotected database as most severe (roughly tied), the wildcard IAM grant next, and the composite bypass as a practice least severe on its own",
+        "weight": 2.0,
+        "score": 0.5,
+        "justification": "Orders identified issues reasonably (password, database, wildcard) but labels all as CRITICAL without clear severity distinction; missing composite-bypass as 5th ranked concern."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this') -- restore the PostgresInstance call with secretRef(), remove the wildcard action",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides specific, concrete remediations for each issue: SecretRef replacement, false/true values for deletion/public access, specific S3 actions instead of wildcards."
+      }
+    ]
+  }
+}

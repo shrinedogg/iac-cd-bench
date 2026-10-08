@@ -24,11 +24,11 @@ export class IAMComponent extends pulumi.ComponentResource {
     });
 
     const accessKey = new aws.iam.AccessKey(`${name}-key`, {
-      userName: user.name,
+      user: user.name,
     }, { dependsOn: [user] });
 
     const role = new aws.iam.Role(`${name}-role`, {
-      assumeRolePolicyDocument: {
+      assumeRolePolicy: JSON.stringify({
         Version: "2012-10-17",
         Statement: [{
           Effect: "Allow",
@@ -39,7 +39,7 @@ export class IAMComponent extends pulumi.ComponentResource {
           },
           Action: "sts:AssumeRole",
         }],
-      },
+      }),
       path: "/",
       maxSessionDuration: 3600,
       tags: {
@@ -48,7 +48,7 @@ export class IAMComponent extends pulumi.ComponentResource {
     });
 
     const policy = new aws.iam.Policy(`${name}-policy`, {
-      policyDocument: JSON.stringify({
+      policy: JSON.stringify({
         Version: "2012-10-17",
         Statement: [{
           Effect: "Allow",
@@ -58,12 +58,12 @@ export class IAMComponent extends pulumi.ComponentResource {
           Resource: pulumi.interpolate`${args.bucketArn}/*`,
         }],
       }),
-      policyName: `${name}-policy`,
+      name: `${name}-policy`,
     });
 
     const attachment = new aws.iam.UserPolicyAttachment(`${name}-attach`, {
       policyArn: policy.arn,
-      userName: user.name,
+      user: user.name,
     }, { dependsOn: [user, policy] });
 
     this.userName = user.name;

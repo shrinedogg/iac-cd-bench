@@ -1,0 +1,24 @@
+
+[1mprod/k8s[0m — 20 resources — identity only — 2026-08-25T15:25:11.089Z
+RESOURCE            TYPE                        PHYSICAL ID                                 STATUS
+----------------------------------------------------------------------------------------------------
+ackCharts           K8s::Flux::HelmRepository   8e53ea09-afa3-45c4-b4ed-a26be409073e        PRESENT
+assetsBucket        K8s::S3::Bucket             124dde88-e3e9-4317-81b7-fe8b0d9fe948        PRESENT
+assetsReplicaBucket K8s::S3::Bucket             aae3f1ba-12fb-40dd-b428-94d029a0a0d8        PRESENT
+assetsReplicaRole   K8s::Iam::Role              883834fb-f68b-40c6-96b1-07725d238100        PRESENT
+clusterAppKustomizationK8s::Flux::Kustomization    54243c2b-6707-415f-9c6e-46444cda0a36        PRESENT
+clusterCluster      K8s::CAPI::Cluster          28587d53-bb3e-4196-8ff1-f77c02fb5d41        PRESENT
+clusterControlPlane K8s::Controlplane::AWSManagedControlPlane40913731-2b63-4292-8544-3bb0ea556287        PRESENT
+clusterFluxAddon    K8s::Addons::HelmChartProxy 18d1f0ad-c4c6-4420-83ba-05585ac9de8b        PRESENT
+clusterInfra        K8s::Infrastructure::AWSManagedCluster3e3dbc2a-9366-4ce9-b415-a39153dcec43        PRESENT
+clusterNodePoolAwsPoolK8s::Infrastructure::AWSManagedMachinePool11b1e0a4-e5b8-4b22-8118-d63fa6948c9a        PRESENT
+clusterNodePoolMachinePoolK8s::CAPI::MachinePool      46e1dae6-a9e4-42cb-97f7-0a1b96f6f4eb        PRESENT
+databaseInstance    K8s::Rds::DBInstance        e260c51b-4922-44d1-968f-8affbc3102b8        PRESENT
+iamControllerReleaseK8s::Flux::HelmRelease      574e250f-08e5-4d7c-a64e-1e5b54a8bd2c        PRESENT
+infraAppKustomizationK8s::Flux::Kustomization    113edbc7-2266-4c6a-b5ca-5b4753fb0192        PRESENT
+rdsControllerReleaseK8s::Flux::HelmRelease      e9a2faea-803f-4ffa-a1f3-6045c3e1b2d4        PRESENT
+readerPodIdentity   K8s::Eks::PodIdentityAssociation5f96a224-af6b-489e-b7d5-ed6d19cca19f        PRESENT
+readerPolicy        K8s::Iam::Policy            d3dcfc95-9da9-43ed-af40-7acb6733f6f0        PRESENT
+readerRole          K8s::Iam::Role              afa2d040-cf6a-4fb3-8d19-af8c041826e2        PRESENT
+s3ControllerRelease K8s::Flux::HelmRelease      c2582689-4a0b-48bf-9c7a-46bdf99fbc1c        PRESENT
+sourceGitRepository K8s::Flux::GitRepository    c5818c4f-2254-4614-b979-681e62d4f1c7        PRESENT

@@ -1,0 +1,136 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "pulumi-python",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "7e4e0c9b657e41ec",
+      "spec_sha256": "7a9294ae2fcf8b1a",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[ruff check] ruff: exit=1\ngenerated_0.py:3:29: F401 [*] `pulumi_kubernetes` imported but unused\n  |\n1 | import pulumi\n2 | import pulumi_aws as aws\n3 | import pulumi_kubernetes as k8s\n  |                             ^^^ F401\n4 | \n5 | config = pulumi.Config()\n  |\n  = help: Remove unused import: `pulumi_kubernetes`\n\ngenerated_0.py:24:89: E501 Line too long (98 > 88)\n   |\n22 |     node_role_arn=node_role_arn,\n23 |     subnet_ids=subnet_ids,\n24 |     instance_types=[config.get(\"instance_type\") or (\"t3.medium\" if env == \"dev\" "
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (runtime: python)\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\nTraceback (most recent call last):\n\n  File \"/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi-language-python-exec\", line 16, in <module>\n\n    import pulumi\n\nModuleNotFoundError: No module named 'pulumi'\n\nIt looks like the Pulumi SDK has not been installed. Have you run pip install?\n\nIf you are running in a virtualenv, you must run pip install -r requirements.txt from inside the virtualenv.\n\nResources:\n\nERR: error: an unhandled error occurred: program exited with non-zero exit code: 1\n"
+    },
+    "semantic": {
+      "inapplicable": true,
+      "reason": "no semantic tests",
+      "logs": "no semantic tests",
+      "passed_count": 0,
+      "total_count": 0,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1186,
+    "output": 2629
+  },
+  "content": "# Adding Auto-Scaling to Existing Pulumi EKS Stack (Non-Destructive)\n\n## Core Strategy\n\nThe key is that `scaling_config` on `aws.eks.NodeGroup` is **non-destructive**\u2014it updates in-place without triggering node group replacement. Contrast this with properties like `instance_types` or `ami_type`, which cause replacement if changed.\n\n## Implementation\n\n### 1. Update the Node Group Definition\n\nModify your existing `aws.eks.NodeGroup` resource to include `scaling_config`. If the resource already exists in your stack, Pulumi will perform an update-in-place:\n\n```python\nimport pulumi\nimport pulumi_aws as aws\nimport pulumi_kubernetes as k8s\n\nconfig = pulumi.Config()\nenv = pulumi.get_stack()  # \"dev\" or \"prod\"\n\n# Retrieve or create EKS cluster (existing)\ncluster = aws.eks.Cluster.get(f\"{env}-cluster\", id=config.require(\"cluster_id\"))\n\n# Get IAM role for nodes (existing)\nnode_role_arn = config.require(\"node_role_arn\")\n\n# Define subnet IDs\nsubnet_ids = config.require(\"subnet_ids\").split(\",\")\n\n# Add or update node group with scaling_config\nnode_group = aws.eks.NodeGroup(\n    f\"{env}-node-group\",\n    cluster_name=cluster.name,\n    node_group_name=f\"{env}-ng\",\n    node_role_arn=node_role_arn,\n    subnet_ids=subnet_ids,\n    instance_types=[config.get(\"instance_type\") or (\"t3.medium\" if env == \"dev\" else \"t3.large\")],\n    scaling_config=aws.eks.NodeGroupScalingConfigArgs(\n        min_size=config.get_int(\"min_nodes\") or (1 if env == \"dev\" else 2),\n        desired_size=config.get_int(\"desired_nodes\") or (2 if env == \"dev\" else 4),\n        max_size=config.get_int(\"max_nodes\") or (3 if env == \"dev\" else 6),\n    ),\n)\n\npulumi.export(\"node_group_id\", node_group.id)\n```\n\n### 2. Environment-Specific Configuration\n\nDefine min/desired/max per environment in stack config files:\n\n**`dev.yaml`:**\n```yaml\nconfig:\n  aws:region: us-east-1\n  cluster_id: dev-cluster-xyz\n  node_role_arn: arn:aws:iam::123456789:role/dev-node-role\n  subnet_ids: subnet-1,subnet-2\n  instance_type: t3.medium\n  min_nodes: 1\n  desired_nodes: 2\n  max_nodes: 3\n```\n\n**`prod.yaml`:**\n```yaml\nconfig:\n  aws:region: us-east-1\n  cluster_id: prod-cluster-abc\n  node_role_arn: arn:aws:iam::123456789:role/prod-node-role\n  subnet_ids: subnet-3,subnet-4\n  instance_type: t3.large\n  min_nodes: 2\n  desired_nodes: 4\n  max_nodes: 8\n```\n\n### 3. (Optional) Deploy Kubernetes HPA for Application-Level Auto-Scaling\n\nSupplement with horizontal pod autoscaler if needed:\n\n```python\n# After creating the cluster provider\nk8s_provider = k8s.Provider(\"k8s\", kubeconfig=cluster.kubeconfig)\n\nhpa = k8s.autoscaling.v2.HorizontalPodAutoscaler(\n    \"app-hpa\",\n    metadata={\"namespace\": \"default\"},\n    spec=k8s.autoscaling.v2.HorizontalPodAutoscalerSpecArgs(\n        scale_target_ref=k8s.autoscaling.v2.CrossVersionObjectReferenceArgs(\n            api_version=\"apps/v1\",\n            kind=\"Deployment\",\n            name=\"app\",\n        ),\n        min_replicas=config.get_int(\"hpa_min\") or 2,\n        max_replicas=config.get_int(\"hpa_max\") or 10,\n        metrics=[\n            k8s.autoscaling.v2.MetricSpecArgs(\n                type=\"Resource\",\n                resource=k8s.autoscaling.v2.ResourceMetricSourceArgs(\n                    name=\"cpu\",\n                    target=k8s.autoscaling.v2.MetricTargetArgs(\n                        type=\"Utilization\",\n                        average_utilization=70,\n                    ),\n                ),\n            ),\n        ],\n    ),\n    opts=pulumi.ResourceOptions(provider=k8s_provider),\n)\n```\n\n## Why This Avoids Replacement\n\n1. **`scaling_config` is updatable**: AWS allows in-place updates to node group scaling parameters without terminating nodes.\n2. **No immutable property changes**: The implementation doesn't modify `instance_types`, `ami_type`, or other replacement-triggering fields.\n3. **Pulumi recognizes this**: The AWS provider marks scaling_config as non-destructive in its resource schema.\n\n## Validation & Deployment\n\n```bash\n# Dry run to verify no replacement\npulumi preview --stack dev\n\n# Look for entries like:\n# ~ aws:eks:NodeGroup dev-node-group update (no replacement)\n#   ~ scalingConfig: ...\n\n# Deploy\npulumi up --stack dev\n\n# Confirm node group was updated, not recreated\naws eks describe-nodegroup --cluster-name dev-cluster-xyz --nodegroup-name dev-ng\n```\n\n## Key Precautions\n\n- **Preserve instance types**: Don't change `instance_types` during the same update.\n- **Use `pulumi refresh` first** if uncertain about current state: `pulumi refresh --stack dev`\n- **Test in dev first**: Validate the approach in dev before rolling to prod.\n- **No wildcard deletions**: If you're also managing secrets/roles in the same program, update them separately to avoid side effects.\n\nThis approach is idiomatic for Pulumi + EKS and aligns with the scenario's environment-isolation requirement (dev and prod remain independently deployable).",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-nkxb_j67/generated_0.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-nkxb_j67/dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-nkxb_j67/prod.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-nkxb_j67/generated_1.py"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4850,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 4850,
+      "fenced_blocks": 5,
+      "extracted_files": 4,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

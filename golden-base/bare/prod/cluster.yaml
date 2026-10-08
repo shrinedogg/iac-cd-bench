@@ -1,0 +1,32 @@
+# Prod EKS cluster via Cluster API + CAPA (Cluster API Provider AWS), same
+# kinds as golden-base/knr-ops/clusters/eksa/cluster.yaml. No kustomize base
+# to inherit from: this file is prod's complete, standalone copy - it is not
+# a patch over dev/cluster.yaml.
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: myapp-prod
+  namespace: clusters
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 192.168.0.0/16
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: AWSCluster
+    name: myapp-prod
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    kind: KubeadmControlPlane
+    name: myapp-prod
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: AWSCluster
+metadata:
+  name: myapp-prod
+  namespace: clusters
+spec:
+  region: us-east-1
+  managedNetwork:
+  additionalEndpoints: []

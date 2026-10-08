@@ -1,6 +1,17 @@
 # SEED REPO: Crossplane with incorrect fromFieldPath + missing ReadinessChecks
 # Defect 1: incorrect fromFieldPath in Composition patch
 # Defect 2: missing ReadinessChecks on RDS resource
+#
+# Both defects live in composition.yaml. This XRD is deliberately CORRECT: it
+# is the contract the Composition is supposed to patch against, and the task is
+# to fix the Composition, not this.
+#
+# `spec.names` is required and was missing (#114): without it the XRD names no
+# composite kind, so nothing in the workspace declared what `crossplane render`
+# should render and the static gate abstained on this task in every run ever
+# recorded. The parameters block is nested to match the field path the grader
+# and the defect comments both use -- `spec.parameters.instanceClass` -- which
+# the flat schema here contradicted.
 
 apiVersion: apiextensions.crossplane.io/v1
 kind: CompositeResourceDefinition
@@ -8,6 +19,12 @@ metadata:
   name: xawswebservices.app.example.com
 spec:
   group: app.example.com
+  names:
+    kind: XAWSWebService
+    plural: xawswebservices
+  claimNames:
+    kind: AWSWebService
+    plural: awswebservices
   versions:
     - name: v1alpha1
       served: true
@@ -19,14 +36,16 @@ spec:
             spec:
               type: object
               properties:
-                instanceClass:
-                  type: string
-                  default: db.t3.medium
-                deletionProtection:
-                  type: boolean
-                  default: true
+                parameters:
+                  type: object
+                  properties:
+                    instanceClass:
+                      type: string
+                      default: medium
+                    deletionProtection:
+                      type: boolean
+                      default: true
+                  required:
+                    - instanceClass
               required:
-                - instanceClass
-  claimNames:
-    kind: AWSWebService
-    plural: awswebservices
+                - parameters

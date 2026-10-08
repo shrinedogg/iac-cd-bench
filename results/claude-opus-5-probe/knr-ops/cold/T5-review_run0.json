@@ -1,0 +1,32 @@
+{
+  "model": "claude-opus-5",
+  "task": "T5-review",
+  "stack": "knr-ops",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 2,
+    "output": 1562
+  },
+  "content": "# Security Review \u2014 knr-ops PR\n\n## Findings, ranked\n\n### \ud83d\udd34 CRITICAL 1 \u2014 Plaintext DB password in deployment env vars\nThe app Deployment sets the database password as a literal `value:` in `env:`. This is a hard blocker:\n- The credential is now in Git history permanently \u2014 reverting the commit does **not** remove it.\n- It's readable by anyone with `get pod`/`get deployment` RBAC in the namespace, and it leaks into `kubectl describe`, events, and any manifest-dumping tooling.\n- Violates acceptance criterion #3 (\"Secret: never stored in plaintext in Git\").\n\n**Required before merge:**\n1. Treat the committed password as compromised \u2014 rotate it in RDS *now*, independent of this PR.\n2. Replace with the stack-native mechanism: a SOPS-encrypted Secret committed under the overlay, decrypted by Flux's `sops` decryption provider (`spec.decryption.provider: sops` + `secretRef` to the age/KMS key on the `Kustomization`).\n3. Reference it via `envFrom.secretRef` or `env[].valueFrom.secretKeyRef` \u2014 never `value:`.\n4. Scrub history (BFG / `git filter-repo`) or accept that rotation is the real mitigation.\n\n### \ud83d\udd34 CRITICAL 2 \u2014 S3 bucket policy grants public read\nA policy with `Principal: \"*\"` and `s3:GetObject` on `arn:.../*` makes every object world-readable. Two compounding problems:\n- The bucket holds application assets, but nothing enforces that only assets land there \u2014 any accidental write (backups, dumps, user uploads) becomes public.\n- This directly violates acceptance criterion #1 (\"no public access\") and will likely trip AWS Config / Security Hub / Macie alarms.\n\n**Required before merge:** remove the public statement. If the assets genuinely must be internet-reachable, front the bucket with CloudFront using an Origin Access Control and scope the policy `Principal` to the distribution's service principal with a `AWS:SourceArn` condition \u2014 that's also what the spec's HTTPS/CloudFront row already calls for. Also confirm the account-level and bucket-level Public Access Block are still `true` on all four flags; a public policy plus a disabled block is the actual breach path.\n\n### \ud83d\udfe1 WARNING \u2014 Missing resource limits on containers\nNo `resources.limits` (and likely no `requests`) on the app containers. This is a availability/security-adjacent issue rather than a confidentiality one:\n- A memory leak or a compromised container can consume node capacity and evict neighbors \u2014 a trivially reachable denial of service.\n- Without `requests`, the pod lands in BestEffort QoS and is first to be OOM-killed, making prod behavior nondeterministic.\n- If a LimitRange or ResourceQuota exists on the namespace, this may fail admission at apply time rather than at review time.\n\n**Recommended before merge:** set `requests` and `limits` for cpu and memory in `base/`, and override sizing in `overlays/prod/` via a patch so dev and prod scale independently. Pair with a `LimitRange` default so future manifests can't regress.\n\n### \ud83d\udfe2 INFO \u2014 RDS instance class change\nNo security impact. Two things worth confirming since the diff touches RDS at all:\n- A class change is a modify operation; verify `apply_immediately` semantics and whether this triggers a maintenance-window restart in prod.\n- Confirm this PR does not incidentally alter `deletion_protection`, `backup_retention_period` (must stay \u2265 7), `storage_encrypted`, or `publicly_accessible`. If the change is only in an overlay, check the base still supplies those defaults \u2014 kustomize patches silently inherit, and a reviewer reading only the overlay can miss a base-level regression.\n\n## Merge verdict\n\n**Block.** Two critical findings. The password issue additionally requires an out-of-band credential rotation that is not satisfied by changing the diff.\n\n## Suggested follow-ups (separate PRs)\n\n- Add a CI gate: `gitleaks` or `trufflehog` on the diff, plus a `conftest`/OPA policy rejecting `env[].value` on keys matching `PASSWORD|SECRET|TOKEN|KEY` and rejecting S3 policies with `Principal: \"*\"`.\n- Add a kustomize build check in CI so the *rendered* prod output \u2014 not just the overlay diff \u2014 is what policy runs against. Overlay-only review is how both criticals here got past authoring.\n- Verify Flux's SOPS decryption key is scoped per-environment so a dev key cannot decrypt prod secrets.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 4263
+  }
+}

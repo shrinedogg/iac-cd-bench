@@ -1,0 +1,42 @@
+# ACK rds-controller (rds.services.k8s.aws) - dev: db.t3.micro, single-AZ.
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBSubnetGroup
+metadata:
+  name: myapp-dev-db-subnet
+  namespace: infra
+spec:
+  name: myapp-dev-db-subnet
+  description: Dev RDS subnet group
+  subnetIDs:
+    - subnet-dev-1
+    - subnet-dev-2
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: myapp-dev-db
+  namespace: infra
+spec:
+  dbInstanceIdentifier: myapp-dev-db
+  dbInstanceClass: db.t3.micro
+  engine: postgres
+  engineVersion: "16"
+  allocatedStorage: 20
+  dbName: appdb
+  masterUsername: app_user
+  masterUserPassword:
+    name: db-password-dev
+    namespace: infra
+    key: password
+  multiAZ: false
+  storageEncrypted: true
+  publiclyAccessible: false
+  deletionProtection: true
+  backupRetentionPeriod: 7
+  preferredBackupWindow: "03:00-04:00"
+  dbSubnetGroupName: myapp-dev-db-subnet
+  vpcSecurityGroupIDs:
+    - sg-example-dev
+  tags:
+    - key: Environment
+      value: dev

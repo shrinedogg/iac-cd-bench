@@ -1,0 +1,163 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T2-generate",
+  "stack": "bare",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "b870b4fe89ff9404",
+      "spec_sha256": "0aa384baa7f37e91",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[parse all YAML] yq: exit=0\napiVersion: s3.services.k8s.aws/v1alpha1\nkind: Bucket\nmetadata:\n  name: myapp-logs-prod\nspec:\n  bucketName: myapp-logs-prod\n  versioningConfiguration:\n    status: Enabled\n  serverSideEncryptionConfiguration:\n    rules:\n      - applyServerSideEncryptionByDefault:\n          sseAlgorithm: AES256\n  publicAccessBlockConfiguration:\n    blockPublicAcls: true\n    blockPublicPolicy: true\n    ignorePublicAcls: true\n    restrictPublicBuckets: true\n---\napiVersion: iam.services.k8s.aws/v1alpha1\nkind: Policy\n\n[validate CRDs] kubeconform: exit=1\n/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/dev/logs-policy.yaml - Policy myapp-logs-policy is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'file:///private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/iam.services.k8s.aws/policy_v1alpha1.json#' - at '/spec': missing property 'name'\n/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-"
+    },
+    "static": {
+      "passed": false,
+      "logs": "kubeconform -summary -schema-location default -schema-location /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/dev/logs-bucket.yaml: exit=1 examined=0\n/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/dev/logs-bucket.yaml - Bucket myapp-logs-dev is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'file:///private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/s3.services.k8s.aws/bucket_v1alpha1.json#' - at '/spec': missing property 'name'\nSummary: 1 resource found in 1 file - Valid: 0, Invalid: 1, Erro\nkubeconform -summary -schema-location default -schema-location /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/dev/logs-policy.yaml: exit=1 examined=0\n/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/dev/logs-policy.yaml - Policy myapp-logs-policy is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'file:///private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/iam.services.k8s.aws/policy_v1alpha1.json#' - at '/spec': missing property 'name'\nSummary: 1 resource found in 1 file - Valid: 0, Invalid: 1, \nkubeconform -summary -schema-location default -schema-location /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/prod/logs-bucket.yaml: exit=1 examined=0\n/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/prod/logs-bucket.yaml - Bucket myapp-logs-prod is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'file:///private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/s3.services.k8s.aws/bucket_v1alpha1.json#' - at '/spec': missing property 'name'\nSummary: 1 resource found in 1 file - Valid: 0, Invalid: 1, Er\nkubeconform -summary -schema-location default -schema-location /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json /var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/prod/logs-policy.yaml: exit=1 examined=0\n/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/prod/logs-policy.yaml - Policy myapp-logs-policy is invalid: problem validating schema. Check JSON formatting: jsonschema validation failed with 'file:///private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/schemas/iam.services.k8s.aws/policy_v1alpha1.json#' - at '/spec': missing property 'name'\nSummary: 1 resource found in 1 file - Valid: 0, Invalid: 1,",
+      "examined": 0,
+      "tools": [
+        {
+          "tool": "kubeconform",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+          "exit": 1,
+          "examined": 0
+        },
+        {
+          "tool": "kubeconform",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+          "exit": 1,
+          "examined": 0
+        },
+        {
+          "tool": "kubeconform",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+          "exit": 1,
+          "examined": 0
+        },
+        {
+          "tool": "kubeconform",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+          "exit": 1,
+          "examined": 0
+        }
+      ]
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 6 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T2-generate/tests/test_task.py::test_dev_logs_bucket_exists PASSED [ 16%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T2-generate/tests/test_task.py::test_prod_logs_bucket_exists PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T2-generate/tests/test_task.py::test_bucket_versioning PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T2-generate/tests/test_task.py::test_bucket_encryption PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T2-generate/tests/test_task.py::test_public_access_blocked PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/bare/T2-generate/tests/test_task.py::test_logs_scoped_iam_grant_present_both_envs PASSED [100%]\n\n============================== 6 passed in 0.01s ===============================\n",
+      "passed_count": 6,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1760,
+    "output": 9941
+  },
+  "content": "# S3 Logs Bucket with ACK: Bucket + Permissions\n\n## Bucket Definitions\n\n`dev/logs-bucket.yaml`\n```yaml\napiVersion: s3.services.k8s.aws/v1alpha1\nkind: Bucket\nmetadata:\n  name: myapp-logs-dev\nspec:\n  bucketName: myapp-logs-dev\n  versioningConfiguration:\n    status: Enabled\n  serverSideEncryptionConfiguration:\n    rules:\n      - applyServerSideEncryptionByDefault:\n          sseAlgorithm: AES256\n  publicAccessBlockConfiguration:\n    blockPublicAcls: true\n    blockPublicPolicy: true\n    ignorePublicAcls: true\n    restrictPublicBuckets: true\n```\n\n`prod/logs-bucket.yaml`\n```yaml\napiVersion: s3.services.k8s.aws/v1alpha1\nkind: Bucket\nmetadata:\n  name: myapp-logs-prod\nspec:\n  bucketName: myapp-logs-prod\n  versioningConfiguration:\n    status: Enabled\n  serverSideEncryptionConfiguration:\n    rules:\n      - applyServerSideEncryptionByDefault:\n          sseAlgorithm: AES256\n  publicAccessBlockConfiguration:\n    blockPublicAcls: true\n    blockPublicPolicy: true\n    ignorePublicAcls: true\n    restrictPublicBuckets: true\n```\n\n## Permission Grants\n\nCreate separate policy files for the logs bucket permissions:\n\n`dev/logs-policy.yaml`\n```yaml\napiVersion: iam.services.k8s.aws/v1alpha1\nkind: Policy\nmetadata:\n  name: myapp-logs-policy\nspec:\n  policyName: myapp-logs-policy\n  policyDocument: |\n    {\n      \"Version\": \"2012-10-17\",\n      \"Statement\": [\n        {\n          \"Effect\": \"Allow\",\n          \"Action\": [\n            \"s3:GetObject\",\n            \"s3:PutObject\"\n          ],\n          \"Resource\": \"arn:aws:s3:::myapp-logs-dev/*\"\n        }\n      ]\n    }\n```\n\n`prod/logs-policy.yaml`\n```yaml\napiVersion: iam.services.k8s.aws/v1alpha1\nkind: Policy\nmetadata:\n  name: myapp-logs-policy\nspec:\n  policyName: myapp-logs-policy\n  policyDocument: |\n    {\n      \"Version\": \"2012-10-17\",\n      \"Statement\": [\n        {\n          \"Effect\": \"Allow\",\n          \"Action\": [\n            \"s3:GetObject\",\n            \"s3:PutObject\"\n          ],\n          \"Resource\": \"arn:aws:s3:::myapp-logs-prod/*\"\n        }\n      ]\n    }\n```\n\n### Attachment to Existing Service Principals\n\nEdit the existing `iam.yaml` files to attach these policies:\n\n`dev/iam.yaml` \u2014 add to the existing `User` resource's `spec`:\n```yaml\n# Existing User resource \u2014 add managedPolicyArns if not present:\nspec:\n  userName: myapp-user\n  managedPolicyArns:\n    # ... existing policies from assets bucket ...\n    - arn:aws:iam::ACCOUNT:policy/myapp-logs-policy  # Reference the new logs policy\n```\n\n`prod/iam.yaml` \u2014 add to the existing `Role` resource's `spec`:\n```yaml\n# Existing Role resource \u2014 add managedPolicyArns if not present:\nspec:\n  roleName: myapp-role\n  assumeRolePolicyDocument: |\n    # ... existing trust policy ...\n  managedPolicyArns:\n    # ... existing policies from assets bucket ...\n    - arn:aws:iam::ACCOUNT:policy/myapp-logs-policy  # Reference the new logs policy\n```\n\n**Note:** Replace `ACCOUNT` with your AWS account ID. The `managedPolicyArns` will resolve to the ARN of the Policy resource created by ACK once it's applied.\n\n---\n\n**Result:** Each environment now has a separate, isolated logs bucket with versioning, AES-256 encryption, blocked public access, and least-privilege S3 permissions (`GetObject`, `PutObject` only on the logs bucket, not the assets bucket).",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/dev/logs-bucket.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/prod/logs-bucket.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/dev/logs-policy.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-bare-bow60tiv/prod/logs-policy.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3246,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3246,
+      "fenced_blocks": 6,
+      "extracted_files": 4,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

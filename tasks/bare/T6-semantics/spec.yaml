@@ -1,0 +1,17 @@
+stack: bare
+archetype: semantics
+id: "T6-semantics"
+title: "Semantic prediction quiz: plain kubectl apply runtime behavior"
+answer_format: code
+
+stages:
+  lint:
+    enabled: false
+  static:
+    enabled: false
+  semantic:
+    enabled: true
+    assertion_count: 7
+    pass_threshold: 0.6
+  e2e:
+    enabled: false

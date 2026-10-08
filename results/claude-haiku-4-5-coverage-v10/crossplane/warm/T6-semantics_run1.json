@@ -1,0 +1,130 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "crossplane",
+  "run": 1,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "7712b9b6fce4d9a9",
+      "spec_sha256": "dce361a25d3f53b7",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 7 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T6-semantics/tests/test_task.py::test_q1_claim_delete_cascades PASSED [ 14%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T6-semantics/tests/test_task.py::test_q2_orphan_bucket_survives PASSED [ 28%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T6-semantics/tests/test_task.py::test_q3_delete_policy_removes_role PASSED [ 42%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T6-semantics/tests/test_task.py::test_q4_manual_update_policy_pins_revision PASSED [ 57%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T6-semantics/tests/test_task.py::test_q5_claim_connection_secret_location PASSED [ 71%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T6-semantics/tests/test_task.py::test_q6_parallel_convergence PASSED [ 85%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/crossplane/T6-semantics/tests/test_task.py::test_q7_claim_namespaced_xr_cluster_scoped PASSED [100%]\n\n============================== 7 passed in 0.01s ===============================\n",
+      "passed_count": 7,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 2652,
+    "output": 2354
+  },
+  "content": "```json\n{\n  \"q1\": \"deleted\",\n  \"q2\": \"exists\",\n  \"q3\": \"deleted\",\n  \"q4\": \"manual\",\n  \"q5\": {\"name\": \"storefront-conn\", \"namespace\": \"team-a\"},\n  \"q6\": \"parallel-converge\",\n  \"q7\": {\"claim\": \"namespaced\", \"xr\": \"cluster-scoped\"}\n}\n```\n\n---\n\n### Reasoning\n\n**Q1:** `kubectl delete webservice storefront -n team-a` removes the claim, which cascades to delete the three managed resource objects (Bucket, Role, RolePolicyAttachment) from the Kubernetes cluster.\n\n**Q2:** The Bucket resource specifies `deletionPolicy: Orphan`. This means the AWS S3 bucket is orphaned\u2014left in AWS but no longer managed by Crossplane\u2014when the managed resource is deleted.\n\n**Q3:** The Role resource specifies `deletionPolicy: Delete`. The AWS IAM role is actually deleted from AWS when the managed resource is deleted.\n\n**Q4:** The claim specifies `compositionUpdatePolicy: Manual`, so it does not automatically adopt new CompositionRevisions. Updates must be manual.\n\n**Q5:** The claim's `writeConnectionSecretToRef.name: storefront-conn` overrides the Composition's `writeConnectionSecretsToNamespace: crossplane-system`. Since no namespace is specified in the claim's `writeConnectionSecretToRef`, it defaults to the claim's own namespace (`team-a`).\n\n**Q6:** Crossplane reconciles all composed resources in parallel. Dependencies (e.g., `role-attachment` waiting for the Role's `status.roleName`) are handled via re-reconciliation cycles, not sequential blocking waits.\n\n**Q7:** Claims (`WebService`) are namespace-scoped (defined under `claimNames` in the XRD). Composite Resources (`XWebService`) are cluster-scoped.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1600,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1600,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

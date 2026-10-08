@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "crossplane",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "465d62d4b7855b0f",
+      "spec_sha256": "ca92e9b63f5275ee",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1191,
+    "output": 1120
+  },
+  "content": "# Crossplane Composition Diff Review\n\n## Critical Issues\n\n### 1. **Bucket versioning dropped** \u2014 Acceptance Criterion Violation\n**Severity: HIGH**\n\nThe spec requires:\n> **Bucket**: versioning enabled, server-side encryption (AES-256 or KMS), no public access\n\nRemoving versioning from the S3 bucket composition violates AC #1. This affects both dev and prod:\n- **prod** bucket explicitly requires cross-region replication to us-west-2; versioning is a prerequisite for reliable replication semantics\n- **dev** bucket should match prod's durability posture idiomatically, even if scaled down\n- **Risk**: Loss of object version history; impaired ability to recover from accidental deletion or corruption\n\n**Action**: Restore versioning to both bucket compositions.\n\n---\n\n### 2. **`deletionPolicy: Delete` provider-wide** \u2014 Resource Leakage Risk\n**Severity: HIGH**\n\nApplying `deletionPolicy: Delete` across all managed resources is unsafe for stateful infrastructure:\n\n| Resource | Current Policy | Recommended | Rationale |\n|---|---|---|---|\n| S3 bucket | Delete | **Orphan** | Data destruction on claim deletion; no recovery path |\n| RDS instance | Delete | **Orphan** | Violates AC #2 (deletion protection); unplanned data loss |\n| EKS node group | Delete | Delete | Stateless compute; acceptable |\n| ALB | Delete | Delete | Ephemeral; acceptable |\n\n**Risk**: If a composition claim is accidentally deleted (typo in `kubectl delete`, misconfigured GitOps sync), stateful resources are permanently destroyed with no rollback option.\n\n**Action**: \n- Use `deletionPolicy: Orphan` for S3 and RDS compositions\n- Retain `deletionPolicy: Delete` only for compute/networking resources\n- Document the policy choice as a provider-level comment\n\n---\n\n## Summary\n\n| Check | Result | Notes |\n|---|---|---|\n| Versioning on bucket | \u274c FAIL | Required by AC #1; both envs affected |\n| Deletion safety | \u274c FAIL | Stateful resources need `Orphan` policy |\n| Environment isolation | \u2713 PASS | (No change noted to separation mechanism) |\n\n**Recommendation**: Revert both changes and implement a granular deletion policy that protects data while allowing safe cleanup of compute resources.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2167,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 2167,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.9375,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies deletionPolicy: Delete as destructive risk",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Clearly identifies deletionPolicy: Delete as destructive risk with specific mechanisms (permanent resource destruction on claim deletion) and impacts"
+      },
+      {
+        "criterion": "Identifies dropped bucket versioning as data loss risk",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Clearly identifies dropped bucket versioning as data loss risk, specifically loss of version history and recovery impairment, with AC reference"
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.75,
+        "justification": "Ranks both issues as HIGH severity (defensible), but presents them in reverse order from reference and doesn't differentiate deletionPolicy as potentially more immediately critical"
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides specific actionable remediation: restore versioning, use Orphan policy for S3/RDS, retain Delete for compute, and document the choice"
+      }
+    ]
+  }
+}

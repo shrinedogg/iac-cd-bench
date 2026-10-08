@@ -1,0 +1,130 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T6-semantics",
+  "stack": "chant",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "8206ecd3c567a63fd4a13c8044060049e9555d40",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1e15d083a0a90095",
+      "spec_sha256": "f715de7d385d5d34",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "laude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T6-semantics/tests/test_task.py::test_q3_orphan_classification FAILED [ 42%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T6-semantics/tests/test_task.py::test_q4_unmarked_orphan_is_adopt_not_delete PASSED [ 57%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T6-semantics/tests/test_task.py::test_q5_build_never_calls_cloud PASSED [ 71%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T6-semantics/tests/test_task.py::test_q6_snapshot_needs_no_controller_reconcile PASSED [ 85%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T6-semantics/tests/test_task.py::test_q7_missing_edges_specific_to_k8s_lexicon PASSED [100%]\n\n=================================== FAILURES ===================================\nE   AssertionError: q3: expected orphan, got 'newly-observed'\n    assert 'newly-observed' == 'orphan'\n      \n      - orphan\n      + newly-observed\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T6-semantics/tests/test_task.py:79: AssertionError: q3: expected orphan, got 'newly-observed'\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/chant/T6-semantics/tests/test_task.py::test_q3_orphan_classification\n========================= 1 failed, 6 passed in 0.01s ==========================\n",
+      "passed_count": 6,
+      "total_count": 7,
+      "pass_threshold": 0.6,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 9,
+    "output": 4253
+  },
+  "content": "```json\n{\n  \"q1\": {\n    \"behavior\": \"falls-back-to-run\",\n    \"reason\": \"When a file cannot fold, chant falls back per-file to importing and running it. Both builds exit successfully and produce output; the fold summary (N files folded, M ran) reflects this choice per file, not a failure.\"\n  },\n  \"q2\": {\n    \"answered_by\": \"live-marker\",\n    \"reason\": \"chant stamps ownership markers onto emitted resources at synthesis time (Kubernetes labels `chant.intentius.io/stack`). Ownership is answered by reading that live marker, never by consulting snapshots or state files\u2014the snapshot can be deleted with no impact.\"\n  },\n  \"q3\": \"newly-observed\",\n  \"q4\": {\n    \"action\": \"adopt\",\n    \"reason\": \"An undeclared (orphan) resource carrying no ownership marker is classified `adopt`, never `delete`. Only orphans whose live ownership marker confirms they belong to this stack are proposed for deletion.\"\n  },\n  \"q5\": {\n    \"calls_cloud\": false,\n    \"reason\": \"`chant build` is pure synthesis: it parses TypeScript, evaluates resource definitions, and serializes output. No credentials are consulted, no AWS or Kubernetes API calls occur\u2014only `.ts` file reads and YAML/JSON output writes.\"\n  },\n  \"q6\": {\n    \"requires_controller_reconcile\": false,\n    \"reason\": \"`chant lifecycle snapshot` calls `describeResources()` on each declared entity and records the result. For Kubernetes objects, this requires only that they exist and are GET-able through the k8s API\u2014CAPI/CAPA never need to have actually provisioned infrastructure for resources to be recorded as `PRESENT`.\"\n  },\n  \"q7\": {\n    \"specific_to_k8s_lexicon\": true,\n    \"reason\": \"The Kubernetes lexicon's `describeResources()` records only identity-depth attributes (namespace, labels, resourceVersion, conditions) with no reference-catalog enrichment, so `--at latest` k8s graphs yield zero edges. The AWS lexicon has enrichment for `{Ref}`/`{Fn::GetAtt}` resolution. Declared graphs (offline, no `--at`) are unaffected and resolve edges for all lexicons.\"\n  }\n}\n```",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 2019,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 2019,
+      "fenced_blocks": 1,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

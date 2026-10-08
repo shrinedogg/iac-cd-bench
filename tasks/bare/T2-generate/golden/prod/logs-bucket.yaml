@@ -1,0 +1,19 @@
+# ACK s3-controller Bucket (s3.services.k8s.aws) - prod logs bucket.
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  name: myapp-logs-prod
+  namespace: infra
+spec:
+  name: myapp-logs-prod
+  versioning:
+    status: Enabled
+  encryption:
+    rules:
+      - applyServerSideEncryptionByDefault:
+          sseAlgorithm: AES256
+  publicAccessBlock:
+    blockPublicACLs: true
+    blockPublicPolicy: true
+    ignorePublicACLs: true
+    restrictPublicBuckets: true

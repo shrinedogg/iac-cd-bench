@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T1-comprehend",
+  "stack": "pulumi-python",
+  "run": 2,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "2bfac0be6fff1a28",
+      "spec_sha256": "78091641558a342d",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1221,
+    "output": 1736
+  },
+  "content": "# Pulumi Preview Behavior: DB Replace Analysis\n\nI don't have the specific Pulumi Python code or preview output to diagnose your exact scenario, but I can provide the general answers based on the canonical scenario and Pulumi's standard behavior:\n\n---\n\n## 1. Which Property Triggered the Replace?\n\nFor RDS resources, **`multiAz` is the most likely culprit** in your scenario.\n\nMoving from **dev** (`single AZ`) to **prod** (`multi-AZ`) changes the `multiAz` property from `false` \u2192 `true`, which **forces a replacement** in AWS RDS (Pulumi respects AWS's replacement requirements).\n\nOther common replace triggers on `aws.rds.Instance`:\n- `engine` (PostgreSQL \u2192 MySQL, for example)\n- `instanceClass` (db.t3.micro \u2192 db.t3.medium) \u2014 *usually* requires downtime but may not force full replacement depending on your RDS settings\n- `storageType` (gp2 \u2192 gp3, in some cases)\n- `allocatedStorage` if decreased\n\n**To confirm:** Check your preview output for the `~` (update) vs. `+-` (replace/recreate) symbol next to the RDS resource. AWS documentation will confirm which fields require replacement.\n\n---\n\n## 2. What Does `pulumi up --target <urn>` Skip?\n\nThe `--target` flag **limits the update to only that resource and its dependents**. It skips:\n\n- **All unrelated resources** \u2014 resources not in the dependency tree of the target\n- **Upstream dependencies** \u2014 resources that the target depends on (unless already in sync)\n- **Refresh operations** for resources outside the target scope in some Pulumi versions\n- **Transitive closure calculations** beyond the target's dependents\n\n**Example:** If you target the RDS instance, Pulumi will update the RDS resource but **skip** the IAM role, S3 bucket, and EKS cluster unless they directly depend on RDS outputs (e.g., connection string injection).\n\n---\n\n## 3. How Does Pulumi Handle Secrets in Outputs?\n\nPulumi masks and encrypts secrets through:\n\n| Aspect | Behavior |\n|--------|----------|\n| **Creation** | Mark via `pulumi.SecretString()` or `pulumi.config.ConfigSecret()` |\n| **State file** | Encrypted at rest; decryption key stored in `Pulumi.yaml` |\n| **Preview output** | Displayed as `[secret]` (never shown in plaintext in CLI) |\n| **Stack exports** | Base64-encoded in `Pulumi.<stack>.yaml`; encrypted value stored |\n| **Program access** | Fully available to your Pulumi code (decrypted in memory) |\n| **Downstream resources** | Passed as plaintext to AWS/Kubernetes; Pulumi marks the output as secret, so CLI masks it |\n\n**Critical:** The secret is **not encrypted in transit to AWS**\u2014only at rest in Pulumi state and in CLI display. If the DB connection string is an `Output[str]` marked secret, it will be masked in `pulumi preview` and `pulumi up` logs, but your Kubernetes deployment can still read it to configure the application.\n\n---\n\n### To Diagnose Your Specific Case\n\nShare:\n1. The property change shown in the preview (e.g., `multiAz: false \u2192 true`)\n2. Your stack config files (`dev.yaml`, `prod.yaml`)\n3. The RDS resource definition in your Python code\n\nThat will confirm the exact replace trigger.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3063,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3063,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.5,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies that instanceClass change triggers RDS replacement",
+        "weight": 2.0,
+        "score": 0.25,
+        "justification": "Submission leads with multiAz as 'most likely culprit' and hedges instanceClass heavily ('usually requires...may not force full replacement'), failing to clearly identify it as the replacement trigger per the reference."
+      },
+      {
+        "criterion": "Explains that --target only applies to specified resources",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correctly explains --target limits update to specified resource and its dependents, skips unrelated resources, with concrete example (RDS, IAM, S3, EKS)."
+      },
+      {
+        "criterion": "States that secrets are encrypted in state and masked in outputs",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Clearly states secrets are encrypted at rest in state file and masked in CLI output as [secret], meeting both required claims."
+      },
+      {
+        "criterion": "Describes Pulumi's preview lifecycle",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission omits preview lifecycle entirely; provides diagnosis instructions instead of describing the four-step process (load state, compute diff, show actions, no API calls)."
+      }
+    ]
+  }
+}

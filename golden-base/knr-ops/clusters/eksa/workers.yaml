@@ -32,4 +32,4 @@ spec:
   template:
     spec:
       instanceType: t3.medium
-      instanceProfile: nodes
+      iamInstanceProfile: nodes

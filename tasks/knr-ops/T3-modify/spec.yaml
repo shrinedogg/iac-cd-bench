@@ -16,6 +16,6 @@ stages:
       - kustomize build
   semantic:
     enabled: true
-    assertion_count: 4
+    assertion_count: 5
   e2e:
     enabled: false

@@ -15,7 +15,7 @@ A stateless web application with supporting infrastructure, deployed to two envi
 | RDS PostgreSQL instance | db.t3.micro, single AZ | db.t3.medium, multi-AZ, encrypted |
 | IAM user + role (service account) | programmatic access | least-privilege role, OIDC trust |
 | HTTPS exposure | internal ALB or CloudFront | CloudFront + ACM cert |
-| Secret (DB connection string) | SOPS-encrypted (knr-ops), Crossplane SecretStore/ProviderSecret, Terraform `-var-file` or SOPS with `sops` provider, Pulumi `ConfigSecret` |
+| Secret (DB connection string) | SOPS-encrypted (knr-ops), Crossplane SecretStore/ProviderSecret, Terraform `-var-file` or SOPS with `sops` provider, Pulumi `ConfigSecret`, chant referenced-provenance secret ref (no committed ciphertext — see `golden-base/chant/README.md`, "Secrets: the SOPS interim") |
 
 ### Environments
 
@@ -25,6 +25,7 @@ Two environments: `dev` and `prod`. Each has the same resource topology but diff
 - **Crossplane**: provider configs + composition parameters per cluster/region
 - **Terraform**: workspaces or `*-dev.tfvars`/`*-prod.tfvars`
 - **Pulumi**: stack configs (`dev.yaml`, `prod.yaml`)
+- **chant**: two entrypoint directories, one build root each (`src/envs/dev`, `src/envs/prod`), invoking shared `Composite()` factories with per-environment props. `chant build src/envs/dev` never reads anything under `src/envs/prod`. Build-time parameters (`--param env=prod` over a single entrypoint) are the available alternative and are deliberately not used — see `golden-base/chant/README.md`, "Environment isolation".
 
 ## Acceptance Criteria (applies to all stacks)
 

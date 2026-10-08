@@ -1,0 +1,163 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "pulumi-python",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "65ba8f1338fa2db12539125d32183373e03dc439",
+      "dirty": false,
+      "branch": "bench/gates-pulumi"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "1153cd3bf90e8296",
+      "spec_sha256": "d327164fc3af7943",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1196,
+    "output": 553
+  },
+  "content": "# Security Review: Pulumi Preview JSON\n\nI'm ready to review your Pulumi preview JSON for the security issues you've identified, but **I don't see the actual JSON output attached to your request**.\n\nTo complete this review, please provide:\n\n1. **The Pulumi preview JSON output** (the raw JSON from `pulumi preview --json` or similar)\n2. **Which stack** you're reviewing (dev or prod, if both then both JSONs)\n\n## What I'll check for:\n\n\u2713 **Secrets in plaintext outputs** \u2014 DB passwords, API keys, or other sensitive values appearing unencrypted in outputs or resource properties  \n\u2713 **Replacement of stateful resources** \u2014 EKS clusters, RDS instances, or S3 buckets marked for `create_before_destroy=false` or direct replacement  \n\u2713 **Missing protect flag** \u2014 RDS deletion protection disabled, S3 versioning/encryption absent, IAM wildcard actions, or lack of `protect=true` on critical resources\n\nI'll validate against your acceptance criteria:\n- RDS: deletion protection, backup retention \u22657 days, not publicly accessible\n- S3: versioning enabled, server-side encryption, no public access\n- Secrets: encrypted via Pulumi `ConfigSecret` (not plaintext)\n- IAM: no wildcard actions on prod\n- Cluster: managed node groups, correct instance types and replicas per env\n\n**Paste the JSON preview output below**, and I'll provide a detailed security assessment with specific findings and remediation steps.",
+  "validity": {
+    "valid": false,
+    "reason": "short_stub",
+    "content_length": 1398,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1398,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies secret in plaintext outputs as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission does not identify any specific secret in plaintext; it only lists what it would check for if JSON were provided, then refuses the task."
+      },
+      {
+        "criterion": "Identifies stateful resource replacement as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission does not identify any stateful resource replacement; it requests the JSON input instead of performing the review."
+      },
+      {
+        "criterion": "Identifies missing protect flag as destructive risk",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission does not identify any missing protect flags; it only describes what would be checked in a hypothetical review."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission provides no ranked security issues or severity classification because no actual review was performed."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides no specific remediation steps for identified issues; instead it asks the user to provide input data."
+      }
+    ]
+  }
+}

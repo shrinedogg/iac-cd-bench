@@ -1,0 +1,169 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "bare",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "2b3940fbd51e98f3",
+      "spec_sha256": "debfcea6b8aad5d9",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1807,
+    "output": 2136
+  },
+  "content": "# Security Review: prod/ PR Diff\n\nThis PR contains **5 security issues**, of which **4 are CRITICAL**. I recommend **blocking this PR** until all critical issues are resolved.\n\n---\n\n## Issues Found (Ranked by Severity)\n\n### 1. **CRITICAL** \u2013 Plaintext Database Password Committed to Git\n- **File/Field:** `prod/db-secret.yaml` \u2192 `stringData.password`\n- **Issue:** A real production database password (`\"Summer2026!Prod#db\"`) is being committed to version control in plaintext. Anyone with Git access\u2014now and forever through history\u2014can read the prod DB password.\n- **Required Fix:** Remove this password from the repo immediately and rotate it in production. Implement encrypted secrets using:\n  - SOPS + external secret operator, *or*\n  - AWS Secrets Manager + external-secrets, *or*\n  - HashiCorp Vault, *or*\n  - Sealed Secrets / kube-sealed\n  \n  The canonical spec explicitly requires: *\"Secret: never stored in plaintext in Git; encrypted at rest via stack-native mechanism.\"*\n\n---\n\n### 2. **CRITICAL** \u2013 S3 Bucket Made Publicly Readable\n- **File/Field:** `prod/s3-bucket.yaml` \u2192 `spec.policy` (addition) and removal of `spec.publicAccessBlock`\n- **Issue:** The diff removes all public access blocks and adds an S3 bucket policy that grants `s3:GetObject` to `\"Principal\": \"*\"` (anyone on the internet). All production assets are now publicly readable.\n- **Required Fix:** Revert to the original configuration:\n  - Restore `publicAccessBlock` with all four settings set to `true`\n  - Remove the public bucket policy\n  \n  Canonical spec: *\"Bucket: \u2026 **no public access**\"*\n\n---\n\n### 3. **CRITICAL** \u2013 RDS Made Publicly Accessible\n- **File/Field:** `prod/rds.yaml` \u2192 `spec.publiclyAccessible`\n- **Issue:** Changed from `false` to `true`. The production database is now exposed to the internet and can be attacked by anyone.\n- **Required Fix:** Revert to `publiclyAccessible: false`.  \n  Canonical spec: *\"RDS: \u2026 **no publicly accessible**\"*\n\n---\n\n### 4. **CRITICAL** \u2013 RDS Deletion Protection Disabled\n- **File/Field:** `prod/rds.yaml` \u2192 `spec.deletionProtection`\n- **Issue:** Changed from `true` to `false`. Production database can now be accidentally or maliciously deleted, causing total data loss and service outage.\n- **Required Fix:** Revert to `deletionProtection: true`.  \n  Canonical spec: *\"RDS: **deletion protection on**, backup retention >= 7 days\"*\n\n---\n\n### 5. **MEDIUM** \u2013 Resource Requests & Limits Removed\n- **File/Field:** `prod/app.yaml` \u2192 `spec.containers[0].resources` (removal)\n- **Issue:** Deleting `requests` and `limits` means:\n  - Kubernetes cannot properly schedule pods (no QoS class enforcement)\n  - A misbehaving container can consume all node resources and crash the cluster\n  - No protection against resource exhaustion / denial-of-service\n- **Required Fix:** Restore the `resources` block with its original `requests` and `limits`.\n\n---\n\n## Recommendation\n\n**Do not merge.** This PR introduces multiple production-critical vulnerabilities:\n- Exposed credentials in Git history\n- Public S3 access\n- Publicly exposed database\n- Disabled database safeguards\n\nAll four CRITICAL issues must be fixed before this PR is approved. The MEDIUM issue should also be resolved to maintain cluster stability.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 3230,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 3230,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.9375,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies the plaintext database password committed to prod/db-secret.yaml, replacing the documented out-of-band placeholder",
+        "weight": 3.0,
+        "score": 0.75,
+        "justification": "Correctly identifies plaintext password in prod/db-secret.yaml but does not explicitly identify that it replaces the documented out-of-band placeholder as the criterion requires."
+      },
+      {
+        "criterion": "Identifies that prod/s3-bucket.yaml removes the public access block and adds a bucket policy granting s3:GetObject to Principal '*' (public read exposure)",
+        "weight": 3.0,
+        "score": 1.0,
+        "justification": "Correctly identifies both the removal of publicAccessBlock and the addition of the bucket policy granting s3:GetObject to Principal '*'."
+      },
+      {
+        "criterion": "Identifies that prod/rds.yaml sets publiclyAccessible: true and deletionProtection: false on the production database",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Correctly identifies both publiclyAccessible changing to true and deletionProtection changing to false in prod/rds.yaml."
+      },
+      {
+        "criterion": "Identifies that prod/app.yaml drops the container's resource requests/limits",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Clearly identifies the removal of resource requests and limits from the container in prod/app.yaml."
+      },
+      {
+        "criterion": "Ranks the four issues by severity in an order consistent with: plaintext password and public bucket as the most severe, RDS exposure next, missing resource limits least severe",
+        "weight": 2.0,
+        "score": 1.0,
+        "justification": "Ranks issues in the correct order: plaintext password and S3 bucket as most severe, RDS next, resource limits least severe\u2014consistent with rubric expectation."
+      },
+      {
+        "criterion": "Provides a specific, concrete remediation for each issue identified (not just 'fix this')",
+        "weight": 1.0,
+        "score": 1.0,
+        "justification": "Provides concrete, specific remediations for each identified issue: remove/rotate password, restore public access blocks, revert RDS settings, restore resource limits."
+      }
+    ]
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "pulumi-typescript",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "5d31d5b4f4978cf1",
+      "spec_sha256": "bcd08e8b63913689",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[tsc check] tsc: exit=2\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_0.ts(29,51): error TS2345: Argument of type '{}' is not assignable to parameter of type 'ClusterArgs'.\n  Type '{}' is missing the following properties from type 'ClusterArgs': roleArn, vpcConfig\n../../../../../../../var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_1.ts(57,7): error TS2345: Argument of type '{}' is not assignable to parameter of"
+    },
+    "static": {
+      "passed": false,
+      "logs": "pulumi preview --non-interactive --diff: exit=1 examined=1\nscaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-typescript, runtime: nodejs)\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::iac-cd-bench-pulumi-typescript::pulumi:pulumi:Stack::iac-cd-bench-pulumi-typescript-dev]\nWe failed to locate the entry point for your program: /private/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/\n\nHere's what we think went wrong:\n\n  * Your program's ",
+      "examined": 1,
+      "tools": [
+        {
+          "tool": "pulumi",
+          "resolved_path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+          "exit": 1,
+          "examined": 1
+        }
+      ]
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 6 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_answer_is_present PASSED [ 16%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_a_component_resource_is_defined PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_the_component_registers_itself PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_children_are_parented_to_the_component PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_aliases_are_used PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-gatediff/tasks/pulumi-typescript/T3-modify/tests/test_task.py::test_aliases_name_a_previous_identity PASSED [100%]\n\n============================== 6 passed in 0.01s ===============================\n",
+      "passed_count": 6,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1191,
+    "output": 2565
+  },
+  "content": "# Migrating Flat Pulumi TypeScript to ComponentResource with Aliases\n\n## Overview\n\nTo refactor a flat Pulumi program into ComponentResource without resource replacement, you use **aliases**. Aliases tell Pulumi that a resource's URN has changed\u2014it's the same physical resource under a new logical name.\n\n## Migration Pattern\n\n### Step 1: Understand Current URNs\n\nIn a flat program, resources have URNs like:\n```\nurn:pulumi:dev::my-project::aws:s3/bucket:Bucket::my-bucket\nurn:pulumi:dev::my-project::aws:rds/instance:Instance::my-db\nurn:pulumi:dev::my-project::aws:eks/cluster:Cluster::my-cluster\n```\n\nAfter refactoring into a ComponentResource named `AppStack`, the URNs become:\n```\nurn:pulumi:dev::my-project::AppStack::aws:s3/bucket:Bucket::my-bucket\nurn:pulumi:dev::my-project::AppStack::aws:rds/instance:Instance::my-db\n```\n\nThe `AppStack` parent is inserted into the URN hierarchy. **Aliases** remap the old URNs to the new ones.\n\n---\n\n### Step 2: Create ComponentResource Wrapper\n\n**Before (flat):**\n```typescript\nimport * as aws from \"@pulumi/aws\";\nimport * as pulumi from \"@pulumi/pulumi\";\n\nconst config = new pulumi.Config();\nconst env = pulumi.getStack();\n\n// S3 bucket\nconst bucket = new aws.s3.Bucket(\"my-bucket\", {\n  versioning: { enabled: true },\n  serverSideEncryptionConfiguration: {\n    rule: {\n      applyServerSideEncryptionByDefault: {\n        sseAlgorithm: \"AES256\",\n      },\n    },\n  },\n});\n\n// RDS instance\nconst db = new aws.rds.Instance(\"my-db\", {\n  allocatedStorage: env === \"prod\" ? 100 : 20,\n  instanceClass: env === \"prod\" ? \"db.t3.medium\" : \"db.t3.micro\",\n  engine: \"postgres\",\n  deletionProtection: env === \"prod\",\n  backupRetentionPeriod: 7,\n});\n\n// EKS cluster\nconst cluster = new aws.eks.Cluster(\"my-cluster\", {\n  // ...config\n});\n\nexport const bucketName = bucket.id;\nexport const dbEndpoint = db.endpoint;\nexport const clusterName = cluster.name;\n```\n\n**After (ComponentResource):**\n\n```typescript\nimport * as aws from \"@pulumi/aws\";\nimport * as pulumi from \"@pulumi/pulumi\";\n\nclass AppStack extends pulumi.ComponentResource {\n  public bucketName: pulumi.Output<string>;\n  public dbEndpoint: pulumi.Output<string>;\n  public clusterName: pulumi.Output<string>;\n\n  constructor(\n    name: string,\n    env: string,\n    opts?: pulumi.ComponentResourceOptions\n  ) {\n    super(\"custom:infra:AppStack\", name, {}, opts);\n\n    const componentOpts = { parent: this };\n\n    // S3 bucket with alias\n    const bucket = new aws.s3.Bucket(\n      \"my-bucket\",\n      {\n        versioning: { enabled: true },\n        serverSideEncryptionConfiguration: {\n          rule: {\n            applyServerSideEncryptionByDefault: {\n              sseAlgorithm: \"AES256\",\n            },\n          },\n        },\n      },\n      {\n        ...componentOpts,\n        // Alias to the flat resource URN\n        aliases: [{ name: \"my-bucket\" }],\n      }\n    );\n\n    // RDS instance with alias\n    const db = new aws.rds.Instance(\n      \"my-db\",\n      {\n        allocatedStorage: env === \"prod\" ? 100 : 20,\n        instanceClass: env === \"prod\" ? \"db.t3.medium\" : \"db.t3.micro\",\n        engine: \"postgres\",\n        deletionProtection: env === \"prod\",\n        backupRetentionPeriod: 7,\n      },\n      {\n        ...componentOpts,\n        aliases: [{ name: \"my-db\" }],\n      }\n    );\n\n    // EKS cluster with alias\n    const cluster = new aws.eks.Cluster(\n      \"my-cluster\",\n      {\n        // ...config\n      },\n      {\n        ...componentOpts,\n        aliases: [{ name: \"my-cluster\" }],\n      }\n    );\n\n    this.bucketName = bucket.id;\n    this.dbEndpoint = db.endpoint;\n    this.clusterName = cluster.name;\n\n    this.registerOutputs({\n      bucketName: this.bucketName,\n      dbEndpoint: this.dbEndpoint,\n      clusterName: this.clusterName,\n    });\n  }\n}\n\n// Root stack\nconst config = new pulumi.Config();\nconst env = pulumi.getStack();\n\nconst app = new AppStack(\"my-app\", env);\n\nexport const bucketName = app.bucketName;\nexport const dbEndpoint = app.dbEndpoint;\nexport const clusterName = app.clusterName;\n```\n\n---\n\n### Step 3: Alias Syntax\n\nAliases can use simple string names (if the resource was direct children of the root stack):\n\n```typescript\naliases: [{ name: \"my-bucket\" }]\n```\n\nOr use full URN paths for more complex hierarchies:\n\n```typescript\naliases: [\n  {\n    urn: pulumi.urn(\"my-project\", \"dev\", \"aws:s3/bucket:Bucket\", \"my-bucket\"),\n  },\n]\n```\n\nPulumi will compute the old URN automatically from the stack name and resource type.\n\n---\n\n### Step 4: For Multiple-Level Hierarchies\n\nIf your flat program had nested resources, use `parent` chains:\n\n```typescript\nclass DatabaseStack extends pulumi.ComponentResource {\n  public db: aws.rds.Instance;\n\n  constructor(name: string, opts?: pulumi.ComponentResourceOptions) {\n    super(\"custom:infra:DatabaseStack\", name, {}, opts);\n\n    this.db = new aws.rds.Instance(\n      \"instance\",\n      { /* ... */ },\n      {\n        parent: this,\n        aliases: [\n          // Assume flat program had: db-stack-instance\n          { name: \"db-stack-instance\" },\n          // Alternative: old component + resource name\n          {\n            parent: new pulumi.automation.Stack(),\n            name: \"instance\",\n          },\n        ],\n      }\n    );\n  }\n}\n```\n\n---\n\n### Step 5: Deploy Migration\n\n1. **Review the plan** (critical):\n   ```bash\n   pulumi up\n   ```\n   Expected: All resources show `[same]` (no replace).\n\n2. **If you see `[delete]` and `[create]`** instead of `[same]`:\n   - The aliases are incorrect or missing.\n   - **Do not deploy**\u2014fix the aliases and re-run `pulumi preview`.\n\n3. **Approve and deploy**:\n   ```bash\n   pulumi up --yes\n   ```\n\n---\n\n## Multi-Environment Example (dev/prod)\n\nFor the canonical scenario (dev + prod stacks):\n\n```typescript\nconst config = new pulumi.Config();\nconst env = pulumi.getStack(); // \"dev\" or \"prod\"\n\nconst appConfig = {\n  dev: {\n    nodeCount: 2,\n    nodeType: \"t3.medium\",\n    dbSize: \"db.t3.micro\",\n  },\n  prod: {\n    nodeCount: 4,\n    nodeType: \"t3.large\",\n    dbSize: \"db.t3.medium\",\n  },\n};\n\nconst app = new AppStack(\"my-app\", env, {\n  config: appConfig[env],\n});\n\nexport const bucketName = app.bucketName;\n```\n\nEach stack (`dev` and `prod`) gets its own `Pulumi.dev.yaml` and `Pulumi.prod.yaml` configs, and aliases work per-stack.\n\n---\n\n## Common Pitfalls\n\n| Issue | Cause | Fix |\n|-------|-------|-----|\n| Resources marked `[replace]` | Missing or incorrect alias | Add `aliases: [{ name: \"old-name\" }]` |\n| Alias not recognized | Old URN was nested; current is flat | Use full parent chain in alias |\n| Export values change | ComponentResource not re-exporting | Call `registerOutputs()` or export component properties |\n| State file divergence | Premature deploy without alias review | Always preview; check for `[same]` |\n\n---\n\n## Verification\n\nAfter successful migration:\n\n```bash\n# Check state\u2014all resources should be intact\npulumi stack --show-urns\n\n# Exports should remain the same\npulumi stack output bucketName\npulumi stack output dbEndpoint\n```\n\nAll physical resources (S3 bucket, RDS instance, cluster) remain **unchanged**; only Pulumi's logical hierarchy evolves.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_0.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_1.txt",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_0.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_1.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_2.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_3.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_4.ts",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-typescript-4wr32pfu/generated_5.ts"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 7091,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 7091,
+      "fenced_blocks": 11,
+      "extracted_files": 8,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

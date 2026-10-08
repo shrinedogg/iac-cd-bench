@@ -1,0 +1,157 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T5-review",
+  "stack": "terraform",
+  "run": 1,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "edbdc02a2998728df11f71841358ebab3a89df03",
+      "dirty": false,
+      "branch": "bench/gate-diff"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "dd01970ce92a5964",
+      "spec_sha256": "f6545befc3558903",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 3
+  },
+  "stages": {
+    "lint": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "static": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    },
+    "semantic": {
+      "skipped": true,
+      "reason": "disabled by spec"
+    }
+  },
+  "tokens": {
+    "input": 1210,
+    "output": 913
+  },
+  "content": "# Missing Input: Terraform Plan File\n\nI don't see the tfplan JSON output in your message. To review the plan for the destructive changes you've identified (DB recreate and security group changes), I'll need you to provide the actual plan file.\n\n## What I'll Look For Once You Share the Plan\n\nWhen you provide the tfplan, I'll examine it for:\n\n### 1. **Hidden DB Recreate**\n- Look for an RDS instance with `\"destroy\"` followed by `\"create\"` in the resource changes\n- It may be buried among many no-op changes (e.g., security group rule additions, IAM policy attachments)\n- The key indicators: `aws_db_instance` resource with `force_new = true` or parameter changes that trigger replacement (engine version, allocated storage, instance class\u2014depending on your configuration)\n- Check the `change.actions` array: `[\"destroy\", \"create\"]` = recreation; `[\"update\"]` = in-place modification\n\n### 2. **Overly Permissive Security Group Ingress**\n- Search for `aws_security_group_rule` or inline ingress blocks in `aws_security_group`\n- Flag any rule where `cidr_blocks = [\"0.0.0.0/0\"]` or `ipv6_cidr_blocks = [\"::/0\"]`\n- Verify whether this applies to prod or dev, and which port (should be 443 for HTTPS only, ideally)\n- Check if this violates acceptance criterion #4 (no wildcard actions on prod) or #6 (HTTPS only)\n\n## How to Share the Plan\n\nPaste the complete tfplan JSON output (or the relevant section with all 40 changes) in your next message, and I'll provide a detailed risk analysis with line-by-line pointers to the destructive operations.",
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 1541,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 1541,
+      "fenced_blocks": 0,
+      "extracted_files": 0,
+      "min_chars": 200,
+      "expects_artifacts": false,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  },
+  "judge": {
+    "idiom": 0.0,
+    "judge_model": "claude-haiku-4-5",
+    "prompt_sha256": "8bac4198059e310e",
+    "criteria": [
+      {
+        "criterion": "Identifies RDS destroy + create as data loss risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission refuses to review and asks for plan file; does not identify or claim RDS destroy+create as data loss risk."
+      },
+      {
+        "criterion": "Identifies 0.0.0.0/0 ingress as security risk",
+        "weight": 3.0,
+        "score": 0.0,
+        "justification": "Submission does not identify 0.0.0.0/0 ingress as security risk; only describes hypothetically what it would search for."
+      },
+      {
+        "criterion": "Ranks issues by severity correctly",
+        "weight": 2.0,
+        "score": 0.0,
+        "justification": "Submission provides no issue ranking or severity assessment; refuses to analyze."
+      },
+      {
+        "criterion": "Provides specific remediation steps",
+        "weight": 1.0,
+        "score": 0.0,
+        "justification": "Submission provides no remediation steps; asks for input instead of delivering analysis."
+      }
+    ]
+  }
+}

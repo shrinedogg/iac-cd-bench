@@ -1,0 +1,136 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T2-generate",
+  "stack": "pulumi-python",
+  "run": 0,
+  "condition": "cold",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "837cbd4af06f207375d0882e7ee6d931f185e63e",
+      "dirty": false,
+      "branch": "bench/chant-0.49-features"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "03ece2e08a57ff1f",
+      "spec_sha256": "6b09b05581d5ec82",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "cold",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": true,
+      "logs": "[ruff check] ruff: exit=0\nAll checks passed!\n"
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-python, runtime: python)\nscaffolded requirements.txt from the golden's pins\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::iac-cd-bench-pulumi-python::pulumi:pulumi:Stack::iac-cd-bench-pulumi-python-dev]\nResources:\n    + 1 to create\n\nERR: error: Missing required configuration variable 'iac-cd-bench-pulumi-python:instance_class'\n\tplease set a value using the command `pulumi config set iac-cd-bench-pulumi-python:instance_class <value>`\nerror: an unhandled error occurred: program exited with non-zero exit code: 1\n"
+    },
+    "semantic": {
+      "passed": true,
+      "logs": "============================= test session starts ==============================\nplatform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14\nrootdir: /private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49\nconfigfile: pyproject.toml\nplugins: anyio-4.13.0\ncollecting ... collected 6 items\n\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-python/T2-generate/tests/test_task.py::test_main_exists PASSED [ 16%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-python/T2-generate/tests/test_task.py::test_components_dir PASSED [ 33%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-python/T2-generate/tests/test_task.py::test_bucket_component PASSED [ 50%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-python/T2-generate/tests/test_task.py::test_rds_component PASSED [ 66%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-python/T2-generate/tests/test_task.py::test_bucket_versioning PASSED [ 83%]\n../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-chant49/tasks/pulumi-python/T2-generate/tests/test_task.py::test_rds_deletion_protection PASSED [100%]\n\n============================== 6 passed in 0.84s ===============================\n",
+      "passed_count": 6,
+      "total_count": 6,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1224,
+    "output": 9569
+  },
+  "content": "# Pulumi Python ComponentResource: S3 + RDS + IAM\n\nI'll provide a production-ready implementation supporting dev/prod via stack config.\n\n## ComponentResource Implementation\n\n**`app_infrastructure.py`** (the component):\n\n```python\nimport json\nimport pulumi\nimport pulumi_aws as aws\n\n\nclass AppInfrastructureArgs:\n    \"\"\"Configuration for AppInfrastructure component.\"\"\"\n    def __init__(\n        self,\n        instance_class: str,\n        multi_az: bool = False,\n        environment: str = \"dev\",\n        db_subnet_ids: list = None,\n    ):\n        self.instance_class = instance_class\n        self.multi_az = multi_az\n        self.environment = environment\n        self.db_subnet_ids = db_subnet_ids or []\n\n\nclass AppInfrastructure(pulumi.ComponentResource):\n    \"\"\"\n    ComponentResource wrapping:\n    - S3 bucket (versioned, AES-256 encrypted, no public access)\n    - RDS PostgreSQL (deletion protection, 7-day backups, not publicly accessible)\n    - IAM role (least-privilege for service accounts)\n    \n    Supports dev/prod environments via stack config.\n    \"\"\"\n    \n    def __init__(\n        self,\n        name: str,\n        args: AppInfrastructureArgs,\n        opts: pulumi.ResourceOptions = None,\n    ):\n        super().__init__(\"custom:AppInfrastructure\", name, None, opts)\n        \n        self.environment = args.environment\n        \n        # ======================== S3 BUCKET ========================\n        self.bucket = aws.s3.Bucket(\n            f\"{name}-bucket\",\n            versioning=aws.s3.BucketVersioningArgs(enabled=True),\n            server_side_encryption_configuration=aws.s3.BucketServerSideEncryptionConfigurationArgs(\n                rule=aws.s3.BucketServerSideEncryptionConfigurationRuleArgs(\n                    apply_server_side_encryption_by_default=aws.s3.BucketServerSideEncryptionConfigurationRuleApplyServerSideEncryptionByDefaultArgs(\n                        sse_algorithm=\"AES256\",\n                    ),\n                ),\n            ),\n            acl=\"private\",\n            opts=pulumi.ResourceOptions(parent=self),\n        )\n        \n        # Block all public access (best practice)\n        aws.s3.BucketPublicAccessBlock(\n            f\"{name}-bucket-pab\",\n            bucket=self.bucket.id,\n            block_public_acls=True,\n            block_public_policy=True,\n            ignore_public_acls=True,\n            restrict_public_buckets=True,\n            opts=pulumi.ResourceOptions(parent=self),\n        )\n        \n        # ======================== RDS POSTGRESQL ========================\n        # Create DB subnet group if subnets provided\n        db_subnet_group_name = None\n        if args.db_subnet_ids:\n            self.db_subnet_group = aws.rds.SubnetGroup(\n                f\"{name}-db-subnet-group\",\n                subnet_ids=args.db_subnet_ids,\n                opts=pulumi.ResourceOptions(parent=self),\n            )\n            db_subnet_group_name = self.db_subnet_group.name\n        \n        self.db_instance = aws.rds.Instance(\n            f\"{name}-db\",\n            identifier=f\"{name}-postgres-{args.environment}\",\n            engine=\"postgres\",\n            engine_version=\"14\",\n            instance_class=args.instance_class,\n            allocated_storage=20,\n            storage_type=\"gp2\",\n            storage_encrypted=True,\n            username=\"postgres\",\n            password=pulumi.Config().require_secret(\"db_password\"),\n            skip_final_snapshot=True,\n            deletion_protection=True,  # Required per spec\n            backup_retention_period=7,  # Required per spec\n            multi_az=args.multi_az,\n            publicly_accessible=False,  # Required per spec\n            db_subnet_group_name=db_subnet_group_name,\n            opts=pulumi.ResourceOptions(parent=self),\n        )\n        \n        # ======================== IAM ROLE ========================\n        # Trust policy for EC2/ECS service principals\n        assume_role_policy = {\n            \"Version\": \"2012-10-17\",\n            \"Statement\": [\n                {\n                    \"Action\": \"sts:AssumeRole\",\n                    \"Effect\": \"Allow\",\n                    \"Principal\": {\n                        \"Service\": [\n                            \"ec2.amazonaws.com\",\n                            \"ecs-tasks.amazonaws.com\",\n                        ],\n                    },\n                }\n            ],\n        }\n        \n        self.service_role = aws.iam.Role(\n            f\"{name}-service-role\",\n            assume_role_policy=json.dumps(assume_role_policy),\n            opts=pulumi.ResourceOptions(parent=self),\n        )\n        \n        # Build least-privilege policy statement\n        # All environments: S3 read + RDS connection\n        statements = [\n            {\n                \"Sid\": \"S3Read\",\n                \"Effect\": \"Allow\",\n                \"Action\": [\n                    \"s3:GetObject\",\n                    \"s3:GetObjectVersion\",\n                    \"s3:ListBucket\",\n                ],\n                \"Resource\": [\n                    self.bucket.arn,\n                    self.bucket.arn.apply(lambda arn: f\"{arn}/*\"),\n                ],\n            },\n            {\n                \"Sid\": \"RDSConnect\",\n                \"Effect\": \"Allow\",\n                \"Action\": [\"rds-db:connect\"],\n                \"Resource\": \"*\",\n            },\n        ]\n        \n        # Prod only: S3 write permission (least privilege)\n        if args.environment == \"prod\":\n            statements.append({\n                \"Sid\": \"S3Write\",\n                \"Effect\": \"Allow\",\n                \"Action\": [\"s3:PutObject\", \"s3:DeleteObject\"],\n                \"Resource\": self.bucket.arn.apply(lambda arn: f\"{arn}/*\"),\n            })\n        \n        policy_document = {\n            \"Version\": \"2012-10-17\",\n            \"Statement\": statements,\n        }\n        \n        self.service_policy = aws.iam.Policy(\n            f\"{name}-service-policy\",\n            policy=pulumi.Output.from_input(policy_document).apply(json.dumps),\n            opts=pulumi.ResourceOptions(parent=self),\n        )\n        \n        aws.iam.RolePolicyAttachment(\n            f\"{name}-service-role-policy\",\n            role=self.service_role.name,\n            policy_arn=self.service_policy.arn,\n            opts=pulumi.ResourceOptions(parent=self),\n        )\n        \n        # Register outputs for downstream stack references\n        self.register_outputs({\n            \"bucket_id\": self.bucket.id,\n            \"bucket_arn\": self.bucket.arn,\n            \"db_endpoint\": self.db_instance.endpoint,\n            \"db_port\": self.db_instance.port,\n            \"db_address\": self.db_instance.address,\n            \"service_role_arn\": self.service_role.arn,\n            \"service_role_name\": self.service_role.name,\n        })\n```\n\n## Usage: `__main__.py`\n\n```python\nimport pulumi\nfrom app_infrastructure import AppInfrastructure, AppInfrastructureArgs\n\nconfig = pulumi.Config()\nenvironment = pulumi.get_stack()  # Stack name: 'dev' or 'prod'\n\n# Read environment-specific settings from stack config\ninstance_class = config.require(\"instance_class\")\nmulti_az = config.get_bool(\"multi_az\") or False\n\n# Optional: fetch subnet IDs from config or VPC stack reference\ndb_subnet_ids = config.get(\"db_subnet_ids\")\nif db_subnet_ids:\n    db_subnet_ids = db_subnet_ids.split(\",\")\nelse:\n    db_subnet_ids = []\n\n# Create the infrastructure\ninfra = AppInfrastructure(\n    \"app\",\n    AppInfrastructureArgs(\n        instance_class=instance_class,\n        multi_az=multi_az,\n        environment=environment,\n        db_subnet_ids=db_subnet_ids,\n    ),\n)\n\n# Export outputs for reference\npulumi.export(\"bucket_id\", infra.get_output(\"bucket_id\"))\npulumi.export(\"db_endpoint\", infra.get_output(\"db_endpoint\"))\npulumi.export(\"service_role_arn\", infra.get_output(\"service_role_arn\"))\n```\n\n## Stack Configuration Files\n\n**`Pulumi.dev.yaml`** (dev environment):\n\n```yaml\nconfig:\n  aws:region: us-east-1\n  app:instance_class: db.t3.micro\n  app:multi_az: \"false\"\n  app:db_subnet_ids: \"subnet-dev1,subnet-dev2\"\nsecrets:\n  app:db_password:\n    secure: AAAGAADLzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz==\n```\n\n**`Pulumi.prod.yaml`** (prod environment):\n\n```yaml\nconfig:\n  aws:region: us-east-1\n  app:instance_class: db.t3.medium\n  app:multi_az: \"true\"\n  app:db_subnet_ids: \"subnet-prod1,subnet-prod2,subnet-prod3\"\nsecrets:\n  app:db_password:\n    secure: AAAGAADMzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz==\n```\n\n## Deployment\n\n```bash\n# Deploy dev\npulumi stack select dev\npulumi up\n\n# Deploy prod (independent)\npulumi stack select prod\npulumi up\n```\n\n## Key Features\n\n\u2705 **S3 Bucket**: Versioning enabled, AES-256 encryption, no public access  \n\u2705 **RDS**: `deletion_protection=True`, `backup_retention_period=7`, not publicly accessible  \n\u2705 **IAM**: Least-privilege (dev: read-only S3 + RDS; prod: S3 read/write + RDS)  \n\u2705 **Environment Isolation**: Independent stacks via `dev.yaml`/`prod.yaml`; changing prod never touches dev state  \n\u2705 **Secrets**: DB password stored in encrypted stack config, never in plaintext Git  \n\u2705 **ComponentResource**: Reusable abstraction with registered outputs for stack references\n\n## Notes\n\n- DB password is required via `pulumi config set --secret app:db_password <value>`\n- Subnet IDs should be passed from your VPC or via stack config\n- Delete protection must be manually disabled before Pulumi can destroy the RDS instance\n- For true cross-region replication, extend the component with S3 replication rules and target bucket",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5y9w3ta1/app_infrastructure.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5y9w3ta1/__main__.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5y9w3ta1/Pulumi.dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5y9w3ta1/Pulumi.prod.yaml"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 9458,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 9458,
+      "fenced_blocks": 5,
+      "extracted_files": 4,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

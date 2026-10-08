@@ -1,0 +1,137 @@
+{
+  "model": "claude-haiku-4-5",
+  "task": "T3-modify",
+  "stack": "pulumi-python",
+  "run": 0,
+  "condition": "warm",
+  "reasoning_effort": "low",
+  "provenance": {
+    "provenance_version": 1,
+    "harness": {
+      "commit": "55b5fb02c6da8523d9aada69f6fabdb7e526ff4b",
+      "dirty": false,
+      "branch": "bench/gate-contract-migration"
+    },
+    "provider": "claude-cli",
+    "model": "claude-haiku-4-5",
+    "reasoning_effort": "low",
+    "toolchain": {
+      "chant": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/chant",
+        "version": "@intentius/chant 0.49.0"
+      },
+      "crossplane": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/crossplane-cli/1.20.0/crossplane",
+        "version": "Client Version: v1.20.0"
+      },
+      "flux": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/flux2/2.5.0/flux",
+        "version": "flux version 2.5.0"
+      },
+      "kubeconform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kubeconform/0.7.0/kubeconform",
+        "version": "v0.7.0"
+      },
+      "kustomize": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/kustomize/5.6.0/kustomize",
+        "version": "v5.6.0"
+      },
+      "npm": {
+        "present": true,
+        "path": "/Users/alex/.nvm/versions/node/v24.13.1/bin/npm",
+        "version": "11.8.0"
+      },
+      "pulumi": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/pulumi/3.150.0/pulumi/pulumi",
+        "version": null
+      },
+      "python3": {
+        "present": true,
+        "path": "/opt/homebrew/bin/python3",
+        "version": "Python 3.14.6"
+      },
+      "ruff": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/ruff/0.8.4/ruff-aarch64-apple-darwin/ruff",
+        "version": "ruff 0.8.4"
+      },
+      "terraform": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/terraform/1.15.8/terraform",
+        "version": "Terraform v1.15.8"
+      },
+      "tsc": {
+        "present": true,
+        "path": "/Users/alex/.local/share/mise/installs/npm-typescript/5.9.3/node_modules/.bin/tsc",
+        "version": "Version 5.9.3"
+      },
+      "yq": {
+        "present": true,
+        "path": "/opt/homebrew/bin/yq",
+        "version": "yq (https://github.com/mikefarah/yq/) version v4.53.6"
+      }
+    },
+    "partial": false,
+    "judge_model": "claude-haiku-4-5",
+    "judge_prompt_sha256": "8bac4198059e310e",
+    "task": {
+      "prompt_sha256": "7e4e0c9b657e41ec",
+      "spec_sha256": "a3a2b243da41adec",
+      "scenario_sha256": "a666b78376cac7f0"
+    },
+    "condition": "warm",
+    "k": 1
+  },
+  "stages": {
+    "lint": {
+      "passed": false,
+      "logs": "[ruff check] ruff: exit=1\ngenerated_2.py:1:18: F821 Undefined name `config`\n  |\n1 | cpu_target = int(config.require(\"scaling:cpu_target\"))\n  |                  ^^^^^^ F821\n  |\n\nFound 1 error.\n"
+    },
+    "static": {
+      "passed": false,
+      "logs": "scaffolded Pulumi.yaml (name: iac-cd-bench-pulumi-python, runtime: python)\nscaffolded requirements.txt from the golden's pins\npulumi stack init: exit=0\npulumi preview: exit=255\nPreviewing update (dev):\n+ pulumi:pulumi:Stack: (create)\n    [urn=urn:pulumi:dev::iac-cd-bench-pulumi-python::pulumi:pulumi:Stack::iac-cd-bench-pulumi-python-dev]\nResources:\n    + 1 to create\n\nERR: error: unable to find main python program `__main__.py` in `/private/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5yrs633q`\n"
+    },
+    "semantic": {
+      "passed": false,
+      "logs": "             },\\n            },\\n...env}-eks-scale-down\",\\n    adjustment_type=\"ChangeInCapacity\",\\n    autoscaling_group_name=asg_name,\\n    cooldown=300,\\n    scaling_adjustment=-1,\\n)\\n\\n# Trigger scaling on CPU utilization\\ntarget_value = 70 if env == \"dev\" else 60  # More aggressive in prod\\ncpu_high = aws.cloudwatch.MetricAlarm(\\n    f\"{env}-eks-cpu-high\",\\n    comparison_operator=\"GreaterThanThreshold\",\\n    evaluation_periods=2,\\n    metric_name=\"CPUUtilization\",\\n    namespace=\"AWS/EC2\",\\n    period=300,\\n    statistic=\"Average\",\\n    threshold=target_value,\\n    alarm_actions=[scale_up.arn],\\n    dimensions=[{\"name\": \"AutoScalingGroupName\", \"value\": asg_name}],\\n)\\n\\ncpu_low = aws.cloudwatch.MetricAlarm(\\n    f\"{env}-eks-cpu-low\",\\n    comparison_operator=\"LessThanThreshold\",\\n    evaluation_periods=3,\\n    metric_name=\"CPUUtilization\",\\n    namespace=\"AWS/EC2\",\\n    period=300,\\n    statistic=\"Average\",\\n    threshold=30,\\n    alarm_actions=[scale_down.arn],\\n    dimensions=[{\"name\": \"AutoScalingGroupName\", \"value\": asg_name}],\\n)\\n\\npulumi.export(\"scaling_policies\", {\\n    \"scale_up_arn\": scale_up.arn,\\n    \"scale_down_arn\": scale_down.arn,\\n})\\n\\ncpu_target = int(config.require(\"scaling:cpu_target\"))\\n')\n     +    where <function search at 0x10920f3d0> = re.search\n/private/tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-python/T3-modify/tests/test_task.py:63: AssertionError: expected a scaling Target (appautoscaling.Target) or an autoscaling Group \u2014 a Policy alone has nothing to act on\n=========================== short test summary info ============================\nFAILED ../../../../../../tmp/claude-501/-Users-alex-Documents-checkouts-iac-cd-bench/0f6ad9a4-e6f2-46d1-b36e-7d74f9cda12d/scratchpad/wt-contract/tasks/pulumi-python/T3-modify/tests/test_task.py::test_a_scaling_target_is_declared\n========================= 1 failed, 4 passed in 0.06s ==========================\n",
+      "passed_count": 4,
+      "total_count": 5,
+      "pass_threshold": null,
+      "safety_pass": true
+    }
+  },
+  "tokens": {
+    "input": 1186,
+    "output": 3371
+  },
+  "content": "# Adding Auto-Scaling to Existing Pulumi Stack (No Replacement)\n\n## Key Principle\n\nTo avoid resource replacement when adding auto-scaling, you must:\n1. **Never modify** the existing cluster/node-group resource definition\n2. **Add auto-scaling as separate resources** (AWS Auto Scaling policies, Kubernetes HPA, etc.)\n3. **Query existing resources** via data sources instead of re-declaring them\n\n---\n\n## Solution: Two Approaches\n\n### Approach A: Kubernetes Horizontal Pod Autoscaler (Recommended)\n\nThis is the safest option\u2014it doesn't touch infrastructure at all, only application deployment:\n\n```python\n# main.py (add to existing stack)\nimport pulumi\nimport pulumi_kubernetes as k8s\n\nconfig = pulumi.Config()\nenv = pulumi.get_stack()  # 'dev' or 'prod'\n\n# Reference existing Kubernetes provider (assume it's stored in stack output or config)\nkubeconfig = pulumi.StackReference(f\"org/project/{env}\").get_output(\"kubeconfig\")\nk8s_provider = k8s.Provider(\"k8s\", kubeconfig=kubeconfig)\n\n# Add HPA without modifying the cluster or node group\nhpa = k8s.autoscaling.v2.HorizontalPodAutoscaler(\n    f\"{env}-app-autoscaling\",\n    metadata={\"namespace\": \"default\"},\n    spec={\n        \"scaleTargetRef\": {\n            \"apiVersion\": \"apps/v1\",\n            \"kind\": \"Deployment\",\n            \"name\": \"app\",  # Your application deployment name\n        },\n        \"minReplicas\": 2 if env == \"dev\" else 3,\n        \"maxReplicas\": 4 if env == \"dev\" else 10,\n        \"metrics\": [\n            {\n                \"type\": \"Resource\",\n                \"resource\": {\n                    \"name\": \"cpu\",\n                    \"target\": {\n                        \"type\": \"Utilization\",\n                        \"averageUtilization\": 70,\n                    },\n                },\n            },\n            {\n                \"type\": \"Resource\",\n                \"resource\": {\n                    \"name\": \"memory\",\n                    \"target\": {\n                        \"type\": \"Utilization\",\n                        \"averageUtilization\": 80,\n                    },\n                },\n            },\n        ],\n    },\n    opts=pulumi.ResourceOptions(provider=k8s_provider),\n)\n\npulumi.export(\"hpa_name\", hpa.metadata[\"name\"])\n```\n\n**Stack config** (`dev.yaml` / `prod.yaml`):\n```yaml\nconfig:\n  app:deployment_name: app\n  autoscaling:max_replicas: \"4\"  # dev; override in prod.yaml with \"10\"\n```\n\n**Why this works**: HPA is a Kubernetes API object, not an AWS resource. Adding it doesn't modify your EKS cluster or node group\u2014zero replacement risk.\n\n---\n\n### Approach B: AWS Node-Level Auto Scaling (If you need cluster scaling)\n\nIf you need the *cluster itself* to scale up/down (more nodes), query the existing auto-scaling group without modifying the node group:\n\n```python\n# main.py (add to existing stack)\nimport pulumi\nimport pulumi_aws as aws\n\nconfig = pulumi.Config()\nenv = pulumi.get_stack()\n\n# Get the node group name from existing stack output\nstack_ref = pulumi.StackReference(f\"org/project/{env}\")\nnode_group_name = stack_ref.get_output(\"node_group_name\")\n\n# Query the ASG backing this node group (read-only, doesn't modify it)\nasgs = aws.ec2.get_autoscaling_groups_output(\n    filters=[\n        {\"name\": \"tag:eks:nodegroup-name\", \"values\": [node_group_name]}\n    ]\n)\nasg_name = asgs.names[0]\n\n# Add scaling policies WITHOUT touching the node group resource\nscale_up = aws.autoscaling.Policy(\n    f\"{env}-eks-scale-up\",\n    adjustment_type=\"ChangeInCapacity\",\n    autoscaling_group_name=asg_name,\n    cooldown=300,\n    scaling_adjustment=1,\n)\n\nscale_down = aws.autoscaling.Policy(\n    f\"{env}-eks-scale-down\",\n    adjustment_type=\"ChangeInCapacity\",\n    autoscaling_group_name=asg_name,\n    cooldown=300,\n    scaling_adjustment=-1,\n)\n\n# Trigger scaling on CPU utilization\ntarget_value = 70 if env == \"dev\" else 60  # More aggressive in prod\ncpu_high = aws.cloudwatch.MetricAlarm(\n    f\"{env}-eks-cpu-high\",\n    comparison_operator=\"GreaterThanThreshold\",\n    evaluation_periods=2,\n    metric_name=\"CPUUtilization\",\n    namespace=\"AWS/EC2\",\n    period=300,\n    statistic=\"Average\",\n    threshold=target_value,\n    alarm_actions=[scale_up.arn],\n    dimensions=[{\"name\": \"AutoScalingGroupName\", \"value\": asg_name}],\n)\n\ncpu_low = aws.cloudwatch.MetricAlarm(\n    f\"{env}-eks-cpu-low\",\n    comparison_operator=\"LessThanThreshold\",\n    evaluation_periods=3,\n    metric_name=\"CPUUtilization\",\n    namespace=\"AWS/EC2\",\n    period=300,\n    statistic=\"Average\",\n    threshold=30,\n    alarm_actions=[scale_down.arn],\n    dimensions=[{\"name\": \"AutoScalingGroupName\", \"value\": asg_name}],\n)\n\npulumi.export(\"scaling_policies\", {\n    \"scale_up_arn\": scale_up.arn,\n    \"scale_down_arn\": scale_down.arn,\n})\n```\n\n**Why this works**: You query the existing ASG by tag (read-only), then add *new* resources (policies, alarms). The original node group is never touched.\n\n---\n\n## Deployment Steps\n\n1. **Update your Pulumi stack** with the code above (choose Approach A or B)\n2. **No changes to existing resources**:\n   ```bash\n   pulumi preview  # Shows only new HPA/policies, no removals\n   ```\n3. **Deploy**:\n   ```bash\n   pulumi up\n   ```\n\n## Why No Replacement Occurs\n\n- **Approach A**: HPA is applied to the cluster via Kubernetes API, not AWS resources\n- **Approach B**: Auto Scaling policies and alarms are *new* resources; they reference (not modify) the existing ASG\n- Both: No `Replace` actions appear in the preview\n\n## Environment-Specific Scaling\n\nUse stack configs to vary thresholds:\n\n```yaml\n# dev.yaml\nconfig:\n  scaling:cpu_target: \"70\"\n  scaling:max_pods: \"4\"\n\n# prod.yaml\nconfig:\n  scaling:cpu_target: \"60\"\n  scaling:max_pods: \"10\"\n```\n\nThen in code:\n```python\ncpu_target = int(config.require(\"scaling:cpu_target\"))\n```\n\nThis follows the Pulumi stack config pattern described in your scenario and keeps `dev` and `prod` independently deployable.",
+  "extracted_files": [
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5yrs633q/generated_0.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5yrs633q/prod.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5yrs633q/generated_1.py",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5yrs633q/dev.yaml",
+    "/var/folders/jz/jz_28g4x5r7_8qgbd7k3p2740000gn/T/bench-pulumi-python-5yrs633q/generated_2.py"
+  ],
+  "validity": {
+    "valid": true,
+    "reason": null,
+    "content_length": 5818,
+    "verdict": "valid",
+    "reasons": [],
+    "checks": {
+      "content_chars": 5818,
+      "fenced_blocks": 7,
+      "extracted_files": 5,
+      "min_chars": 200,
+      "expects_artifacts": true,
+      "transcript_structural": [],
+      "transcript_narration": {}
+    }
+  }
+}

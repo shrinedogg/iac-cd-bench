@@ -1,0 +1,4 @@
+assetsBucket  K8s::S3::Bucket  124dde88-e3e9-4317-81b7-fe8b0d9fe948  labels={"app.kubernetes.io/component":"assets","app.kubernetes.io/managed-by":"chant","app.kubernetes.io/part-of":"iac-cd-bench","chant.intentius.io/stack":"iac-cd-bench","iac-cd-bench.dev/env":"prod"}
+assetsReplicaBucket  K8s::S3::Bucket  aae3f1ba-12fb-40dd-b428-94d029a0a0d8  labels={"app.kubernetes.io/component":"assets-replica","app.kubernetes.io/managed-by":"chant","app.kubernetes.io/part-of":"iac-cd-bench","chant.intentius.io/stack":"iac-cd-bench","iac-cd-bench.dev/env":"prod"}
+— observed from snapshot 25a34bf taken 2026-08-25T15:25:11.089Z · bound 2/2
+— 2 of 2 K8s::S3::Bucket matched  (query: kind:Bucket)

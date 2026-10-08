@@ -4,10 +4,10 @@ config:
   app:instanceClass: db.t3.large
   app:instanceCount: "4"
   app:dbPassword:
-    value: prod-db-password
-    secure: true
+    secure: v1:g67iqSCl1b1rpJFS:zlaxRtdyKg9NcOeb4+5EHwNx2KdvOHHV8RqWAFeXSkg=
   app:dbUser: app-user
   app:dbName: appdb
   app:bucketName: myapp-assets-prod
   app:replicationTargetBucket: arn:aws:s3:::myapp-assets-replica
   app:oidcProviderArn: arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLE
+encryptionsalt: v1:XObj2JrOiZI=:v1:E7KthTQIfG/T8Viu:QC6GWk7xYLtMEna3jjYTTf84Jm1jOA==

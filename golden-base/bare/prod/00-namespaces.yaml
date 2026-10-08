@@ -1,0 +1,17 @@
+# bare has no kustomize/Flux to generate or manage namespaces implicitly.
+# They're applied first (00- prefix) because kubectl apply -f prod/ processes
+# files in name order and every other manifest below targets one of these.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: clusters
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: infra
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app

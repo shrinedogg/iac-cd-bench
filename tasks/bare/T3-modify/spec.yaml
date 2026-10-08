@@ -1,0 +1,21 @@
+stack: bare
+archetype: modify
+id: "T3-modify"
+title: "Scale worker node counts in dev and prod"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - yq
+      - kubeconform
+  static:
+    enabled: true
+    tools:
+      - kubectl apply --dry-run=client
+  semantic:
+    enabled: true
+    assertion_count: 4
+  e2e:
+    enabled: false

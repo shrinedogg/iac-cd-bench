@@ -1,0 +1,49 @@
+# ACK iam-controller (iam.services.k8s.aws) - dev: IAM user with programmatic
+# access, scoped to this bucket only (no wildcard actions).
+#
+# Known gap: ACK's iam-controller has no AccessKey kind (only
+# Role/Policy/User/InstanceProfile/OpenIDConnectProvider/ServiceLinkedRole -
+# see golden-base/bare/README.md). "Programmatic access" therefore can't be
+# expressed as a manifest in this arm: the access key pair has to be
+# generated out-of-band (`aws iam create-access-key --user-name
+# myapp-dev-service-account`) and handed to whatever consumes it the same
+# way the DB password is - never committed here.
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: User
+metadata:
+  name: myapp-dev-service-account
+  namespace: infra
+spec:
+  name: myapp-dev-service-account
+  path: /
+  policyRefs:
+    - from:
+        name: myapp-dev-service-policy
+        namespace: infra
+  tags:
+    - key: Name
+      value: myapp-dev-service-account
+    - key: Environment
+      value: dev
+---
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: Policy
+metadata:
+  name: myapp-dev-service-policy
+  namespace: infra
+spec:
+  name: myapp-dev-service-policy
+  policyDocument: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject"
+          ],
+          "Resource": "arn:aws:s3:::myapp-assets-dev/*"
+        }
+      ]
+    }

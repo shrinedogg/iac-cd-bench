@@ -1,0 +1,126 @@
+---
+# ══════════════════════════════════════════════════════════════════════════════
+# ACK S3, RDS, and IAM controllers on the MANAGEMENT cluster.
+#
+# ACK controllers talk to the AWS API directly; they do not need to run inside
+# the account/cluster whose resources they manage. All ACK controllers
+# therefore run here, and the per-workload-cluster AWS resources (Bucket,
+# DBInstance, reader Role CRs) are declared under
+# mgmt/aws/infrastructure/workload-resources/.
+#
+# These controllers authenticate with the `aws-credentials` Secret created
+# imperatively by bootstrap/pivot from ambient AWS credentials
+# (AWS_B64ENCODED_CREDENTIALS). The principal behind those credentials needs
+# the union of the former per-controller pod-identity role policies (s3, rds,
+# iam, secretsmanager, kms:CreateGrant) — see docs/aws-iam.md for the exact
+# actions and the least-privilege trade-off.
+#
+# The kind management cluster runs on kind (not EKS), so IRSA/Pod Identity is
+# not available here; credentials are seeded imperatively at bootstrap/pivot time.
+# ══════════════════════════════════════════════════════════════════════════════
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: ack-s3-chart
+  namespace: ack-system
+spec:
+  interval: 1h
+  url: oci://public.ecr.aws/aws-controllers-k8s/s3-chart
+  ref:
+    tag: "1.11.0"
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: ack-rds-chart
+  namespace: ack-system
+spec:
+  interval: 1h
+  url: oci://public.ecr.aws/aws-controllers-k8s/rds-chart
+  ref:
+    tag: "1.13.4"
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: ack-iam-chart
+  namespace: ack-system
+spec:
+  interval: 1h
+  url: oci://public.ecr.aws/aws-controllers-k8s/iam-chart
+  ref:
+    tag: "1.9.0"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ack-s3-controller
+  namespace: ack-system
+spec:
+  interval: 10m
+  timeout: 5m
+  chartRef:
+    kind: OCIRepository
+    name: ack-s3-chart
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    aws:
+      # Default region; eu-west-1 resources override it with the
+      # services.k8s.aws/region annotation on the CR.
+      region: eu-north-1
+      credentials:
+        secretName: aws-credentials
+        secretKey: credentials
+        profile: default
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ack-rds-controller
+  namespace: ack-system
+spec:
+  interval: 10m
+  timeout: 5m
+  chartRef:
+    kind: OCIRepository
+    name: ack-rds-chart
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    aws:
+      # Default region; eu-west-1 resources override it with the
+      # services.k8s.aws/region annotation on the CR.
+      region: eu-north-1
+      credentials:
+        secretName: aws-credentials
+        secretKey: credentials
+        profile: default
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ack-iam-controller
+  namespace: ack-system
+spec:
+  interval: 10m
+  timeout: 5m
+  chartRef:
+    kind: OCIRepository
+    name: ack-iam-chart
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    aws:
+      # IAM is a global service; region only selects the API endpoint.
+      region: eu-north-1
+      credentials:
+        secretName: aws-credentials
+        secretKey: credentials
+        profile: default

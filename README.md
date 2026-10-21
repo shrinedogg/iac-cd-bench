@@ -5,6 +5,7 @@ Measures how well AI models understand continuous-delivery workflows across seve
 | Stack | Delivery model | Paradigm |
 |---|---|---|
 | **knr-ops** | Flux + kustomize + konflate PR renders | Plain YAML, GitOps monorepo |
+| **krops** | Flux + CAPI (CAPA) + ACK, kustomize + flux build, konflate PR renders | Plain YAML, GitOps monorepo (post-2026-09 rewrite of knr-ops) |
 | **Crossplane** | CRD claims + Compositions + functions | Kubernetes-native control plane |
 | **Terraform** | plan/apply lifecycle + state files | Declarative HCL with state |
 | **Pulumi (Python)** | preview/stack + native Python | General-purpose language + state |

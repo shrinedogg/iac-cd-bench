@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: konflate-token
+    namespace: default
+type: Opaque
+data:
+    KONFLATE_TOKEN: ENC[AES256_GCM,data:vvtRSh3RLi/FieoYyeDtBrmf7pZ3ZolY9Lxq7s97Z7jh1BYvZKOZgA==,iv:dk+E1t+jZJaoLj26x0nb7DCnbhufgoMaz1qhDH0T2tg=,tag:EYCdVUKpsq7qMG6+tKzKlA==,type:str]
+    KONFLATE_WRITE_TOKEN: ENC[AES256_GCM,data:WF4hwFY2bMEGrb9b5bGxhY/CPGFP5szrwz88o7nmZNFslbXp/oqdh6ukGAk5h9Xc,iv:KUl67AOqsCAdKiYrgmaYigff9Iox78R4Mkq2+uMA1lQ=,tag:AyxYq4cY+nK8KyuFLt4oWg==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBNZ3pBVlo4WlluRmxEUDlD
+            L0dzbW5lQjBNcnEvWVYyODlaVG4wam9WT1FRCjhzMjJiTWFUZXN2bXRzNmFmZTRt
+            cVpzMmhRN0ZOVStDenlqYzUzeDg5cTgKLS0tIFlKUktSQ2x4TFNFV2s1cVlQQXhz
+            bmlIUGlhRjB4SXNpclVtaWdhaEZvdFkK9fiWAEliznwuA/UOnahnLikg0/YlK+5x
+            Ww9KNXKqecj8Y+WUlllj4h3lkeK7tT7tMuUfWjw9oOaJm5Y/FkN6wg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1amqtgevmdxutg07rkr3wggua43620zgncgfq53vkww0283wrgspqv9q0jw
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-21T13:37:23Z"
+    mac: ENC[AES256_GCM,data:5bjS1mQyspJduLLbMbMhz5/pSzmZTu1HI4s69AndXdf3J3wY85VPe92gVB7qmr6B3qDizeILvltjLbg3U6W7B7T2WB4A7Y/TX98Ujfz6FnRtVZMrWndTmffP87OXZPhUatF3+lCofM4ig+mRx1+DUeMMF8D0ifhEaNJJfRuGJfY=,iv:mdQW5zdRab5fVY+jgTOBXMWNQQZKjo4x03WlrNI/ZxI=,tag:NUFRdfy3dvl7CW/n/BruDg==,type:str]
+    version: 3.13.3

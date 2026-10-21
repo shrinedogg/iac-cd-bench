@@ -1,0 +1,27 @@
+stack: krops
+archetype: review
+id: "T5-review"
+title: "Review PR diff for security issues"
+answer_format: rubric
+
+stages:
+  lint:
+    enabled: false
+  static:
+    enabled: false
+  semantic:
+    enabled: false
+  e2e:
+    enabled: false
+
+rubric:
+  - criterion: "Identifies the plaintext database password committed to Git: a new plain Secret (stringData with the password) referenced by the new DBInstance instead of the repo's manageMasterUserPassword idiom — and that it is not named *.sops.yaml, so SOPS does not encrypt it"
+    weight: 3
+  - criterion: "Identifies the public S3 exposure on the new eu-central-1 bucket: blockPublicPolicy left false / a wildcard s3:GetObject grant for Principal *, and the DenyInsecureTransport TLS-deny policy missing from a bucket the other two have"
+    weight: 3
+  - criterion: "Identifies the IAM problems on the new reader role: the trust policy wildcarded to arn:aws:iam::*:root (any AWS account) and/or the inline policy granting s3:*/rds:* on krops-* instead of the scoped read-only actions"
+    weight: 2
+  - criterion: "Ranks correctly: the plaintext credential and the public bucket are merge-blocking (critical), the IAM trust/permission issues are high, the missing services.k8s.aws/region annotation and missing adoption-policy annotation on the new bucket are warnings (wrong-region creation / post-pivot bootstrap goes Terminal), and the eu-west-1 RDS class change and MachinePool scale-up are legitimate changes that are NOT security issues"
+    weight: 2
+  - criterion: "Gives concrete remediations: delete the plain Secret and keep manageMasterUserPassword: true (RDS/Secrets Manager holds the password), restore all four publicAccessBlock flags plus the DenyInsecureTransport statement and drop the public grant, scope the trust to arn:aws:iam::120392301094:root with least-privilege actions, and add the region and adopt-or-create annotations"
+    weight: 2

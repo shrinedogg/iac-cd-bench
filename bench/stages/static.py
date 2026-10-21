@@ -516,6 +516,74 @@ def _synthesize_xr_from_composition(workspace: Path, compositions: list[Path],
     return None
 
 
+def _krops_static(workspace: Path, results: list[str]) -> tuple[bool, bool]:
+    """Run kustomize build and flux build for krops.
+
+    Legacy helper kept in lockstep with KropsGate (bench.stages.gates), the
+    gate run_static actually dispatches to: `kustomize build` per
+    kustomization root, then `flux build` per content-located Flux
+    Kustomization. krops-specific: `mgmt/aws/addons/flux-apps/regions/` is a
+    ResourceSet render template — per-cluster dirs intentionally have no
+    `kustomization.yaml`, so they are not build targets (a model that adds
+    one gets built, which is correct).
+    """
+    passed = True
+
+    kustomizations = list(workspace.rglob("kustomization.yaml"))
+    for kfile in kustomizations:
+        overlay_dir = str(kfile.parent)
+        log.info("kustomize build %s", overlay_dir)
+        try:
+            proc = subprocess.run(
+                ["kustomize", "build", "--load-restrictor",
+                 "LoadRestrictionsNone", overlay_dir],
+                capture_output=True, text=True, timeout=60,
+            )
+            results.append(f"kustomize build {overlay_dir}: exit={proc.returncode}")
+            if proc.stderr:
+                results.append(f"ERR: {proc.stderr[:500]}")
+            if proc.returncode != 0:
+                passed = False
+        except subprocess.TimeoutExpired:
+            results.append(f"TIMEOUT: kustomize build {overlay_dir}")
+            passed = False
+        except FileNotFoundError:
+            results.append("NOT FOUND: kustomize")
+            log.warning("Command not found: kustomize")
+            passed = False
+
+    flux_kustomizations = _flux_kustomization_files(workspace)
+    for kfile in flux_kustomizations:
+        log.info("flux build kustomization %s", kfile)
+        try:
+            name, path = _flux_kustomization_target(kfile, workspace)
+            proc = subprocess.run(
+                ["flux", "build", "kustomization", name,
+                 "--path", str(path),
+                 "--kustomization-file", str(kfile),
+                 "--dry-run"],
+                capture_output=True, text=True, timeout=60,
+            )
+            results.append(f"flux build {kfile.name}: exit={proc.returncode}")
+            if proc.stderr:
+                results.append(f"ERR: {proc.stderr[:500]}")
+            if proc.returncode != 0:
+                passed = False
+        except subprocess.TimeoutExpired:
+            results.append(f"TIMEOUT: flux build {kfile}")
+            passed = False
+        except FileNotFoundError:
+            results.append("NOT FOUND: flux")
+            log.warning("Command not found: flux")
+            passed = False
+
+    if kustomizations or flux_kustomizations:
+        return passed, True
+
+    results.append("no kustomization, no Flux Kustomization in workspace")
+    return passed, False
+
+
 def _crossplane_static(workspace: Path, results: list[str]) -> tuple[bool, bool]:
     """Run crossplane render for Crossplane."""
     passed = True

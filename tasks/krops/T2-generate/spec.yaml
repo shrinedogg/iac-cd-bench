@@ -1,0 +1,22 @@
+stack: krops
+archetype: generate
+id: "T2-generate"
+title: "Onboard a new workload cluster: ResourceSet input + region bundle + cluster + data bucket"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - yq
+      - kubeconform
+  static:
+    enabled: true
+    tools:
+      - kustomize build
+      - flux build kustomization
+  semantic:
+    enabled: true
+    assertion_count: 7
+  e2e:
+    enabled: false

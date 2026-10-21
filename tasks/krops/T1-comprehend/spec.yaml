@@ -1,0 +1,27 @@
+stack: krops
+archetype: comprehend
+id: "T1-comprehend"
+title: "Predict delivery behavior from repo slice"
+answer_format: rubric
+
+stages:
+  lint:
+    enabled: false
+  static:
+    enabled: false
+  semantic:
+    enabled: false
+  e2e:
+    enabled: false
+
+rubric:
+  - criterion: "States the eu-west-1 RDS class change is an in-place ModifyDBInstance (same dbInstanceIdentifier, no replacement) because dbInstanceClass is a mutable ACK field, applied by the workload-resources Kustomization which is gated on ack-controllers (wait: true) so the ACK CRDs exist first"
+    weight: 2
+  - criterion: "For the new eu-central-1 region: the updated ResourceSet re-renders, a NEW Kustomization flux-apps-eu-central-1 appears in namespace default on the management cluster, its kubeConfig.secretRef points at the CAPI kubeconfig Secret eu-central-1-workload-kubeconfig, the per-region bundle (namespace, cluster-vars, FluxInstance) is remote-applied into flux-system on the workload cluster, and the FluxInstance installs Flux which then syncs workload/eu-central-01; the existing eu-north-1/eu-west-1 rendered Kustomizations are re-applied as no-ops"
+    weight: 3
+  - criterion: "States the eu-north-1 MachinePool replica change (3 to 5) is an in-place scale of the EKS managed node group by CAPA — no control-plane or cluster recreation"
+    weight: 2
+  - criterion: "States the cluster-vars change reaches the workload cluster via the rendered flux-apps-eu-west-1 Kustomization's next reconcile (in-place ConfigMap update in flux-system), and that the management flux-apps Kustomization is unaffected because the regions/ tree is not part of its kustomize path"
+    weight: 2
+  - criterion: "Explains the ordering: flux-apps dependsOn caaph-system (ResourceSet CRD + addon provider ready before the ResourceSet applies), per-region cluster Kustomizations dependOn capa-system (which health-checks the CAPA CRDs), and workload-resources dependsOn ack-controllers"
+    weight: 2

@@ -1,0 +1,137 @@
+---
+# ── EKS Cluster ──────────────────────────────────────────────────────────────
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: workload
+  namespace: default
+  labels:
+    fluxcd: enabled
+    region: eu-north-1
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+        - 192.168.0.0/16
+    services:
+      cidrBlocks:
+        - 10.128.0.0/12
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta2
+    kind: AWSManagedControlPlane
+    name: workload-control-plane
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+    kind: AWSManagedCluster
+    name: eu-north-1-workload
+---
+# ── EKS Managed Control Plane ────────────────────────────────────────────────
+apiVersion: controlplane.cluster.x-k8s.io/v1beta2
+kind: AWSManagedControlPlane
+metadata:
+  name: workload-control-plane
+  namespace: default
+spec:
+  region: eu-north-1
+  version: "1.34.6"
+  endpointAccess:
+    public: true
+    private: true
+  addons:
+    - name: vpc-cni
+      version: v1.21.1-eksbuild.7
+      conflictResolution: overwrite
+    - name: coredns
+      version: v1.13.2-eksbuild.4
+      conflictResolution: overwrite
+    - name: kube-proxy
+      version: v1.34.6-eksbuild.2
+      conflictResolution: overwrite
+  additionalTags:
+    krops.io/run-id: "${KROPS_RUN_ID:=manual}"
+    krops.io/revision: "${KROPS_REVISION:=unknown}"
+    krops.io/expires-at: "${KROPS_EXPIRES_AT:=never}"
+    krops.io/run-kind: "${KROPS_RUN_KIND:=manual}"
+
+---
+# ══════════════════════════════════════════════════════════════════════════════
+# Node Pool 1: x86 – cheapest on-demand Linux x86 (t3.medium, 2 vCPU / 4 GiB)
+# Replaces the former g4dn.xlarge GPU pool; no GPU label/taint (no accelerator).
+# ══════════════════════════════════════════════════════════════════════════════
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachinePool
+metadata:
+  name: workload-x86
+  namespace: default
+spec:
+  clusterName: workload
+  replicas: 1
+  template:
+    spec:
+      clusterName: workload
+      bootstrap:
+        dataSecretName: ""
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+        kind: AWSManagedMachinePool
+        name: workload-x86
+      version: "1.34.6"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSManagedMachinePool
+metadata:
+  name: workload-x86
+  namespace: default
+spec:
+  # Cheapest offered on-demand Linux x86 at 2 vCPU / 4 GiB in eu-north-1
+  # (t3a.medium is not offered in this region).
+  instanceType: t3.medium
+  scaling:
+    minSize: 1
+    maxSize: 2
+  amiType: AL2023_x86_64_STANDARD
+  capacityType: onDemand
+
+---
+# ══════════════════════════════════════════════════════════════════════════════
+# Node Pool 2: ARM – 3 highly-available Graviton nodes (t4g.medium)
+# ══════════════════════════════════════════════════════════════════════════════
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachinePool
+metadata:
+  name: workload-arm
+  namespace: default
+spec:
+  clusterName: workload
+  replicas: 3
+  template:
+    spec:
+      clusterName: workload
+      bootstrap:
+        dataSecretName: ""
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+        kind: AWSManagedMachinePool
+        name: workload-arm
+      version: "1.34.6"
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta2
+kind: AWSManagedMachinePool
+metadata:
+  name: workload-arm
+  namespace: default
+spec:
+  # Cheapest offered on-demand Linux ARM (Graviton2) at 2 vCPU / 4 GiB;
+  # AL2023 requires Graviton2+ (Graviton1 a1 excluded).
+  instanceType: t4g.medium
+  scaling:
+    minSize: 3
+    maxSize: 5
+  amiType: AL2023_ARM_64_STANDARD
+  capacityType: onDemand
+  availabilityZones:
+    - eu-north-1a
+    - eu-north-1b
+    - eu-north-1c
+  labels:
+    node.kubernetes.io/arch: arm64

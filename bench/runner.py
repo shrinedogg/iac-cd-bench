@@ -31,8 +31,8 @@ from bench.stages import lint, static, semantic, e2e
 ROOT = Path(__file__).resolve().parent.parent
 TASKS_DIR = ROOT / "tasks"
 RESULTS_DIR = ROOT / "results"
-ALL_STACKS = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript", "chant", "bare"]
-GROUNDING_STACKS = frozenset({"knr-ops", "crossplane"})
+ALL_STACKS = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript", "chant", "bare", "krops"]
+GROUNDING_STACKS = frozenset({"knr-ops", "crossplane", "krops"})
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ def validate_grounding_stacks(
     if unsupported:
         names = ", ".join(unsupported)
         raise ValueError(
-            "--grounding supports knr-ops and crossplane only; "
+            "--grounding supports knr-ops, crossplane, and krops only; "
             f"unsupported stack(s): {names}"
         )
 
@@ -121,8 +121,8 @@ LANG_EXT = {"yaml": ".yaml", "yml": ".yaml", "json": ".json", "python": ".py",
 
 # Only extract YAML/JSON/Python/TypeScript/HCL blocks (skip shell, text, markdown)
 EXTRACT_LANGS = {"yaml", "yml", "json", "python", "py", "typescript", "ts", "hcl", "terraform"}
-# For K8s stacks (knr-ops, crossplane, bare), only extract manifests that look like K8s resources
-K8S_STACKS = {"knr-ops", "crossplane", "bare"}
+# For K8s stacks (knr-ops, crossplane, bare, krops), only extract manifests that look like K8s resources
+K8S_STACKS = {"knr-ops", "crossplane", "bare", "krops"}
 # For terraform, only extract .tf files
 TF_STACKS = {"terraform"}
 # For chant, the model writes TypeScript source (not the YAML the stack
@@ -1233,7 +1233,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("-k", type=int, default=3, help="Runs per task")
     parser.add_argument("--e2e", action="store_true", help="Include e2e validation tier")
     parser.add_argument("--grounding", action="store_true",
-                        help="Append upstream schemas to prompts (knr-ops and crossplane only)")
+                        help="Append upstream schemas to prompts (knr-ops, crossplane, and krops only)")
     parser.add_argument("--grounding-mode", default="one-shot", choices=list(GROUNDING_MODES),
                         help="Grounding arm: one-shot appends seed schemas to the prompt; "
                              "agentic lets the model fetch schemas via tools mid-generation")

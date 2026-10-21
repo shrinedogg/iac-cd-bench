@@ -666,20 +666,24 @@ class OpenAICompatAdapter(ModelAdapter):
         }
         if tools:
             payload["tools"] = tools
-        # gpt-5+ models use max_completion_tokens instead of max_tokens
-        if self.model.startswith("gpt-5"):
+        # gpt-5+/gpt-6 models use max_completion_tokens instead of max_tokens
+        # (gpt-6.x 400s on max_tokens: "Use 'max_completion_tokens' instead")
+        if self.model.startswith(("gpt-5", "gpt-6")):
             payload["max_completion_tokens"] = 8192
         else:
             payload["max_tokens"] = 8192
-        # gpt-5+ reasoning models reject temperature; kimi/qwen use reasoning_effort
+        # gpt-5+/gpt-6 reasoning models reject temperature; kimi/qwen use reasoning_effort
         if "kimi" in self.model.lower() or "qwen" in self.model.lower():
-            if self.reasoning_effort is not None:
-                payload["reasoning_effort"] = self.reasoning_effort
-            else:
-                payload["reasoning_effort"] = "max"
+            effort = self.reasoning_effort if self.reasoning_effort is not None else "max"
+            # qwen 3.8 (local vLLM, 2026-10 engine update) accepts
+            # xhigh/medium/low; "max" now 400s ("Supported types are xhigh
+            # (default), medium, and low"). Map the legacy levels.
+            if "qwen" in self.model.lower():
+                effort = {"max": "xhigh", "high": "medium"}.get(effort, effort)
+            payload["reasoning_effort"] = effort
             timeout = 600
-        elif self.model.startswith("gpt-5"):
-            # gpt-5+ models do not accept temperature
+        elif self.model.startswith(("gpt-5", "gpt-6")):
+            # gpt-5+/gpt-6 models do not accept temperature
             if self.reasoning_effort and self.reasoning_effort != "none":
                 payload["reasoning_effort"] = self.reasoning_effort
             timeout = 300

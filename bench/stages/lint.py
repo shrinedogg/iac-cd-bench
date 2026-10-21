@@ -114,6 +114,10 @@ LINT_COMMANDS: dict[str, list[tuple[str, list[str], str]]] = {
         ("yq", ["eval", ".", "--"], "parse all YAML"),
         ("kubeconform", ["-summary", "-ignore-missing-schemas"], "validate CRDs"),
     ],
+    "krops": [
+        ("yq", ["eval", ".", "--"], "parse all YAML"),
+        ("kubeconform", ["-summary", "-ignore-missing-schemas"], "validate CRDs"),
+    ],
 }
 
 
@@ -172,7 +176,7 @@ def run_lint(workspace: Path, stack: str) -> dict:
 
     # Find files for YAML stacks
     yaml_files = list(workspace.rglob("*.yaml")) + list(workspace.rglob("*.yml"))
-    if stack in ("knr-ops", "crossplane", "bare"):
+    if stack in ("knr-ops", "crossplane", "bare", "krops"):
         files = [str(f) for f in yaml_files]
         if not files:
             return inapplicable("no YAML files in workspace")
@@ -207,7 +211,7 @@ def run_lint(workspace: Path, stack: str) -> dict:
                 results.append(f"[{description}] no Kubernetes manifests to validate")
                 continue
             cmd_args = [cmd] + args + kubeconform_schema_args() + manifests
-        elif stack in ("knr-ops", "crossplane", "pulumi-typescript", "bare"):
+        elif stack in ("knr-ops", "crossplane", "pulumi-typescript", "bare", "krops"):
             cmd_args = [cmd] + args + files
         elif stack == "chant":
             # "chant lint ." already targets the workspace itself; only tsc

@@ -48,6 +48,9 @@ STACK_BINARIES: dict[str, tuple[str, ...]] = {
     "chant": ("chant", "tsc", "kubeconform", "npm"),
     # kubectl is gone: bare's static gate validates with kubeconform now (#81).
     "bare": ("yq", "kubeconform"),
+    # krops is a plain-K8s-YAML stack like knr-ops: kustomize builds the
+    # mgmt/<cloud> trees and flux build renders the Flux Kustomizations.
+    "krops": ("yq", "kubeconform", "kustomize", "flux"),
 }
 
 # Extra binaries the live e2e tier needs, on top of the stack's own.

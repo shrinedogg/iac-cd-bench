@@ -503,6 +503,134 @@ class KnrOpsGate:
 register(KnrOpsGate())
 
 
+class KropsGate:
+    """`kustomize build` per kustomization root, then `flux build` per Flux
+    Kustomization.
+
+    Mirrors KnrOpsGate: krops is the same plain-K8s-YAML delivery model
+    (Flux Kustomizations + kustomize trees), so it has the same locate-by-
+    content rules — a file only counts as a Flux Kustomization when its
+    content actually holds one, and `examined` counts rendered documents,
+    not commands run.
+
+    One krops-specific rule: the `mgmt/aws/addons/flux-apps/regions/` tree is
+    a ResourceSet *render template* — per-cluster dirs are intentionally
+    absent from `regions/kustomization.yaml` (the operator renders them into
+    the management cluster at runtime). Those dirs carry no
+    `kustomization.yaml` in krops' idiom, so they are not build targets; a
+    model that wires one in gets built like any other root, which is the
+    correct behavior, not a gate defect.
+    """
+
+    stack = "krops"
+
+    def run(self, workspace: Path) -> StageResult:
+        from bench.stages.static import _flux_kustomization_files, _flux_kustomization_target
+
+        overlays = sorted({f.parent for f in workspace.rglob("kustomization.yaml")})
+        flux_files = _flux_kustomization_files(workspace)
+        if not overlays and not flux_files:
+            return StageResult(
+                inapplicable=Inapplicable.NO_ARTIFACT,
+                reason="no kustomization and no Flux Kustomization in workspace",
+            )
+
+        result = StageResult()
+        kustomize = shutil.which("kustomize")
+        if kustomize is None and overlays:
+            return StageResult(inapplicable=Inapplicable.GATE_DEFECT,
+                               reason="kustomize is not on PATH")
+        for d in overlays:
+            argv = ("build", "--load-restrictor", "LoadRestrictionsNone", str(d))
+            try:
+                proc = subprocess.run([kustomize, *argv], capture_output=True,
+                                      text=True, timeout=TIMEOUT)
+            except subprocess.TimeoutExpired:
+                result.checks.append(Check(tool="kustomize", argv=argv,
+                                           exit_code=124, examined=0,
+                                           resolved_path=kustomize))
+                continue
+            rendered = sum(1 for ln in (proc.stdout or "").splitlines()
+                           if ln.startswith("kind:"))
+            result.checks.append(Check(
+                tool="kustomize", argv=argv, exit_code=proc.returncode,
+                examined=rendered, resolved_path=kustomize,
+                detail=(proc.stderr or "")[:400],
+            ))
+
+        flux = shutil.which("flux")
+        if flux is None and flux_files:
+            return StageResult(inapplicable=Inapplicable.GATE_DEFECT,
+                               reason="flux is not on PATH")
+        for f in flux_files:
+            name, path = _flux_kustomization_target(f, workspace)
+            argv = ("build", "kustomization", name,
+                    "--path", str(path),
+                    "--kustomization-file", str(f), "--dry-run")
+            try:
+                proc = subprocess.run([flux, *argv], capture_output=True,
+                                      text=True, timeout=TIMEOUT)
+            except subprocess.TimeoutExpired:
+                result.checks.append(Check(tool="flux", argv=argv,
+                                           exit_code=124, examined=0,
+                                           resolved_path=flux))
+                continue
+            rendered = sum(1 for ln in (proc.stdout or "").splitlines()
+                           if ln.startswith("kind:"))
+            result.checks.append(Check(
+                tool="flux", argv=argv, exit_code=proc.returncode,
+                examined=rendered, resolved_path=flux,
+                detail=(proc.stderr or "")[:400],
+            ))
+        return result
+
+    def fixture_pass(self, tmp: Path) -> Path:
+        """A mgmt slice in krops shape: one kustomize root plus a Flux
+        Kustomization content-located by the same rules as KnrOpsGate."""
+        ws = tmp / "krops-good"
+        (ws / "mgmt" / "aws" / "clusters" / "eu-north-1" / "staging").mkdir(
+            parents=True, exist_ok=True)
+        (ws / "mgmt" / "aws" / "clusters" / "eu-north-1" / "staging" / "cluster.yaml").write_text(
+            "apiVersion: cluster.x-k8s.io/v1beta1\nkind: Cluster\n"
+            "metadata:\n  name: krops-eu-north-1-staging\n"
+            "spec:\n  clusterNetwork: {}\n"
+        )
+        (ws / "mgmt" / "aws" / "clusters" / "eu-north-1" / "staging" / "kustomization.yaml").write_text(
+            "apiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\n"
+            "resources:\n  - cluster.yaml\n"
+        )
+        (ws / "mgmt" / "aws" / "clusters" / "eu-north-1" / "kustomization.yaml").write_text(
+            "apiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\n"
+            "resources:\n  - staging\n"
+        )
+        (ws / "mgmt" / "aws" / "clusters" / "kustomization.yaml").write_text(
+            "apiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\n"
+            "resources:\n  - eu-north-1\n"
+        )
+        (ws / "mgmt" / "aws" / "clusters" / "flux-ks.yaml").write_text(
+            "apiVersion: kustomize.toolkit.fluxcd.io/v1\nkind: Kustomization\n"
+            "metadata:\n  name: clusters\n  namespace: flux-system\n"
+            "spec:\n  path: ./mgmt/aws/clusters\n  prune: true\n"
+            "  interval: 5m\n"
+        )
+        return ws
+
+    def fixture_fail(self, tmp: Path) -> Path:
+        """A kustomization referencing a base that does not exist -- the real
+        error models make when they point a per-cluster dir at the wrong path."""
+        ws = tmp / "krops-bad"
+        (ws / "mgmt" / "aws" / "clusters" / "eu-west-1" / "staging").mkdir(
+            parents=True, exist_ok=True)
+        (ws / "mgmt" / "aws" / "clusters" / "eu-west-1" / "staging" / "kustomization.yaml").write_text(
+            "apiVersion: kustomize.config.k8s.io/v1beta1\nkind: Kustomization\n"
+            "resources:\n  - ./cluster\n  - ./nodes\n"
+        )
+        return ws
+
+
+register(KropsGate())
+
+
 class ChantGate:
     """`chant build` to YAML, kubeconform over the emitted manifests, then any
     declared plan scenarios.

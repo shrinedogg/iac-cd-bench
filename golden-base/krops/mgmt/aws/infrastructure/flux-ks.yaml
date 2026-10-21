@@ -1,0 +1,157 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/cert-manager
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: capi-operator
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/capi-operator
+  dependsOn:
+    - name: cert-manager
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: capa-identity
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/aws-identity
+  dependsOn:
+    - name: capi-operator
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: aws-managed-clusters
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/aws-clusters-resources
+  dependsOn:
+    - name: capa-identity
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ack-controllers
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 10m
+  prune: true
+  # wait: true so workload-resources and aws-global-iam only apply once the
+  # ACK S3/RDS/IAM HelmReleases (and their CRDs) are fully Ready.
+  wait: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/ack-controllers
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: workload-resources
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  prune: true
+  # wait: false — the DBInstance CR takes minutes to reach Ready in AWS;
+  # ordering only needs the CRDs, which dependsOn + ack-controllers'
+  # wait: true already guarantees.
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/workload-resources
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: krops-run
+        optional: true
+  dependsOn:
+    - name: ack-controllers
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: aws-global-iam
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/aws-global-iam
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: krops-run
+        optional: true
+  dependsOn:
+    - name: ack-controllers
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: konflate
+  namespace: flux-system
+spec:
+  interval: 5m
+  retryInterval: 2m
+  timeout: 5m
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./mgmt/aws/infrastructure/konflate
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age

@@ -1,0 +1,62 @@
+---
+# ══════════════════════════════════════════════════════════════════════════════
+# IAM user for humans: log into the AWS console and assume the per-cluster
+# read-only reader roles (krops-<cluster>-reader, see
+# mgmt/aws/infrastructure/workload-resources/role.yaml) to view the resources
+# this repo creates.
+# Reconciled by the ACK IAM controller on this (management) cluster.
+#
+# The only permission is sts:AssumeRole on krops-*-reader roles — the user
+# can see nothing directly; everything goes through a reader role. The account
+# ID is wildcarded because ${AWS_ACCOUNT_ID} substitution is not available on
+# the management cluster (no cluster-vars ConfigMap here), the same reason
+# ../workload-resources/ uses literal values.
+#
+# services.k8s.aws/adoption-policy: adopt-or-create — this CR is applied twice
+# per bootstrap (the kind bootstrap cluster creates the user before the pivot;
+# the management cluster's Flux re-applies the CR after it), so the post-pivot
+# controller must adopt the existing user instead of going Terminal with
+# "Resource already exists".
+#
+# NOTE: ACK's User resource cannot manage console passwords (there is no
+# LoginProfile resource in the ACK IAM controller). After the user is
+# reconciled, set the console password ONCE imperatively:
+#
+#   aws iam create-login-profile --user-name krops-reader \
+#     --password '<initial-password>' --password-reset-required
+#
+# See the "Console access" section in docs/aws-iam.md.
+# ══════════════════════════════════════════════════════════════════════════════
+apiVersion: iam.services.k8s.aws/v1alpha1
+kind: User
+metadata:
+  name: reader-user
+  namespace: ack-system
+  annotations:
+    services.k8s.aws/adoption-policy: adopt-or-create
+spec:
+  name: krops-reader
+  inlinePolicies:
+    assume-krops-reader-roles: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "AssumeKropsReaderRoles",
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::*:role/krops-*-reader"
+          }
+        ]
+      }
+  tags:
+    - key: managed-by
+      value: flux-ack
+    - key: krops.io/run-id
+      value: "${KROPS_RUN_ID:=manual}"
+    - key: krops.io/revision
+      value: "${KROPS_REVISION:=unknown}"
+    - key: krops.io/expires-at
+      value: "${KROPS_EXPIRES_AT:=never}"
+    - key: krops.io/run-kind
+      value: "${KROPS_RUN_KIND:=manual}"

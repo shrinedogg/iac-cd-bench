@@ -15,7 +15,7 @@ A stateless web application with supporting infrastructure, deployed to two envi
 | RDS PostgreSQL instance | db.t3.micro, single AZ | db.t3.medium, multi-AZ, encrypted |
 | IAM user + role (service account) | programmatic access | least-privilege role, OIDC trust |
 | HTTPS exposure | internal ALB or CloudFront | CloudFront + ACM cert |
-| Secret (DB connection string) | SOPS-encrypted (knr-ops), Crossplane SecretStore/ProviderSecret, Terraform `-var-file` or SOPS with `sops` provider, Pulumi `ConfigSecret`, chant referenced-provenance secret ref (no committed ciphertext — see `golden-base/chant/README.md`, "Secrets: the SOPS interim") |
+| Secret (DB connection string) | SOPS-encrypted (knr-ops, krops), Crossplane SecretStore/ProviderSecret, Terraform `-var-file` or SOPS with `sops` provider, Pulumi `ConfigSecret`, chant referenced-provenance secret ref (no committed ciphertext — see `golden-base/chant/README.md`, "Secrets: the SOPS interim") |
 
 ### Environments
 
@@ -26,6 +26,7 @@ Two environments: `dev` and `prod`. Each has the same resource topology but diff
 - **Terraform**: workspaces or `*-dev.tfvars`/`*-prod.tfvars`
 - **Pulumi**: stack configs (`dev.yaml`, `prod.yaml`)
 - **chant**: two entrypoint directories, one build root each (`src/envs/dev`, `src/envs/prod`), invoking shared `Composite()` factories with per-environment props. `chant build src/envs/dev` never reads anything under `src/envs/prod`. Build-time parameters (`--param env=prod` over a single entrypoint) are the available alternative and are deliberately not used — see `golden-base/chant/README.md`, "Environment isolation".
+- **krops**: `mgmt/<cloud>/` + `workload/<cloud>/` layout with per-cluster directories (`clusters/<region>/<env>/` for the CAPI cluster, `workload/<cluster>-01/` for what the workload cluster's own Flux syncs) and per-cluster `cluster-vars` ConfigMap values delivered through the templated Flux ResourceSet region bundles; sizing and region differences live in the per-cluster directories, not in a base/overlay pair. krops tracks `staging`/production per region rather than the canonical dev/prod pair (legacy `knr-ops` line above kept for the historical stack).
 
 ## Acceptance Criteria (applies to all stacks)
 

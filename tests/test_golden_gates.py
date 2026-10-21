@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parent.parent
 GOLDEN = ROOT / "golden-base"
 
 STACKS = ["knr-ops", "crossplane", "terraform", "pulumi-python",
-          "pulumi-typescript", "chant", "bare"]
+          "pulumi-typescript", "chant", "bare", "krops"]
 
 # stack -> why it cannot pass yet
 # Empty, and it must stay that way: every stack passes its own golden. An entry

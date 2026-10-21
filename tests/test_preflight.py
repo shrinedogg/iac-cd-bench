@@ -28,6 +28,7 @@ STATIC_SOURCE = (ROOT / "bench" / "stages" / "static.py").read_text()
 
 HELPER_TO_STACKS = {
     "_knr_ops_static": ["knr-ops"],
+    "_krops_static": ["krops"],
     "_crossplane_static": ["crossplane"],
     "_terraform_static": ["terraform"],
     "_pulumi_static": ["pulumi-python", "pulumi-typescript"],

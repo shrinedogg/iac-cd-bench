@@ -35,10 +35,10 @@ def test_runner_executes():
 
 def test_grounding_validation_accepts_only_supported_stacks():
     runner.validate_grounding_stacks(
-        ["knr-ops", "crossplane"], grounding=True, condition="cold", results_tag="grounded"
+        ["knr-ops", "crossplane", "krops"], grounding=True, condition="cold", results_tag="grounded"
     )
 
-    with pytest.raises(ValueError, match="supports knr-ops and crossplane only"):
+    with pytest.raises(ValueError, match="supports knr-ops, crossplane, and krops only"):
         runner.validate_grounding_stacks(
             ["terraform"], grounding=True, condition="cold", results_tag="grounded"
         )
@@ -310,8 +310,9 @@ def test_openai_compat_default_api_key_is_ascii():
 
 
 def test_task_dirs_exist():
-    """All 30 task directories exist (42 once chant and bare land, see #3/#4, #37/#38)."""
-    stacks = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript", "chant", "bare"]
+    """All 48 task directories exist (7 stacks before chant and bare landed,
+    see #3/#4, #37/#38; krops lands fully materialized)."""
+    stacks = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript", "chant", "bare", "krops"]
     task_names = ["T1-comprehend", "T2-generate", "T3-modify", "T4-debug", "T5-review", "T6-semantics"]
     for stack in stacks:
         if stack == "chant" and not (TASKS_DIR / stack).exists():
@@ -329,7 +330,7 @@ def test_task_dirs_exist():
 
 def test_semantics_tasks_have_graders():
     """T6-semantics tasks ship a seed, golden key, and 7-question grader."""
-    stacks = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript", "chant", "bare"]
+    stacks = ["knr-ops", "crossplane", "terraform", "pulumi-python", "pulumi-typescript", "chant", "bare", "krops"]
     for stack in stacks:
         t6 = TASKS_DIR / stack / "T6-semantics"
         if stack == "chant" and not t6.exists():
@@ -364,6 +365,7 @@ def test_golden_implementations_exist():
     assert (golden_dirs / "terraform" / "infrastructure.tf").exists()
     assert (golden_dirs / "pulumi-python" / "__main__.py").exists()
     assert (golden_dirs / "pulumi-typescript" / "index.ts").exists()
+    assert (golden_dirs / "krops" / "mgmt" / "aws" / "addons" / "flux-apps" / "flux-apps-rset.yaml").exists()
     # TODO(#3): golden-base/chant doesn't exist yet; assert its entry point
     # unconditionally once it lands instead of this existence-gated check.
     chant_dir = golden_dirs / "chant"

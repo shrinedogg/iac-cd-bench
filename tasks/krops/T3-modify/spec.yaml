@@ -1,0 +1,21 @@
+stack: krops
+archetype: modify
+id: "T3-modify"
+title: "Production-grade the eu-west-1 cluster without touching eu-north-1"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - yq
+      - kubeconform
+  static:
+    enabled: true
+    tools:
+      - kustomize build
+  semantic:
+    enabled: true
+    assertion_count: 5
+  e2e:
+    enabled: false

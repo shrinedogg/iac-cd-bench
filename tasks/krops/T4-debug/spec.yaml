@@ -1,0 +1,25 @@
+stack: krops
+archetype: debug
+id: "T4-debug"
+title: "Fix SOPS creation rule that stopped matching most of the repo's encrypted secrets"
+answer_format: code
+
+stages:
+  lint:
+    enabled: true
+    tools:
+      - yq
+      - kubeconform
+  static:
+    enabled: true
+    tools:
+      - kustomize build
+  semantic:
+    enabled: true
+    assertion_count: 3
+  e2e:
+    enabled: false
+
+defect:
+  description: ".sops.yaml's single creation rule was narrowed to path_regex mgmt/aws/addons/flux-apps/regions/eu-north-1/.*\\.sops\\.yaml$ (a leftover test scope), so SOPS has no rule covering the eu-west-1 regional pull secret or the konflate token — every Flux Kustomization that decrypts a *.sops.yaml outside that one region fails with 'no matching creation rule found'"
+  fix: "Restore the creation rule's path_regex to cover all *.sops.yaml under mgmt/aws/, mgmt/azure/ and mgmt/gcp/ (the repo layout), keeping the age recipient and the ^(data|stringData)$ encrypted_regex exactly as they are; the seeded sops-encrypted manifests are not part of this PR"
